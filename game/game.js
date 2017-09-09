@@ -37,9 +37,10 @@ var NEXT_PIECE; // piece type
  /**
   * Piece representation, with a name and a structure
   */
-function Piece(name, structure) {
+function Piece(name, structure, origin_y) {
 	this.name = name;
 	this.structure = structure;
+	this.origin_y = origin_y;
 }
 
  /**
@@ -63,7 +64,7 @@ function launchGame() {
 	WELL.style.width = UNITE * NB_COLUMNS + "px";
 	WELL.style.height = UNITE * NB_ROWS + "px";
 	// Set next's dimensions
-	NEXT.style.width = UNITE * 4 + "px";
+	NEXT.style.width = UNITE * 5 + "px";
 	NEXT.style.height = UNITE * 4 + "px";
 	// Set matrix's dimensions
 	for (var r = 0; r < NB_ROWS; ++r) {
@@ -73,41 +74,63 @@ function launchGame() {
 		}
 		MATRIX.push(row);
 	}
-	console.log(MATRIX);
-	// Launch the timer
-	launchTimer();
+	// Start the timer
+	startTimer();
+	// Call the game clock
+	gameClock();
 	// Prepare a first piece
 	preparePiece();
 	// Launch a first piece
 	launchPiece();
+	launchPiece();
+}
+
+function gameClock() {
+	setTimeout(function() {
+		// Check for collision
+		// si colli et pas de piece launched, launch new piece
+		// Move down the current piece
+		// TODO
+		// Continue the game
+		gameClock();
+	}, SPEED);
 }
 
 /**
  * Counter of the time spent playing a game
  */
-function launchTimer() {
+function startTimer() {
 	setTimeout(function() {
 		TIME++;
-		launchTimer();
+		startTimer();
 	}, 1000);
 }
 
 /**
- * Put the prepared piece in the well
+ * Put the prepared piece in the well and prepare a new one
  */
 function launchPiece() {
 	// Take the next piece
 	CURRENT_PIECE = NEXT_PIECE;
 	// Display the piece in the well
 	displayPiece(CURRENT_PIECE, WELL);
+	// Move the launched piece on the middle of the well
+	var abs_origin_y = - CURRENT_PIECE.structure[0].length + CURRENT_PIECE.origin_y;
+	WELL.lastChild.style.marginLeft = UNITE * (Math.round(NB_COLUMNS / 2) + abs_origin_y) + "px";
+	// Prepare a new piece
+	preparePiece();
 }
 
 /**
- * Put a new piece in the board as the next one
+ * Put a new piece (instead of the current one) in the board as the next one
  */
 function preparePiece() {
 	// Generate a new piece
 	NEXT_PIECE = generatePiece();
+	// Clean the current next piece
+	if (NEXT.hasChildNodes()) {
+		NEXT.removeChild(NEXT.lastChild);
+	}
 	// Display the piece like the next one
 	displayPiece(NEXT_PIECE, NEXT);
 }
@@ -118,8 +141,9 @@ function preparePiece() {
 function generatePiece() {
 	var name = "";
 	var piece_structure = []; // rows's list
-
-	var rand_int = Math.round(Math.random() * 7);
+	var origin_y = 0;
+	
+	var rand_int = Math.round(Math.random() * 6);
 	
 	if (rand_int == 0) { // tetrimino O
 		name = "O";
@@ -128,12 +152,14 @@ function generatePiece() {
 			[1, 1],
 			[1, 1]
 		];
+		origin_y = 1;
 	} else if (rand_int == 1) { // tetrimino I
 		name = "I";
 		piece_structure =
 		[
 			[1, 1, 1, 1]
 		];
+		origin_y = 2;
 	} else if (rand_int == 2) { // tetrimino S
 		name = "S";
 		piece_structure =
@@ -141,6 +167,7 @@ function generatePiece() {
 			[0, 1, 1],
 			[1, 1, 0]
 		];
+		origin_y = 1;
 	} else if (rand_int == 3) { // tetrimino Z
 		name = "Z";
 		piece_structure =
@@ -148,6 +175,7 @@ function generatePiece() {
 			[1, 1, 0],
 			[0, 1, 1]
 		];
+		origin_y = 1;
 	} else if (rand_int == 4) { // tetrimino L
 		name = "L";
 		piece_structure =
@@ -155,6 +183,7 @@ function generatePiece() {
 			[1, 1, 1],
 			[1 ,0, 0]
 		];
+		origin_y = 1;
 	} else if (rand_int == 5) { // tetrimino J
 		name = "J";
 		piece_structure =
@@ -162,6 +191,7 @@ function generatePiece() {
 			[1, 1, 1],
 			[0, 0, 1]
 		];
+		origin_y = 1;
 	} else if (rand_int == 6) { // tetrimino T
 		name = "T";
 		piece_structure =
@@ -169,9 +199,10 @@ function generatePiece() {
 			[1, 1, 1],
 			[0, 1, 0]
 		];
+		origin_y = 1;
 	}
-
-	return new Piece(name, piece_structure);
+	
+	return new Piece(name, piece_structure, origin_y);
 }
 
 /**
@@ -204,6 +235,8 @@ function displayPiece(piece, node) {
 function keyPressed(event) {
 	switch (event.key) {
 		case "ArrowLeft": // horizontal move
+			// Check for collision
+
 			break;
 		case "ArrowRight": // horizontal move
 			break;

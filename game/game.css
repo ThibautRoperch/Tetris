@@ -10,6 +10,8 @@ board {
 }
 
 well, next {
+    display: flex;
+    border: 6px solid gray;
     background: black;
 }
 
@@ -18,16 +20,14 @@ well {
 }
 
 next {
-    justify-content: space-around;
-    padding: 10px;
+    align-items: center;
+    justify-content: center;
 }
 
 tetrimino {
+    float: left;
     display: flex;
-}
-
-square {
-    display: block;
+    flex-wrap: wrap;
 }
 
 tetrimino.O square, square.yellow {
@@ -58,6 +58,6 @@ tetrimino.T square, square.purple {
     background-color: purple;
 }
 
-tetrimino square.transparent {
+tetrimino square.invisible {
     background-color: transparent;
 }
