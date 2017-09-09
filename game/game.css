@@ -1,0 +1,63 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+board {
+    display: flex;
+    padding: 20px;
+    background: silver;
+}
+
+well, next {
+    background: black;
+}
+
+well {
+    margin-right: 20px;
+}
+
+next {
+    justify-content: space-around;
+    padding: 10px;
+}
+
+tetrimino {
+    display: flex;
+}
+
+square {
+    display: block;
+}
+
+tetrimino.O square, square.yellow {
+    background-color: yellow;
+}
+
+tetrimino.I square, square.cyan {
+    background-color: cyan;
+}
+
+tetrimino.S square, square.green {
+    background-color: green;
+}
+
+tetrimino.Z square, square.red {
+    background-color: red;
+}
+
+tetrimino.L square, square.orange {
+    background-color: orange;
+}
+
+tetrimino.J square, square.blue {
+    background-color: blue;
+}
+
+tetrimino.T square, square.purple {
+    background-color: purple;
+}
+
+tetrimino square.transparent {
+    background-color: transparent;
+}
