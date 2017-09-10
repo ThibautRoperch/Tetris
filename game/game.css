@@ -1,63 +1,68 @@
 * {
-    margin: 0;
-    padding: 0;
+	margin: 0;
+	padding: 0;
 }
 
 board {
-    display: flex;
-    padding: 20px;
-    background: silver;
+	display: flex;
+	padding: 20px;
+	background: silver;
 }
 
 well, next {
-    display: flex;
-    border: 6px solid gray;
-    background: black;
+	display: flex;
+	border: 6px solid gray;
+	background: black;
 }
 
 well {
-    margin-right: 20px;
+	margin-right: 20px;
 }
 
 next {
-    align-items: center;
-    justify-content: center;
+	align-items: center;
+	justify-content: center;
 }
 
 tetrimino {
-    float: left;
-    display: flex;
-    flex-wrap: wrap;
+	position: absolute;
+	display: flex;
+	flex-wrap: wrap;
+}
+
+square {
+	box-shadow: 0 0 1px 1px black inset;
+	transition: all 0.2s ease;
 }
 
 tetrimino.O square, square.yellow {
-    background-color: yellow;
+	background-color: yellow;
 }
 
 tetrimino.I square, square.cyan {
-    background-color: cyan;
+	background-color: cyan;
 }
 
 tetrimino.S square, square.green {
-    background-color: green;
+	background-color: green;
 }
 
 tetrimino.Z square, square.red {
-    background-color: red;
+	background-color: red;
 }
 
 tetrimino.L square, square.orange {
-    background-color: orange;
+	background-color: orange;
 }
 
 tetrimino.J square, square.blue {
-    background-color: blue;
+	background-color: blue;
 }
 
 tetrimino.T square, square.purple {
-    background-color: purple;
+	background-color: purple;
 }
 
 tetrimino square.invisible {
-    background-color: transparent;
+	background-color: transparent;
 }

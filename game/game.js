@@ -37,10 +37,11 @@ var NEXT_PIECE; // piece type
  /**
   * Piece representation, with a name and a structure
   */
-function Piece(name, structure, origin_y) {
+function Piece(name, structure, origin, position) {
 	this.name = name;
 	this.structure = structure;
-	this.origin_y = origin_y;
+	this.origin = origin;
+	this.position = position;
 }
 
  /**
@@ -82,18 +83,18 @@ function launchGame() {
 	preparePiece();
 	// Launch a first piece
 	launchPiece();
-	launchPiece();
 }
 
 function gameClock() {
 	setTimeout(function() {
-		// Check for collision
-		// si colli et pas de piece launched, launch new piece
+		// Check for collision if the current piece moves
+		// si colli, launch piece, sinon move down
 		// Move down the current piece
-		// TODO
+		CURRENT_PIECE.position[1]++;
+		actualizeCurrentPiecePosition();
 		// Continue the game
 		gameClock();
-	}, SPEED);
+	}, 1000/SPEED);
 }
 
 /**
@@ -115,8 +116,7 @@ function launchPiece() {
 	// Display the piece in the well
 	displayPiece(CURRENT_PIECE, WELL);
 	// Move the launched piece on the middle of the well
-	var abs_origin_y = - CURRENT_PIECE.structure[0].length + CURRENT_PIECE.origin_y;
-	WELL.lastChild.style.marginLeft = UNITE * (Math.round(NB_COLUMNS / 2) + abs_origin_y) + "px";
+	actualizeCurrentPiecePosition();
 	// Prepare a new piece
 	preparePiece();
 }
@@ -141,7 +141,7 @@ function preparePiece() {
 function generatePiece() {
 	var name = "";
 	var piece_structure = []; // rows's list
-	var origin_y = 0;
+	var origin_x = 0;
 	
 	var rand_int = Math.round(Math.random() * 6);
 	
@@ -152,14 +152,14 @@ function generatePiece() {
 			[1, 1],
 			[1, 1]
 		];
-		origin_y = 1;
+		origin_x = 1;
 	} else if (rand_int == 1) { // tetrimino I
 		name = "I";
 		piece_structure =
 		[
 			[1, 1, 1, 1]
 		];
-		origin_y = 2;
+		origin_x = 2;
 	} else if (rand_int == 2) { // tetrimino S
 		name = "S";
 		piece_structure =
@@ -167,7 +167,7 @@ function generatePiece() {
 			[0, 1, 1],
 			[1, 1, 0]
 		];
-		origin_y = 1;
+		origin_x = 1;
 	} else if (rand_int == 3) { // tetrimino Z
 		name = "Z";
 		piece_structure =
@@ -175,7 +175,7 @@ function generatePiece() {
 			[1, 1, 0],
 			[0, 1, 1]
 		];
-		origin_y = 1;
+		origin_x = 1;
 	} else if (rand_int == 4) { // tetrimino L
 		name = "L";
 		piece_structure =
@@ -183,7 +183,7 @@ function generatePiece() {
 			[1, 1, 1],
 			[1 ,0, 0]
 		];
-		origin_y = 1;
+		origin_x = 1;
 	} else if (rand_int == 5) { // tetrimino J
 		name = "J";
 		piece_structure =
@@ -191,7 +191,7 @@ function generatePiece() {
 			[1, 1, 1],
 			[0, 0, 1]
 		];
-		origin_y = 1;
+		origin_x = 1;
 	} else if (rand_int == 6) { // tetrimino T
 		name = "T";
 		piece_structure =
@@ -199,10 +199,12 @@ function generatePiece() {
 			[1, 1, 1],
 			[0, 1, 0]
 		];
-		origin_y = 1;
+		origin_x = 1;
 	}
 	
-	return new Piece(name, piece_structure, origin_y);
+	var position_x = Math.round(NB_COLUMNS / 2) - piece_structure[0].length + origin_x;
+
+	return new Piece(name, piece_structure, [origin_x, 0], [position_x, 0]);
 }
 
 /**
@@ -230,21 +232,51 @@ function displayPiece(piece, node) {
 }
 
 /**
+ * Actualize the position of the piece moving in the well
+ */
+function actualizeCurrentPiecePosition() {
+	WELL.lastChild.style.marginLeft = UNITE * CURRENT_PIECE.position[0] + "px";	
+	WELL.lastChild.style.marginTop = UNITE * CURRENT_PIECE.position[1] + "px";	
+}
+
+/**
  * Manage the HTML onkeydown event
  */
 function keyPressed(event) {
 	switch (event.key) {
 		case "ArrowLeft": // horizontal move
 			// Check for collision
-
+			// Move left the current piece
+			CURRENT_PIECE.position[0]--;
+			actualizeCurrentPiecePosition();
 			break;
 		case "ArrowRight": // horizontal move
+			// Move right the current piece
+			CURRENT_PIECE.position[0]++;
+			actualizeCurrentPiecePosition();
 			break;
 		case "ArrowUp": // hard drop
+			// Move to the closer square the current piece
+			actualizeCurrentPiecePosition();
 			break;
 		case "ArrowDown": // soft drop
+			// Move down the current piece
+			CURRENT_PIECE.position[1]++;
+			actualizeCurrentPiecePosition();
 			break;
 		default:
 			break;
 	}
 }
+
+/*
+
+ 0 1 2 3 4
+0 +------->
+1 |         x
+2 |
+3 |
+  v
+    y
+
+*/
