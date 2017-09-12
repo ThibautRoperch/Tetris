@@ -9,14 +9,19 @@ board {
 	background: silver;
 }
 
-well, next {
+well, hitboxes, next {
 	display: flex;
 	border: 6px solid gray;
 	background: black;
 }
 
-well {
+well, hitboxes {
 	margin-right: 20px;
+}
+
+hitboxes {
+	flex-wrap: wrap;
+	background: white;
 }
 
 next {
@@ -35,34 +40,35 @@ square {
 	transition: all 0.2s ease;
 }
 
-tetrimino.O square, square.yellow {
+square.O {
 	background-color: yellow;
 }
 
-tetrimino.I square, square.cyan {
+square.I {
 	background-color: cyan;
 }
 
-tetrimino.S square, square.green {
+square.S {
 	background-color: green;
 }
 
-tetrimino.Z square, square.red {
+square.Z {
 	background-color: red;
 }
 
-tetrimino.L square, square.orange {
+square.L {
 	background-color: orange;
 }
 
-tetrimino.J square, square.blue {
+square.J {
 	background-color: blue;
 }
 
-tetrimino.T square, square.purple {
+square.T {
 	background-color: purple;
 }
 
-tetrimino square.invisible {
+square.invisible {
 	background-color: transparent;
+	box-shadow: none;
 }

@@ -17,6 +17,7 @@ var TIME = 0; // seconds
 
 var UNITE = 20; // pixels
 var WELL = document.getElementsByTagName("well")[0];
+var HITBOXES = document.getElementsByTagName("hitboxes")[0];
 var NEXT = document.getElementsByTagName("next")[0];
 var COLUMNS_NB = 10;
 var ROWS_NB = 22;
@@ -32,34 +33,6 @@ var SQUARE_ID = 0; // A.I.
 
 
 /**************************
- * Classes
- */
-
-/**
- * Piece representation, with a name, a structure, a relative origin and the absolute position of her origin
- */
-class Piece {
-	constructor(name, structure, squares_nb, origin, position, rotation) {
-		this.name = name;
-		this.structure = structure;
-		this.squares_nb = squares_nb;
-		this.origin = origin;
-		this.position = position;
-		this.rotation = rotation;
-	}
-}
-
-/**
- * Square representation, with an id corresponding with the id's HTML square
- */
-class Square {
-	constructor(id) {
-		this.id = id;
-	}
-}
-
-
-/**************************
  * Game functions
  */
 
@@ -68,12 +41,11 @@ class Square {
  * Set the well's dimensions for the front-end, matrix's dimensions for the back-end, and launch + prepare the first pieces
  */
 function launchGame() {
-	// Set well's dimensions
+	// Set well's and hitboxes' dimensions
 	WELL.style.width = UNITE * COLUMNS_NB + "px";
 	WELL.style.height = UNITE * ROWS_NB + "px";
-	// Set next's dimensions
-	NEXT.style.width = UNITE * 5 + "px";
-	NEXT.style.height = UNITE * 4 + "px";
+	HITBOXES.style.width = UNITE * COLUMNS_NB + "px";
+	HITBOXES.style.height = UNITE * ROWS_NB + "px";
 	// Set matrix's dimensions
 	for (var r = 0; r < ROWS_NB; ++r) {
 		var row = [];
@@ -88,22 +60,25 @@ function launchGame() {
 	gameClock();
 	// Prepare a first piece
 	preparePiece();
+	// Set next's dimensions
+	NEXT.style.width = UNITE * (NEXT_PIECE.getStructure()[0].length + 2) + "px";
+	NEXT.style.height = UNITE * (NEXT_PIECE.getStructure().length + 2) + "px";
 	// Launch a first piece
 	launchPiece();
 }
 
 function gameClock() {
-	setTimeout(function() {
+	setTimeout(function() {	
 		// Check for collision if the current piece moves down
-		// If the piece can move down, move down the current piece and actualize the display
+		// If the piece can move down, move down the current piece
  		// Else, block the piece at her position and launch a new piece
-		if (currentPieceCanMoveDown()) {
-			CURRENT_PIECE.position[1]++;
-			actualizeCurrentPiecePosition();
+		if (CURRENT_PIECE.canMoveDown()) {
+			CURRENT_PIECE.moveDown();
 		} else {
 			blockCurrentPiece();
 			launchPiece();
 		}
+		displayMatrix();
 		// Continue the game
 		gameClock();
 	}, 1000 / SPEED);
@@ -126,9 +101,9 @@ function launchPiece() {
 	// Take the next piece
 	CURRENT_PIECE = NEXT_PIECE;
 	// Display the piece in the well
-	displayPiece(CURRENT_PIECE, WELL);
+	displayPiece(CURRENT_PIECE.getStructure(), WELL, CURRENT_PIECE.getType());
 	// Move the launched piece on the middle of the well
-	actualizeCurrentPiecePosition();
+	actualizeCurrentPiece();
 	// Prepare a new piece
 	preparePiece();
 }
@@ -144,266 +119,213 @@ function preparePiece() {
 		NEXT.removeChild(NEXT.lastChild);
 	}
 	// Display the piece like the next one
-	displayPiece(NEXT_PIECE, NEXT);
+	displayPiece(NEXT_PIECE.getPreview(), NEXT, NEXT_PIECE.getType());
 }
 
 /**
  * Randomly generate a new piece, among the 7 tetriminos
  */
 function generatePiece() {
-	var name = "";
-	var piece_structure = []; // rows's list
-	var squares_nb = 0;
-	var origin = [0, 0];
+	var type = "";
 	
 	var rand_int = Math.round(Math.random() * 6);
 	
 	if (rand_int == 0) { // tetrimino O
-		name = "O";
-		piece_structure =
-		[
-			[1, 1],
-			[1, 1]
-		];
-		squares_nb = 4;
-		origin = [1, 0];
+		type = "O";
 	} else if (rand_int == 1) { // tetrimino I
-		name = "I";
-		piece_structure =
-		[
-			[1, 1, 1, 1]
-		];
-		squares_nb = 4;
-		origin = [2, 0];
+		type = "I";
 	} else if (rand_int == 2) { // tetrimino S
-		name = "S";
-		piece_structure =
-		[
-			[0, 1, 1],
-			[1, 1, 0]
-		];
-		squares_nb = 4;
-		origin = [1, 0];
+		type = "S";
 	} else if (rand_int == 3) { // tetrimino Z
-		name = "Z";
-		piece_structure =
-		[
-			[1, 1, 0],
-			[0, 1, 1]
-		];
-		squares_nb = 4;
-		origin = [1, 0];
+		type = "Z";
 	} else if (rand_int == 4) { // tetrimino L
-		name = "L";
-		piece_structure =
-		[
-			[1, 1, 1],
-			[1 ,0, 0]
-		];
-		squares_nb = 4;
-		origin = [1, 0];
+		type = "L";
 	} else if (rand_int == 5) { // tetrimino J
-		name = "J";
-		piece_structure =
-		[
-			[1, 1, 1],
-			[0, 0, 1]
-		];
-		squares_nb = 4;
-		origin = [1, 0];
+		type = "J";
 	} else if (rand_int == 6) { // tetrimino T
-		name = "T";
-		piece_structure =
-		[
-			[1, 1, 1],
-			[0, 1, 0]
-		];
-		squares_nb = 4;
-		origin = [1, 0];
+		type = "T";
 	}
-	
-	var position_x = Math.round(COLUMNS_NB / 2); // default x position of the piece's origin
-	var position_y = 0; // default y position of the piece's origin
+
 	var rotation = 0; // default rotation of the piece
 
-	return new Piece(name, piece_structure, squares_nb, origin, [position_x, position_y], rotation);
+	return new Piece(type, rotation);
 }
 
 /**
- * Display a given piece in the given HTML node
+ * Display the given list of rows of squares in the given HTML node, with the given class name
  */
-function displayPiece(piece, node) {
+function displayPiece(rows, node, class_name) {
 	var tetrimino = document.createElement("tetrimino");
-	tetrimino.style.width = UNITE * piece.structure[0].length + "px";
-	tetrimino.style.height = UNITE * piece.structure.length + "px";
-	tetrimino.className = piece.name;
+	tetrimino.style.width = UNITE * rows[0].length + "px";
+	tetrimino.style.height = UNITE * rows.length + "px";
+	var squares_nb = 0;
 	
 	// Append a HTML square for each square in the piece's structure
-	for (r = 0; r < piece.structure.length; ++r) {
-		for (c = 0; c < piece.structure[r].length; ++c) {
+	for (r = 0; r < rows.length; ++r) {
+		for (c = 0; c < rows[r].length; ++c) {
 			var square = document.createElement("square");
 			square.style.width = UNITE + "px";
 			square.style.height = UNITE + "px";
-			if (piece.structure[r][c] == 0) {
+			if (rows[r][c] == 0) {
 				square.className = "invisible";
 			} else {
-				square.id = parseInt(SQUARE_ID++);				
+				square.id = parseInt(SQUARE_ID++);
+				square.className = class_name;
+				squares_nb++;
 			}
 			tetrimino.appendChild(square);
 		}
 	}
 
-	SQUARE_ID -= piece.squares_nb; // the square id counter will be incremented by another function during the matrix modification
+	SQUARE_ID -= squares_nb; // the square id counter will be incremented by another function during the matrix modification
 
 	node.appendChild(tetrimino);
 }
 
 /**
- * Actualize the position of the piece moving in the well
+ * Actualize the structure and the position of the piece moving in the well
  */
-function actualizeCurrentPiecePosition() {
-	// Care, her position is based on her origin
-	WELL.lastChild.style.marginLeft = UNITE * (CURRENT_PIECE.position[0] - CURRENT_PIECE.structure[0].length + CURRENT_PIECE.origin[0]) + "px";
-	WELL.lastChild.style.marginTop = UNITE * (CURRENT_PIECE.position[1] + CURRENT_PIECE.origin[1]) + "px";
+function actualizeCurrentPiece() {
+	// Remove the piece
+	WELL.removeChild(WELL.lastChild);
+	// Display the piece
+	displayPiece(CURRENT_PIECE.getStructure(), WELL, CURRENT_PIECE.getType());
+	// Position the piece
+	WELL.lastChild.style.marginLeft = UNITE * (CURRENT_PIECE.absolute_position[0] - CURRENT_PIECE.relative_position[0]) + "px";
+	WELL.lastChild.style.marginTop = UNITE * (CURRENT_PIECE.absolute_position[1] - CURRENT_PIECE.relative_position[1]) + "px";
 }
 
 /**
  * Update the matrix with each square of the current piece (the piece is blocked at her position)
  */
 function blockCurrentPiece() {
-	// Check if each square in the piece's structure can move down, relative to the piece's position in the well
-	for (r = 0; r < CURRENT_PIECE.structure.length; ++r) {
-		for (c = 0; c < CURRENT_PIECE.structure[r].length; ++c) {
-			if (CURRENT_PIECE.structure[r][c] == 1) {
+	var rows_updated = []; // order : highest row -> lowest row
+
+	// Append each square of the piece's structure in the matrix
+	for (r = 0; r < CURRENT_PIECE.getStructure().length; ++r) {
+		for (c = 0; c < CURRENT_PIECE.getStructure()[r].length; ++c) {
+			if (CURRENT_PIECE.getStructure()[r][c] == 1) {
 				// Compute the absolute position of the square
 				// absolute position of the origin of the piece + position of the square in the piece - position of the origin in the piece
-				var absolute_square_position = [CURRENT_PIECE.position[0] + c - CURRENT_PIECE.origin[0], CURRENT_PIECE.position[1] + r - CURRENT_PIECE.origin[1]];
+				var absolute_square_position = [CURRENT_PIECE.absolute_position[0] + c - CURRENT_PIECE.relative_position[0], CURRENT_PIECE.absolute_position[1] + r - CURRENT_PIECE.relative_position[1]];
 				// Add 1 to the vertical position of the square (like a down move)
-				MATRIX[absolute_square_position[1]][absolute_square_position[0]] = new Square(SQUARE_ID++);
-				console.log("ajout d'un sq en " + absolute_square_position);
-			}
-		}
-	}
-}
-
-/**
- * Return true if the current moving piece can move down in the well, false else
- */
-function currentPieceCanMoveDown() {
-	// Check if each square in the piece's structure can move down, relative to the piece's position in the well
-	for (r = 0; r < CURRENT_PIECE.structure.length; ++r) {
-		for (c = 0; c < CURRENT_PIECE.structure[r].length; ++c) {
-			if (CURRENT_PIECE.structure[r][c] == 1) {
-				// Compute the absolute position of the square
-				// absolute position of the origin of the piece + position of the square in the piece - position of the origin in the piece
-				var absolute_square_position = [CURRENT_PIECE.position[0] + c - CURRENT_PIECE.origin[0], CURRENT_PIECE.position[1] + r - CURRENT_PIECE.origin[1]];
-				// Add 1 to the vertical position of the square (like a down move)
-				absolute_square_position[1]++;
-				// Return false if the bottom limit of the well is reached,
-				// or if there already is a square in this position in the matrix
-				if (absolute_square_position[1] == ROWS_NB || MATRIX[absolute_square_position[1]][absolute_square_position[0]] != null) {
-					return false;
+				MATRIX[absolute_square_position[1]][absolute_square_position[0]] = new Square(SQUARE_ID++, CURRENT_PIECE.type);
+				// Add the position of this updated row
+				if (rows_updated.indexOf(absolute_square_position[1]) === -1) {
+					rows_updated.push(absolute_square_position[1]);
 				}
 			}
 		}
 	}
 
-	return true;
-}
+	var lines_counter = 0;
+	var in_air_row = null;
+	var lower_bound = null;
 
-/**
- * Return true if the current moving piece can move left in the well, false else
- */
-function currentPieceCanMoveLeft() {
-	// Check if each square in the piece's structure can move left, relative to the piece's position in the well
-	for (r = 0; r < CURRENT_PIECE.structure.length; ++r) {
-		for (c = 0; c < CURRENT_PIECE.structure[r].length; ++c) {
-			if (CURRENT_PIECE.structure[r][c] == 1) {
-				// Compute the absolute position of the square
-				// absolute position of the origin of the piece + position of the square in the piece - position of the origin in the piece
-				var absolute_square_position = [CURRENT_PIECE.position[0] + c - CURRENT_PIECE.origin[0], CURRENT_PIECE.position[1] + r - CURRENT_PIECE.origin[1]];
-				// Substract 1 to the horizontal position of the square (like a left move)
-				absolute_square_position[0]--;
-				// Return false if the left limit of the well is reached,
-				// or if there already is a square in this position in the matrix
-				if (absolute_square_position[0] == 0 || MATRIX[absolute_square_position[1]][absolute_square_position[0]] != null) {
-					return false;
-				}
+	// For each updated rows, remove squares contained in formed lines
+	for (r = 0; r < rows_updated.length; ++r) {
+		// If the entire row does not contain a null, this is a formed line
+		if (MATRIX[rows_updated[r]].indexOf(null) === -1) {
+			// Save the row above the line in order to drop her, or the current row the line if this is not the first formed line
+			if (in_air_row == null) {
+				in_air_row = rows_updated[r] - 1;
+				lower_bound = rows_updated[r];
+			} else {
+				lower_bound = rows_updated[r];
+			}
+			// Remove contained squares in this row
+			for (c = 0; c < MATRIX[rows_updated[r]].length; ++c) {
+				document.getElementById(MATRIX[rows_updated[r]][c].id).remove();
+				MATRIX[rows_updated[r]][c] = null;
+				lines_counter++;
 			}
 		}
 	}
 
-	return true;
-}
-
-/**
- * Return true if the current moving piece can move right in the well, false else
- */
-function currentPieceCanMoveRight() {
-	// Check if each square in the piece's structure can move right, relative to the piece's position in the well
-	for (r = 0; r < CURRENT_PIECE.structure.length; ++r) {
-		for (c = 0; c < CURRENT_PIECE.structure[r].length; ++c) {
-			if (CURRENT_PIECE.structure[r][c] == 1) {
-				// Compute the absolute position of the square
-				// absolute position of the origin of the piece + position of the square in the piece - position of the origin in the piece
-				var absolute_square_position = [CURRENT_PIECE.position[0] + c - CURRENT_PIECE.origin[0], CURRENT_PIECE.position[1] + r - CURRENT_PIECE.origin[1]];
-				// Add 1 to the horizontal position of the square (like a right move)
-				absolute_square_position[0]++;
-				// Return false if the right limit of the well is reached,
-				// or if there already is a square in this position in the matrix
-				if (absolute_square_position[0] == COLUMNS_NB || MATRIX[absolute_square_position[1]][absolute_square_position[0]] != null) {
-					return false;
-				}
-			}
-		}
+	// Drop the stayed-in-air rows, if lines has been formed
+	if (lines_counter > 0) {
+		// vérifier que les limites correspondent à la ligne à descendre (higher) et à la ligne à remplir
 	}
-
-	return true;
 }
 
 /**
  * Manage the HTML onkeydown event
  */
-function keyPressed(event) {
+function keyPressed(event) {	
 	switch (event.key) {
 		case "ArrowLeft": // horizontal move
+			event.preventDefault();
 			// Move left the current piece if possible
-			if (currentPieceCanMoveLeft()) {
-				CURRENT_PIECE.position[0]--;
-				actualizeCurrentPiecePosition();
+			if (CURRENT_PIECE.canMoveLeft()) {
+				CURRENT_PIECE.moveLeft();
 			}
 			break;
 		case "ArrowRight": // horizontal move
+			event.preventDefault();
 			// Move right the current piece if possible
-			if (currentPieceCanMoveRight()) {
-				CURRENT_PIECE.position[0]++;
-				actualizeCurrentPiecePosition();
+			if (CURRENT_PIECE.canMoveRight()) {
+				CURRENT_PIECE.moveRight();
 			}
 			break;
-		case "ArrowUp": // hard drop
-			// Move to the closer square the current piece
-			actualizeCurrentPiecePosition();
+		case "ArrowUp": // clockwise rotation
+			event.preventDefault();
+			// Clockwise rotate the current piece if possible
+			if (CURRENT_PIECE.canClockWiseRotate()) {
+				CURRENT_PIECE.clockWiseRotate();
+			}
 			break;
 		case " ": // hard drop
+			event.preventDefault();
 			// Move to the closer square the current piece
-			actualizeCurrentPiecePosition();
+			while (CURRENT_PIECE.canMoveDown()) {
+				CURRENT_PIECE.moveDown();
+			}
+			blockCurrentPiece();
+			launchPiece();
 			break;
 		case "ArrowDown": // soft drop
+			event.preventDefault();
 			// Move left the current piece if possible
-			if (currentPieceCanMoveDown()) {
-				CURRENT_PIECE.position[1]++;
-				actualizeCurrentPiecePosition();
+			if (CURRENT_PIECE.canMoveDown()) {
+				CURRENT_PIECE.moveDown();
 			} else {
 				blockCurrentPiece();
 				launchPiece();
 			}
 			break;
 		case "a": // clockwise rotation
+			// Clockwise rotate the current piece if possible
+			event.preventDefault();
+			if (CURRENT_PIECE.canClockWiseRotate()) {
+				CURRENT_PIECE.clockWiseRotate();
+			}
 			break;
 		case "z": // counterclockwise rotation
+			// Counterclockwise rotate the current piece if possible
+			event.preventDefault();
+			if (CURRENT_PIECE.canCounterClockWiseRotate()) {
+				CURRENT_PIECE.counterClockWiseRotate();
+			}
 			break;
 		default:
 			break;
+	}
+}
+
+function displayMatrix() {
+	HITBOXES.innerHTML = "";
+
+	// Display each square of the matrix
+	for (r = 0; r < MATRIX.length; ++r) {
+		for (c = 0; c < MATRIX[r].length; ++c) {
+			var square = document.createElement("square");
+			square.style.width = UNITE + "px";
+			square.style.height = UNITE + "px";
+			if (MATRIX[r][c] == null) {
+				square.className = "invisible";
+			}
+			HITBOXES.appendChild(square);
+		}
 	}
 }
 
