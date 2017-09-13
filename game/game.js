@@ -10,6 +10,7 @@
 
 var SPEED = 1; // square per second
 var TIME = 0; // seconds
+var GAME_CLOCK;
 
 /**
  * Front-end properties
@@ -58,17 +59,24 @@ function launchGame() {
 	startTimer();
 	// Call the game clock
 	gameClock();
+	// Permanently check the database
+	databaseClock();
 	// Prepare a first piece
 	preparePiece();
 	// Set next's dimensions
-	NEXT.style.width = UNITE * (NEXT_PIECE.getStructure()[0].length + 2) + "px";
-	NEXT.style.height = UNITE * (NEXT_PIECE.getStructure().length + 2) + "px";
+	NEXT.style.width = UNITE * (NEXT_PIECE.getStructure()[0].length + 1) + "px";
+	NEXT.style.height = UNITE * (NEXT_PIECE.getStructure().length) + "px";
 	// Launch a first piece
 	launchPiece();
 }
 
+// receiveItem
+
+/**
+ * Move down the current piece every 1000 / SPEED milliseconds
+ */
 function gameClock() {
-	setTimeout(function() {	
+	GAME_CLOCK = setTimeout(function() {
 		// Check for collision if the current piece moves down
 		// If the piece can move down, move down the current piece
  		// Else, block the piece at her position and launch a new piece
@@ -82,6 +90,18 @@ function gameClock() {
 		// Continue the game
 		gameClock();
 	}, 1000 / SPEED);
+}
+
+/**
+ * Check the database every x milliseconds
+ */
+function databaseClock() {
+	setTimeout(function() {
+		// affiche le tchat (rquete script php) dans un noeud html
+		// lance les items présents ds la bdd destinés au joueur (le script php les supprime ensuite)
+			// new item().launch
+		databaseClock();
+	}, 50);
 }
 
 /**
@@ -158,7 +178,6 @@ function displayPiece(rows, node, class_name) {
 	var tetrimino = document.createElement("tetrimino");
 	tetrimino.style.width = UNITE * rows[0].length + "px";
 	tetrimino.style.height = UNITE * rows.length + "px";
-	var squares_nb = 0;
 	
 	// Append a HTML square for each square in the piece's structure
 	for (r = 0; r < rows.length; ++r) {
@@ -169,15 +188,11 @@ function displayPiece(rows, node, class_name) {
 			if (rows[r][c] == 0) {
 				square.className = "invisible";
 			} else {
-				square.id = parseInt(SQUARE_ID++);
 				square.className = class_name;
-				squares_nb++;
 			}
 			tetrimino.appendChild(square);
 		}
 	}
-
-	SQUARE_ID -= squares_nb; // the square id counter will be incremented by another function during the matrix modification
 
 	node.appendChild(tetrimino);
 }
@@ -186,6 +201,7 @@ function displayPiece(rows, node, class_name) {
  * Actualize the structure and the position of the piece moving in the well
  */
 function actualizeCurrentPiece() {
+	// TODO ESSAYER DE FAIRE AVEC LA ROTATION PLUTOT QUE DE TOUT REAFFICHER
 	// Remove the piece
 	WELL.removeChild(WELL.lastChild);
 	// Display the piece
@@ -197,9 +213,16 @@ function actualizeCurrentPiece() {
 
 /**
  * Update the matrix with each square of the current piece (the piece is blocked at her position)
+ * Update the well by removing the piece and appending the corresponding squares
  */
 function blockCurrentPiece() {
+	// Stop the game clock
+	clearTimeout(GAME_CLOCK);
+
 	var rows_updated = []; // order : highest row -> lowest row
+
+	// Remove the piece
+	WELL.removeChild(WELL.lastChild);
 
 	// Append each square of the piece's structure in the matrix
 	for (r = 0; r < CURRENT_PIECE.getStructure().length; ++r) {
@@ -208,8 +231,17 @@ function blockCurrentPiece() {
 				// Compute the absolute position of the square
 				// absolute position of the origin of the piece + position of the square in the piece - position of the origin in the piece
 				var absolute_square_position = [CURRENT_PIECE.absolute_position[0] + c - CURRENT_PIECE.relative_position[0], CURRENT_PIECE.absolute_position[1] + r - CURRENT_PIECE.relative_position[1]];
-				// Add 1 to the vertical position of the square (like a down move)
 				MATRIX[absolute_square_position[1]][absolute_square_position[0]] = new Square(SQUARE_ID++, CURRENT_PIECE.type);
+				// Append this square of the piece to the well
+				var square = document.createElement("square");
+					square.style.width = UNITE + "px";
+					square.style.height = UNITE + "px";
+					square.style.marginLeft = UNITE * absolute_square_position[0] + "px";
+					square.style.marginTop = UNITE * absolute_square_position[1] + "px";
+					square.id = MATRIX[absolute_square_position[1]][absolute_square_position[0]].id;
+					square.innerHTML = square.id;
+					square.className = CURRENT_PIECE.type;
+				WELL.appendChild(square);
 				// Add the position of this updated row
 				if (rows_updated.indexOf(absolute_square_position[1]) === -1) {
 					rows_updated.push(absolute_square_position[1]);
@@ -219,33 +251,37 @@ function blockCurrentPiece() {
 	}
 
 	var lines_counter = 0;
-	var in_air_row = null;
-	var lower_bound = null;
 
-	// For each updated rows, remove squares contained in formed lines
-	for (r = 0; r < rows_updated.length; ++r) {
+	// For each updated rows, remove squares contained in formed lines and drop the rows that are above
+	for (r = 0; r < rows_updated.length; ++r) { // start with the highest line
 		// If the entire row does not contain a null, this is a formed line
 		if (MATRIX[rows_updated[r]].indexOf(null) === -1) {
-			// Save the row above the line in order to drop her, or the current row the line if this is not the first formed line
-			if (in_air_row == null) {
-				in_air_row = rows_updated[r] - 1;
-				lower_bound = rows_updated[r];
-			} else {
-				lower_bound = rows_updated[r];
-			}
-			// Remove contained squares in this row
-			for (c = 0; c < MATRIX[rows_updated[r]].length; ++c) {
-				document.getElementById(MATRIX[rows_updated[r]][c].id).remove();
-				MATRIX[rows_updated[r]][c] = null;
-				lines_counter++;
+			var line = rows_updated[r];
+			lines_counter++;
+			
+			// Remove the squares's line from the well
+			for (c = 0; c < MATRIX[line].length; ++c) {
+				document.getElementById(MATRIX[line][c].id).remove();
+			}				
+
+			// For each row above the cleaned one...
+			while (line > 0) {
+				// ... drop her squares
+				for (c = 0; c < MATRIX[line].length; ++c) {
+					// Drop the top square, from the matrix and the well
+					MATRIX[line][c] = MATRIX[line - 1][c];
+					if (MATRIX[line - 1][c] != null) {
+						document.getElementById(MATRIX[line - 1][c].id).style.marginTop = UNITE * line + "px";
+					}
+					MATRIX[line - 1][c] = null;
+				}
+				--line;
 			}
 		}
 	}
 
-	// Drop the stayed-in-air rows, if lines has been formed
-	if (lines_counter > 0) {
-		// vérifier que les limites correspondent à la ligne à descendre (higher) et à la ligne à remplir
-	}
+	// Re-launch the game clock
+	gameClock();
 }
 
 /**
@@ -307,6 +343,7 @@ function keyPressed(event) {
 				CURRENT_PIECE.counterClockWiseRotate();
 			}
 			break;
+		// touches pour sendItem() qui appelle un script php qui ajoute l'item en bdd, avec id du joueur et nom de l'item
 		default:
 			break;
 	}
@@ -323,6 +360,8 @@ function displayMatrix() {
 			square.style.height = UNITE + "px";
 			if (MATRIX[r][c] == null) {
 				square.className = "invisible";
+			} else {
+				square.innerHTML = MATRIX[r][c].id;
 			}
 			HITBOXES.appendChild(square);
 		}
@@ -338,5 +377,7 @@ function displayMatrix() {
 3 |
   v
     y
+
+[x, y]
 
 */

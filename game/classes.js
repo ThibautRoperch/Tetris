@@ -195,7 +195,7 @@ class Piece {
 				this.preview =
 				[
 					[1, 1, 1],
-					[0, 1, 1]
+					[0, 1, 0]
 				]
 				break;
 		}
@@ -238,10 +238,13 @@ class Piece {
 					var absolute_square_position = [this.absolute_position[0] + c - this.relative_position[0], this.absolute_position[1] + r - this.relative_position[1]];
 					// Add 1 to the vertical position of the square (like a down move)
 					absolute_square_position[1]++;
-					// Return false if the bottom limit of the well is reached,
-					// or if there already is a square in this.absolute_position in the matrix
-					if (absolute_square_position[1] == ROWS_NB || MATRIX[absolute_square_position[1]][absolute_square_position[0]] != null) {
-						return false;
+					// If this position is in the well
+					if (absolute_square_position[1] >= 0 && absolute_square_position[0] >= 0 && absolute_square_position[0] < COLUMNS_NB) {
+						// Return false if the bottom limit of the well is reached,
+						// or if there already is a square at its position in the matrix
+						if (absolute_square_position[1] == ROWS_NB || MATRIX[absolute_square_position[1]][absolute_square_position[0]] != null) {
+							return false;
+						}
 					}
 				}
 			}
@@ -264,8 +267,10 @@ class Piece {
 					// Substract 1 to the horizontal position of the square (like a left move)
 					absolute_square_position[0]--;
 					// Return false if the left limit of the well is reached,
-					// or if there already is a square in this.absolute_position in the matrix
-					if (absolute_square_position[0] == -1 || MATRIX[absolute_square_position[1]][absolute_square_position[0]] != null) {
+					// or if there already is a square at its position in the matrix if this position is in the well
+					if (absolute_square_position[0] < 0
+					|| (absolute_square_position[1] >= 0 && absolute_square_position[0] >= 0 && absolute_square_position[0] < COLUMNS_NB
+						&& MATRIX[absolute_square_position[1]][absolute_square_position[0]] != null)) {
 						return false;
 					}
 				}
@@ -289,8 +294,10 @@ class Piece {
 					// Add 1 to the horizontal position of the square (like a right move)
 					absolute_square_position[0]++;
 					// Return false if the right limit of the well is reached,
-					// or if there already is a square in this.absolute_position in the matrix
-					if (absolute_square_position[0] == COLUMNS_NB || MATRIX[absolute_square_position[1]][absolute_square_position[0]] != null) {
+					// or if there already is a square at its position in the matrix if this position is in the well
+					if (absolute_square_position[0] == COLUMNS_NB
+					|| (absolute_square_position[1] >= 0 && absolute_square_position[0] >= 0 && absolute_square_position[0] < COLUMNS_NB
+						&& MATRIX[absolute_square_position[1]][absolute_square_position[0]] != null)) {
 						return false;
 					}
 				}
@@ -300,26 +307,81 @@ class Piece {
 		return true;
 	}
 
+	/**
+	 * Move 1 square down
+	 */
 	moveDown() {
 		this.absolute_position[1]++;
 		actualizeCurrentPiece();
 	}
 
+	/**
+	 * Move 1 square to the left
+	 */
 	moveLeft() {
 		this.absolute_position[0]--;	
 		actualizeCurrentPiece();
 	}
 	
+	/**
+	 * Move 1 square to the right
+	 */
 	moveRight() {
 		this.absolute_position[0]++;		
 		actualizeCurrentPiece();
 	}
 	
+	/**
+	 * Return true if the piece can clockwise rotate in the well, false else
+	 */
 	canClockWiseRotate() {
+		this.clockWiseRotate();
+
+		// Check if each square in the piece's structure can clockwise rotate
+		for (r = 0; r < this.getStructure().length; ++r) {
+			for (c = 0; c < this.getStructure()[r].length; ++c) {
+				if (this.getStructure()[r][c] == 1) {
+					// Compute the absolute position of the square
+					// absolute position of the origin of the piece + position of the square in the piece - position of the origin in the piece
+					var absolute_square_position = [this.absolute_position[0] + c - this.relative_position[0], this.absolute_position[1] + r - this.relative_position[1]];
+					// Return false if there already is a square at its position in the matrix, if this position is in the well
+					if (absolute_square_position[1] >= 0 && absolute_square_position[0] >= 0 && absolute_square_position[0] < COLUMNS_NB
+						&& MATRIX[absolute_square_position[1]][absolute_square_position[0]] != null) {
+						this.counterClockWiseRotate();
+						return false;
+					}
+				}
+			}
+		}
+
+		this.counterClockWiseRotate();
 		return true;
 	}
 
+	/**
+	 * Return true if the piece can counterclockwise rotate in the well, false else
+	 */
 	canCounterClockWiseRotate() {
+		this.counterClockWiseRotate();
+
+		// Check if each square in the piece's structure can counterclockwise rotate
+		for (r = 0; r < this.getStructure().length; ++r) {
+			for (c = 0; c < this.getStructure()[r].length; ++c) {
+				if (this.getStructure()[r][c] == 1) {
+					// Compute the absolute position of the square
+					// absolute position of the origin of the piece + position of the square in the piece - position of the origin in the piece
+					var absolute_square_position = [this.absolute_position[0] + c - this.relative_position[0], this.absolute_position[1] + r - this.relative_position[1]];
+					// Return false if there already is a square at its position in the matrix, if this posotion is in the well
+					if (absolute_square_position[1] >= 0 && absolute_square_position[0] >= 0 && absolute_square_position[0] < COLUMNS_NB
+						&& MATRIX[absolute_square_position[1]][absolute_square_position[0]] != null) {
+						this.clockWiseRotate();
+						return false;
+					}
+				}
+			}
+		}
+
+		this.clockWiseRotate();
 		return true;
 	}
 	
@@ -327,8 +389,8 @@ class Piece {
 	 * Clockwise rotation
 	 */
 	clockWiseRotate() {
-		this.rotation++;
-		this.rotation = this.rotation % this.structure.length; // x possible different rotations, between 0 and x
+		this.rotation = ++this.rotation % this.structure.length; // x possible different rotations, between 0 and x
+		this.checkIfOutOfBounds();
 		actualizeCurrentPiece();
 	}
 	
@@ -336,9 +398,34 @@ class Piece {
 	 * Counterclockwise rotation
 	 */
 	counterClockWiseRotate() {
-		this.rotation++;
-		this.rotation = this.rotation % this.structure.length; // x possible different rotations, between 0 and x
+		this.rotation = --this.rotation;
+		if (this.rotation < 0) {
+			this.rotation += this.structure.length;
+		}
+		this.checkIfOutOfBounds();
 		actualizeCurrentPiece();
+	}
+
+	checkIfOutOfBounds() {
+		// Check if each square in the piece's structure is out of bounds, retain the furthest and move the piece consequently
+		var highest_gap = 0; // can be < 0 or > 0
+
+		for (r = 0; r < this.getStructure().length; ++r) {
+			for (c = 0; c < this.getStructure()[r].length; ++c) {
+				if (this.getStructure()[r][c] == 1) {
+					// Compute the x absolute position of the square
+					// x absolute position of the origin of the piece + x position of the square in the piece - x position of the origin in the piece
+					var x_abs_pos = this.absolute_position[1] + c - this.relative_position[1];
+					if (x_abs_pos < 0 && Math.abs(x_abs_pos) > Math.abs(highest_gap)) {
+						highest_gap = x_abs_pos;
+					} else if (x_abs_pos > COLUMNS_NB - 1 && x_abs_pos - COLUMNS_NB - 1 > Math.abs(highest_gap)) {
+						highest_gap = x_abs_pos - COLUMNS_NB - 1;
+					}
+				}
+			}
+		}
+// TODO MARCHE PAS
+		this.absolute_position[1] += highest_gap;
 	}
 }
 
