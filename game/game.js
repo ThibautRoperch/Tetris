@@ -8,17 +8,18 @@
  * Game properties
  */
 
-var SPEED = 1; // square per second
 var TIME = 0; // seconds
+var SPEED = 1; // square per second
 var GAME_CLOCK;
 
 /**
  * Front-end properties
  */
 
-var UNITE = 20; // pixels
+var BORDER = 2; // pixels
+var SIDE = 20; // pixels
+var UNITE = SIDE + BORDER * 2; // pixels
 var WELL = document.getElementsByTagName("well")[0];
-var HITBOXES = document.getElementsByTagName("hitboxes")[0];
 var NEXT = document.getElementsByTagName("next")[0];
 var COLUMNS_NB = 10;
 var ROWS_NB = 22;
@@ -42,11 +43,9 @@ var SQUARE_ID = 0; // A.I.
  * Set the well's dimensions for the front-end, matrix's dimensions for the back-end, and launch + prepare the first pieces
  */
 function launchGame() {
-	// Set well's and hitboxes' dimensions
+	// Set well's dimensions
 	WELL.style.width = UNITE * COLUMNS_NB + "px";
 	WELL.style.height = UNITE * ROWS_NB + "px";
-	HITBOXES.style.width = UNITE * COLUMNS_NB + "px";
-	HITBOXES.style.height = UNITE * ROWS_NB + "px";
 	// Set matrix's dimensions
 	for (var r = 0; r < ROWS_NB; ++r) {
 		var row = [];
@@ -70,8 +69,6 @@ function launchGame() {
 	launchPiece();
 }
 
-// receiveItem
-
 /**
  * Move down the current piece every 1000 / SPEED milliseconds
  */
@@ -86,7 +83,6 @@ function gameClock() {
 			blockCurrentPiece();
 			launchPiece();
 		}
-		displayMatrix();
 		// Continue the game
 		gameClock();
 	}, 1000 / SPEED);
@@ -97,11 +93,11 @@ function gameClock() {
  */
 function databaseClock() {
 	setTimeout(function() {
-		// affiche le tchat (rquete script php) dans un noeud html
-		// lance les items présents ds la bdd destinés au joueur (le script php les supprime ensuite)
+		// affiche le tchat (rquete script php) dans un noeud html -> TODO une fonction qui check en permanance et qui affiche le résultat
+		// active les items présents ds la bdd destinés au joueur (le script php les supprime ensuite) -> TODO idem et qui traite le résultat (JSON ?)
 			// new item().launch
 		databaseClock();
-	}, 50);
+	}, 100);
 }
 
 /**
@@ -122,6 +118,10 @@ function launchPiece() {
 	CURRENT_PIECE = NEXT_PIECE;
 	// Display the piece in the well
 	displayPiece(CURRENT_PIECE.getStructure(), WELL, CURRENT_PIECE.getType());
+	// If the piece can't move, it's a game over
+	if (!CURRENT_PIECE.canMoveDown()) {
+		gameOver();
+	}
 	// Move the launched piece on the middle of the well
 	actualizeCurrentPiece();
 	// Prepare a new piece
@@ -178,13 +178,14 @@ function displayPiece(rows, node, class_name) {
 	var tetrimino = document.createElement("tetrimino");
 	tetrimino.style.width = UNITE * rows[0].length + "px";
 	tetrimino.style.height = UNITE * rows.length + "px";
-	
+
 	// Append a HTML square for each square in the piece's structure
 	for (r = 0; r < rows.length; ++r) {
 		for (c = 0; c < rows[r].length; ++c) {
 			var square = document.createElement("square");
-			square.style.width = UNITE + "px";
-			square.style.height = UNITE + "px";
+			square.style.width = SIDE + "px";
+			square.style.height = SIDE + "px";
+			square.style.borderWidth = BORDER + "px";
 			if (rows[r][c] == 0) {
 				square.className = "invisible";
 			} else {
@@ -201,7 +202,6 @@ function displayPiece(rows, node, class_name) {
  * Actualize the structure and the position of the piece moving in the well
  */
 function actualizeCurrentPiece() {
-	// TODO ESSAYER DE FAIRE AVEC LA ROTATION PLUTOT QUE DE TOUT REAFFICHER
 	// Remove the piece
 	WELL.removeChild(WELL.lastChild);
 	// Display the piece
@@ -234,12 +234,13 @@ function blockCurrentPiece() {
 				MATRIX[absolute_square_position[1]][absolute_square_position[0]] = new Square(SQUARE_ID++, CURRENT_PIECE.type);
 				// Append this square of the piece to the well
 				var square = document.createElement("square");
-					square.style.width = UNITE + "px";
-					square.style.height = UNITE + "px";
+					square.style.width = SIDE + "px";
+					square.style.height = SIDE + "px";
+					square.style.borderWidth = BORDER + "px";
 					square.style.marginLeft = UNITE * absolute_square_position[0] + "px";
 					square.style.marginTop = UNITE * absolute_square_position[1] + "px";
 					square.id = MATRIX[absolute_square_position[1]][absolute_square_position[0]].id;
-					square.innerHTML = square.id;
+					// square.innerHTML = square.id;
 					square.className = CURRENT_PIECE.type;
 				WELL.appendChild(square);
 				// Add the position of this updated row
@@ -281,7 +282,7 @@ function blockCurrentPiece() {
 	}
 
 	// Re-launch the game clock
-	gameClock();
+	gameClock(); // TODO
 }
 
 /**
@@ -349,23 +350,13 @@ function keyPressed(event) {
 	}
 }
 
-function displayMatrix() {
-	HITBOXES.innerHTML = "";
-
-	// Display each square of the matrix
-	for (r = 0; r < MATRIX.length; ++r) {
-		for (c = 0; c < MATRIX[r].length; ++c) {
-			var square = document.createElement("square");
-			square.style.width = UNITE + "px";
-			square.style.height = UNITE + "px";
-			if (MATRIX[r][c] == null) {
-				square.className = "invisible";
-			} else {
-				square.innerHTML = MATRIX[r][c].id;
-			}
-			HITBOXES.appendChild(square);
-		}
-	}
+/**
+ * End the game
+ */
+function gameOver() {
+	// Stop the game clock
+	clearTimeout(GAME_CLOCK);
+	// TODO script php qui met à false "playing" pour ce joueur
 }
 
 /*

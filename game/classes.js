@@ -200,7 +200,7 @@ class Piece {
 				break;
 		}
 
-		this.absolute_position = [Math.round(COLUMNS_NB / 2) - Math.round(this.getStructure()[0].length / 2), 0]; // absolute origin position
+		this.absolute_position = [Math.round(COLUMNS_NB / 2), 0]; // absolute origin position
 		this.relative_position = [2, 1]; // relative origin position
 	}
 	
@@ -415,17 +415,17 @@ class Piece {
 				if (this.getStructure()[r][c] == 1) {
 					// Compute the x absolute position of the square
 					// x absolute position of the origin of the piece + x position of the square in the piece - x position of the origin in the piece
-					var x_abs_pos = this.absolute_position[1] + c - this.relative_position[1];
+					var x_abs_pos = this.absolute_position[0] + c - this.relative_position[0];
 					if (x_abs_pos < 0 && Math.abs(x_abs_pos) > Math.abs(highest_gap)) {
 						highest_gap = x_abs_pos;
-					} else if (x_abs_pos > COLUMNS_NB - 1 && x_abs_pos - COLUMNS_NB - 1 > Math.abs(highest_gap)) {
-						highest_gap = x_abs_pos - COLUMNS_NB - 1;
+					} else if (x_abs_pos > COLUMNS_NB - 1 && x_abs_pos - (COLUMNS_NB - 1) > Math.abs(highest_gap)) {
+						highest_gap = x_abs_pos - (COLUMNS_NB - 1);
 					}
 				}
 			}
 		}
-// TODO MARCHE PAS
-		this.absolute_position[1] += highest_gap;
+
+		this.absolute_position[0] -= highest_gap;
 	}
 }
 

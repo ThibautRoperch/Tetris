@@ -1,18 +1,28 @@
-* {
-	margin: 0;
-	padding: 0;
-}
 
 board {
 	display: flex;
+	flex-wrap: wrap;
+	width: auto;
 	padding: 20px;
-	background: silver;
+	background: gray;
 }
 
-well, hitboxes, next {
+well, hitboxes, next, board div > * {
 	display: flex;
 	border: 6px solid gray;
 	background: black;
+}
+
+board div {
+    display: flex;
+	flex-direction: column;
+	align-content: stretch;
+}
+
+board div > * {
+	padding: 10px;
+	text-align: center;
+	color: white;
 }
 
 well, hitboxes {
@@ -43,7 +53,13 @@ square {
 	font-size: 12px;
 	line-height: 200%;
 	text-align: center;
-	box-shadow: 0 0 1px 1px black inset;
+	/* box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.3) inset; */
+	border-style: solid;
+	border-width: 0;
+	border-top-color: rgba(255, 255, 255, 0.3);
+	border-left-color: rgba(255, 255, 255, 0.3);
+	border-right-color: rgba(0, 0, 0, 0.3);
+	border-bottom-color: rgba(0, 0, 0, 0.3);
 }
 
 well > square {
@@ -52,34 +68,35 @@ well > square {
 }
 
 square.O {
-	background-color: yellow;
+	background-color: rgb(255, 255, 60);
 }
 
 square.I {
-	background-color: cyan;
+	background-color: rgb(60, 255, 255);
 }
 
 square.S {
-	background-color: green;
+	background-color: rgb(60, 255, 60);
 }
 
 square.Z {
-	background-color: red;
+	background-color: rgb(255, 60, 60);
 }
 
 square.L {
-	background-color: orange;
+	background-color: rgb(255, 165, 60);
 }
 
 square.J {
-	background-color: blue;
+	background-color: rgb(60, 60, 255);
 }
 
 square.T {
-	background-color: purple;
+	background-color: rgb(128, 60, 128);
 }
 
 square.invisible {
 	background-color: transparent;
 	box-shadow: none;
+	border-color: transparent;
 }
