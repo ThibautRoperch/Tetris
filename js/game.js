@@ -258,7 +258,7 @@ function blockCurrentPiece() {
 		// If the entire row does not contain a null, this is a formed line
 		if (MATRIX[rows_updated[r]].indexOf(null) === -1) {
 			var line = rows_updated[r];
-			lines_counter++; 
+			lines_counter++;
 			
 			// Remove the squares's line from the well
 			for (c = 0; c < MATRIX[line].length; ++c) {
