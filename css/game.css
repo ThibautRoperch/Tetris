@@ -39,13 +39,22 @@ next {
 	justify-content: center;
 }
 
+well column:nth-child(even) {
+	background: rgba(255, 255, 255, 0.1);
+}
+
+well column:nth-child(odd) {
+	background: rgba(255, 255, 255, 0.06);
+}
+
 tetrimino {
 	position: absolute;
 	display: flex;
 	flex-wrap: wrap;
+	
 }
 
-tetrimino, square {
+tetrimino, square, well column {
 	transition: all 0.13s ease;	
 }
 
@@ -60,6 +69,7 @@ square {
 	border-left-color: rgba(255, 255, 255, 0.3);
 	border-right-color: rgba(0, 0, 0, 0.3);
 	border-bottom-color: rgba(0, 0, 0, 0.3);
+	border-radius: 2px;
 }
 
 well > square {

@@ -11,12 +11,14 @@
 var TIME = 0; // seconds
 var SPEED = 1; // square per second
 var GAME_CLOCK;
+var TIMER_CLOCK; 
+var GAME_OVER = false;
 
 /**
  * Front-end properties
  */
 
-var BORDER = 2; // pixels
+var BORDER = 3; // pixels
 var SIDE = 20; // pixels
 var UNITE = SIDE + BORDER * 2; // pixels
 var WELL = document.getElementsByTagName("well")[0];
@@ -29,8 +31,8 @@ var ROWS_NB = 22;
  */
 
 var MATRIX = []; // row's list, elements are squares
-var CURRENT_PIECE; // piece type
-var NEXT_PIECE; // piece type
+var CURRENT_PIECE = null; // piece type
+var NEXT_PIECE = null; // piece type
 var SQUARE_ID = 0; // A.I.
 
 
@@ -40,7 +42,7 @@ var SQUARE_ID = 0; // A.I.
 
 /**
  * Main function
- * Set the well's dimensions for the front-end, matrix's dimensions for the back-end, and launch + prepare the first pieces
+ * Set the well's dimensions and his columns for the front-end, set the matrix's dimensions for the back-end, and launch + prepare the first pieces
  */
 function launchGame() {
 	// Set well's dimensions
@@ -54,12 +56,12 @@ function launchGame() {
 		}
 		MATRIX.push(row);
 	}
-	// Start the timer
-	startTimer();
-	// Call the game clock
-	gameClock();
-	// Permanently check the database
-	databaseClock();
+	// Displays wells's columns
+	for (var c = 0; c < COLUMNS_NB; ++c) {
+		var column = document.createElement("column");
+		column.style.width = UNITE + "px";
+		WELL.appendChild(column);
+	}
 	// Prepare a first piece
 	preparePiece();
 	// Set next's dimensions
@@ -67,6 +69,12 @@ function launchGame() {
 	NEXT.style.height = UNITE * (NEXT_PIECE.getStructure().length) + "px";
 	// Launch a first piece
 	launchPiece();
+	// Call the game clock
+	gameClock();
+	// Start the timer
+	timerClock();
+	// Permanently check the database
+	databaseClock();
 }
 
 /**
@@ -76,7 +84,7 @@ function gameClock() {
 	GAME_CLOCK = setTimeout(function() {
 		// Check for collision if the current piece moves down
 		// If the piece can move down, move down the current piece
- 		// Else, block the piece at her position and launch a new piece
+		// Else, block the piece at her position and launch a new piece
 		if (CURRENT_PIECE.canMoveDown()) {
 			CURRENT_PIECE.moveDown();
 		} else {
@@ -93,6 +101,7 @@ function gameClock() {
  */
 function databaseClock() {
 	setTimeout(function() {
+		// TODO
 		// affiche le tchat (rquete script php) dans un noeud html -> TODO une fonction qui check en permanance et qui affiche le résultat
 		// active les items présents ds la bdd destinés au joueur (le script php les supprime ensuite) -> TODO idem et qui traite le résultat (JSON ?)
 			// new item().launch
@@ -103,10 +112,22 @@ function databaseClock() {
 /**
  * Counter of the time spent playing a game
  */
-function startTimer() {
-	setTimeout(function() {
+function timerClock() {
+	TIMER_CLOCK = setTimeout(function() {
+		// Add 1 second
 		TIME++;
-		startTimer();
+		// Increase the speed by x squares per seconds every y seconds
+		if (TIME % 60 == 0) {
+			SPEED += 0.75;
+		}
+		// Reduce the columns' opacity
+		var c = 0;
+		while (WELL.getElementsByTagName("column")[c]) {
+			WELL.getElementsByTagName("column")[c].style.opacity = 1 - TIME / 75;
+			++c;
+		}
+		// Continue the timer
+		timerClock();
 	}, 1000);
 }
 
@@ -117,15 +138,15 @@ function launchPiece() {
 	// Take the next piece
 	CURRENT_PIECE = NEXT_PIECE;
 	// Display the piece in the well
-	displayPiece(CURRENT_PIECE.getStructure(), WELL, CURRENT_PIECE.getType());
-	// If the piece can't move, it's a game over
-	if (!CURRENT_PIECE.canMoveDown()) {
-		gameOver();
-	}
+	displayPiece(CURRENT_PIECE.getStructure(), WELL, CURRENT_PIECE.getType()); 
 	// Move the launched piece on the middle of the well
 	actualizeCurrentPiece();
 	// Prepare a new piece
 	preparePiece();
+	// If the piece can't spawn in the well, it's a game over
+	if (!CURRENT_PIECE.canSpawn()) {
+		gameOver();
+	}
 }
 
 /**
@@ -191,6 +212,7 @@ function displayPiece(rows, node, class_name) {
 			} else {
 				square.className = class_name;
 			}
+			
 			tetrimino.appendChild(square);
 		}
 	}
@@ -199,7 +221,7 @@ function displayPiece(rows, node, class_name) {
 }
 
 /**
- * Actualize the structure and the position of the piece moving in the well
+ * Actualize the position of the piece moving in the well
  */
 function actualizeCurrentPiece() {
 	// Remove the piece
@@ -209,6 +231,15 @@ function actualizeCurrentPiece() {
 	// Position the piece
 	WELL.lastChild.style.marginLeft = UNITE * (CURRENT_PIECE.absolute_position[0] - CURRENT_PIECE.relative_position[0]) + "px";
 	WELL.lastChild.style.marginTop = UNITE * (CURRENT_PIECE.absolute_position[1] - CURRENT_PIECE.relative_position[1]) + "px";
+	// Hide blocks who are out of bounds
+	for (r = 0; r < CURRENT_PIECE.getStructure().length; ++r) {
+		for (c = 0; c < CURRENT_PIECE.getStructure()[r].length; ++c) {
+			var y_abs_pos = [CURRENT_PIECE.absolute_position[1] + r - CURRENT_PIECE.relative_position[1]];			
+			if (y_abs_pos < 0) {
+				WELL.lastChild.getElementsByTagName("square")[r * CURRENT_PIECE.getStructure().length + c].className = "invisible";
+			}
+		}
+	}
 }
 
 /**
@@ -216,9 +247,6 @@ function actualizeCurrentPiece() {
  * Update the well by removing the piece and appending the corresponding squares
  */
 function blockCurrentPiece() {
-	// Stop the game clock
-	clearTimeout(GAME_CLOCK);
-
 	var rows_updated = []; // order : highest row -> lowest row
 
 	// Remove the piece
@@ -280,73 +308,72 @@ function blockCurrentPiece() {
 			}
 		}
 	}
-
-	// Re-launch the game clock
-	gameClock(); // TODO
 }
 
 /**
  * Manage the HTML onkeydown event
  */
-function keyPressed(event) {	
-	switch (event.key) {
-		case "ArrowLeft": // horizontal move
-			event.preventDefault();
-			// Move left the current piece if possible
-			if (CURRENT_PIECE.canMoveLeft()) {
-				CURRENT_PIECE.moveLeft();
-			}
-			break;
-		case "ArrowRight": // horizontal move
-			event.preventDefault();
-			// Move right the current piece if possible
-			if (CURRENT_PIECE.canMoveRight()) {
-				CURRENT_PIECE.moveRight();
-			}
-			break;
-		case "ArrowUp": // clockwise rotation
-			event.preventDefault();
-			// Clockwise rotate the current piece if possible
-			if (CURRENT_PIECE.canClockWiseRotate()) {
-				CURRENT_PIECE.clockWiseRotate();
-			}
-			break;
-		case " ": // hard drop
-			event.preventDefault();
-			// Move to the closer square the current piece
-			while (CURRENT_PIECE.canMoveDown()) {
-				CURRENT_PIECE.moveDown();
-			}
-			blockCurrentPiece();
-			launchPiece();
-			break;
-		case "ArrowDown": // soft drop
-			event.preventDefault();
-			// Move left the current piece if possible
-			if (CURRENT_PIECE.canMoveDown()) {
-				CURRENT_PIECE.moveDown();
-			} else {
+function keyPressed(event) {
+	if (GAME_OVER == false) {
+		switch (event.key) {
+			case "ArrowLeft": // horizontal move
+				event.preventDefault();
+				// Move left the current piece if possible
+				if (CURRENT_PIECE.canMoveLeft()) {
+					CURRENT_PIECE.moveLeft();
+				}
+				break;
+			case "ArrowRight": // horizontal move
+				event.preventDefault();
+				// Move right the current piece if possible
+				if (CURRENT_PIECE.canMoveRight()) {
+					CURRENT_PIECE.moveRight();
+				}
+				break;
+			case "ArrowUp": // clockwise rotation
+				event.preventDefault();
+				// Clockwise rotate the current piece if possible
+				if (CURRENT_PIECE.canClockWiseRotate()) {
+					CURRENT_PIECE.clockWiseRotate();
+				}
+				break;
+			case " ": // hard drop
+				event.preventDefault();
+				// Move to the closer square the current piece
+				while (CURRENT_PIECE.canMoveDown()) {
+					CURRENT_PIECE.moveDown();
+				}
 				blockCurrentPiece();
 				launchPiece();
-			}
-			break;
-		case "a": // clockwise rotation
-			// Clockwise rotate the current piece if possible
-			event.preventDefault();
-			if (CURRENT_PIECE.canClockWiseRotate()) {
-				CURRENT_PIECE.clockWiseRotate();
-			}
-			break;
-		case "z": // counterclockwise rotation
-			// Counterclockwise rotate the current piece if possible
-			event.preventDefault();
-			if (CURRENT_PIECE.canCounterClockWiseRotate()) {
-				CURRENT_PIECE.counterClockWiseRotate();
-			}
-			break;
-		// touches pour sendItem() qui appelle un script php qui ajoute l'item en bdd, avec id du joueur et nom de l'item
-		default:
-			break;
+				break;
+			case "ArrowDown": // soft drop
+				event.preventDefault();
+				// Move left the current piece if possible
+				if (CURRENT_PIECE.canMoveDown()) {
+					CURRENT_PIECE.moveDown();
+				} else {
+					blockCurrentPiece();
+					launchPiece();
+				}
+				break;
+			case "a": // clockwise rotation
+				// Clockwise rotate the current piece if possible
+				event.preventDefault();
+				if (CURRENT_PIECE.canClockWiseRotate()) {
+					CURRENT_PIECE.clockWiseRotate();
+				}
+				break;
+			case "z": // counterclockwise rotation
+				// Counterclockwise rotate the current piece if possible
+				event.preventDefault();
+				if (CURRENT_PIECE.canCounterClockWiseRotate()) {
+					CURRENT_PIECE.counterClockWiseRotate();
+				}
+				break;
+			// touches pour sendItem() qui appelle un script php qui ajoute l'item en bdd, avec id du joueur et nom de l'item
+			default:
+				break;
+		}
 	}
 }
 
@@ -354,9 +381,13 @@ function keyPressed(event) {
  * End the game
  */
 function gameOver() {
+	GAME_OVER = true;
+	// Stop the timer clock
+	clearTimeout(TIMER_CLOCK);
 	// Stop the game clock
 	clearTimeout(GAME_CLOCK);
-	// TODO script php qui met à false "playing" pour ce joueur
+	// TODO message de game over
+	// TODO script php qui met à false "playing" pour ce joueur dans la bdd
 }
 
 /*

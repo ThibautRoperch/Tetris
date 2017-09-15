@@ -226,6 +226,31 @@ class Piece {
 	}
 
 	/**
+	 * Return true if the piece can spawn in the well, false else
+	 */
+	canSpawn() {
+		// Check if each square in the piece's structure can move down, relative to the piece's position in the well
+		for (r = 0; r < this.getStructure().length; ++r) {
+			for (c = 0; c < this.getStructure()[r].length; ++c) {
+				if (this.getStructure()[r][c] == 1) {
+					// Compute the absolute position of the square
+					// absolute position of the origin of the piece + position of the square in the piece - position of the origin in the piece
+					var absolute_square_position = [this.absolute_position[0] + c - this.relative_position[0], this.absolute_position[1] + r - this.relative_position[1]];
+					// If this position is in the well
+					if (absolute_square_position[1] >= 0 && absolute_square_position[0] >= 0 && absolute_square_position[0] < COLUMNS_NB) {
+						// Return false if there already is a square at its position in the matrix
+						if (MATRIX[absolute_square_position[1]][absolute_square_position[0]] != null) {
+							return false;
+						}
+					}
+				}
+			}
+		}
+
+		return true;
+	}
+
+	/**
 	 * Return true if the piece can move down in the well, false else
 	 */
 	canMoveDown() {
