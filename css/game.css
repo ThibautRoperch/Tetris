@@ -3,35 +3,23 @@ board {
 	display: flex;
 	flex-wrap: wrap;
 	width: auto;
-	padding: 20px;
-	background: gray;
+	padding: 10px;
+	border-width: 15px;
+	border-style: solid;
+	border-top-color: rgba(255, 255, 255, 0.3);
+	border-left-color: rgba(255, 255, 255, 0.3);
+	border-right-color: rgba(0, 0, 0, 0.3);
+	border-bottom-color: rgba(0, 0, 0, 0.3);
+	border-radius: 5px;
 }
 
 well, hitboxes, next, board div > * {
 	display: flex;
-	border: 6px solid gray;
 	background: black;
 }
 
-board div {
-    display: flex;
-	flex-direction: column;
-	align-content: stretch;
-}
-
-board div > * {
-	padding: 10px;
-	text-align: center;
-	color: white;
-}
-
-well, hitboxes {
+well {
 	margin-right: 20px;
-}
-
-hitboxes {
-	flex-wrap: wrap;
-	background: white;
 }
 
 next {

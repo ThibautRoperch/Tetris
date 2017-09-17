@@ -10,9 +10,9 @@
 
 var TIME = 0; // seconds
 var SPEED = 1; // square per second
-var GAME_CLOCK;
-var TIMER_CLOCK; 
-var GAME_OVER = false;
+var LINES = 0;
+var TIMER_CLOCK;
+var GAME_OVER = true;
 
 /**
  * Front-end properties
@@ -44,7 +44,12 @@ var SQUARE_ID = 0; // A.I.
  * Main function
  * Set the well's dimensions and his columns for the front-end, set the matrix's dimensions for the back-end, and launch + prepare the first pieces
  */
-function launchGame() {
+function startGame() {
+	// The game is not over yet
+	GAME_OVER = false;
+	// Display the game instead of the lobby
+	document.getElementsByTagName("game")[0].style.display = "flex";
+	document.getElementsByTagName("lobby")[0].style.display = "none";
 	// Set well's dimensions
 	WELL.style.width = UNITE * COLUMNS_NB + "px";
 	WELL.style.height = UNITE * ROWS_NB + "px";
@@ -81,7 +86,7 @@ function launchGame() {
  * Move down the current piece every 1000 / SPEED milliseconds
  */
 function gameClock() {
-	GAME_CLOCK = setTimeout(function() {
+	setTimeout(function() {
 		// Check for collision if the current piece moves down
 		// If the piece can move down, move down the current piece
 		// Else, block the piece at her position and launch a new piece
@@ -91,22 +96,11 @@ function gameClock() {
 			blockCurrentPiece();
 			launchPiece();
 		}
-		// Continue the game
-		gameClock();
+		// Continue the game if it isn't over yet
+		if (!GAME_OVER) {
+			gameClock();
+		}
 	}, 1000 / SPEED);
-}
-
-/**
- * Check the database every x milliseconds
- */
-function databaseClock() {
-	setTimeout(function() {
-		// TODO
-		// affiche le tchat (rquete script php) dans un noeud html -> TODO une fonction qui check en permanance et qui affiche le résultat
-		// active les items présents ds la bdd destinés au joueur (le script php les supprime ensuite) -> TODO idem et qui traite le résultat (JSON ?)
-			// new item().launch
-		databaseClock();
-	}, 100);
 }
 
 /**
@@ -308,6 +302,8 @@ function blockCurrentPiece() {
 			}
 		}
 	}
+
+	LINES += lines_counter;
 }
 
 /**
@@ -384,8 +380,6 @@ function gameOver() {
 	GAME_OVER = true;
 	// Stop the timer clock
 	clearTimeout(TIMER_CLOCK);
-	// Stop the game clock
-	clearTimeout(GAME_CLOCK);
 	// TODO message de game over
 	// TODO script php qui met à false "playing" pour ce joueur dans la bdd
 }
@@ -403,3 +397,20 @@ function gameOver() {
 [x, y]
 
 */
+
+
+/**************************
+ * Database functions
+ */
+
+/**
+ * Check the database every x milliseconds
+ */
+function databaseClock() {
+	setTimeout(function() {
+		// TODO
+		// active les items présents ds la bdd destinés au joueur (le script php les supprime ensuite) -> TODO idem et qui traite le résultat (JSON ?)
+			// new item().launch
+		databaseClock();
+	}, 100);
+}

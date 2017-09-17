@@ -33,7 +33,21 @@ function executeScript(resource, callback) {
 		}
 	};
 	
-	xhr.open("GET", "ressources" + resource, true);
+	xhr.open("GET", "resources/" + resource, true);
 	xhr.overrideMimeType("text/plain");
+	xhr.send();
+}
+
+function openFile(path, callback) {
+	var xhr = getXMLHttpRequest();
+
+	xhr.onreadystatechange = function() {
+		if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 0)) {
+			callback(xhr.responseText);
+		}
+	};
+	
+	xhr.open("GET", path, true);
+	xhr.overrideMimeType("text/html");
 	xhr.send();
 }

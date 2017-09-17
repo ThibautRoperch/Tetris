@@ -1,0 +1,18 @@
+
+board div {
+    display: flex;
+	flex-direction: column;
+	align-content: stretch;
+}
+
+board div > * {
+	padding: 10px;
+	text-align: center;
+	color: white;
+}
+
+hitboxes {
+	flex-wrap: wrap;
+	margin-right: 20px;
+	background: white;
+}

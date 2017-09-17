@@ -1,0 +1,11 @@
+
+lobby ul {
+}
+
+lobby ul li {
+    display: flex;
+}
+
+game {
+    display: none;
+}

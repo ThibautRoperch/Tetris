@@ -1,21 +1,10 @@
 <?php
-session_start();
+include_once("resources/manage_session.php");
 
-include_once("resources/open_connection.php");
-
-// Retrieve the session lobby and session player if exists, create a session else 
-if (!isset($_SESSION["lobby"])) {
-	$_SESSION["lobby"] = 0;
-}
-if (!isset($_SESSION["player"])) {
-	$pseudo = "Guest";
-	$dbh->query("INSERT INTO players (connected, lobby_id) VALUES (1, $lobby_id)");
-	$_SESSION["player"] = $dbh->lastInsertId();
-}
-
-$lobby_id = $_SESSION["lobby"];
-$player_id = $_SESSION["player"];
+$pseudo = $dbh->query("SELECT pseudo FROM players WHERE id = ".$_SESSION["player"])->fetch()[0];
 ?>
+
+<!-- à terme deviendra lobby.php, index.php sera l'accueil des différents lobbies -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -24,27 +13,42 @@ $player_id = $_SESSION["player"];
 	<meta charset="UTF-8">
 	<title>Play Tetris</title>
 	<link rel="stylesheet" href="css/main.css">
+	<link rel="stylesheet" href="css/lobby.css">
+	<link rel="stylesheet" href="css/game.css">
 </head>
 
-<body onload="playerConnection(), executeScript('players_connected.php', displayPlayers)">
+<body onload="connections()" onkeydown="keyPressed(event)">
+	
+	<header>
+		<h1>Tetris</h1>
+	</header>
 
-	Liste des joueurs :
+	<section>
+		<lobby>
+			Liste des joueurs :
 
-	<ul id="players">
-		<?php
+			<ul id="players">
+				<li>
+					<input type="text" onchange="renamePlayer(this)" value="<?php echo $pseudo; ?>" />
+				</li>
+			</ul>
+
+			<button onclick="launchGame()">JOUER</button>
+		</lobby>
 		
-		foreach($dbh->query("SELECT * FROM players WHERE lobby_id = $lobby_id AND connected = true") as $row) {
-			echo "<li>";
-			if ($row["id"] == $player_id) {
-				echo "<input type=\"text\" onchange=\"renamePlayer(this)\" value=\"".$row["pseudo"]."\" />";
-			} else {
-				echo $row["pseudo"];
-			}
-			echo "</li>";
-		}
+		<game>
+			<left-neighbour></left-neighbour>
+			<board>
+				<well></well>
+				<next></next>
+			</board>
+			<right-neighbour></right-neighbour>
+		</game>
+	</section>
 
-		?>
-	</ul>
+	<footer>
+		RIP IN PEACE BLOCKBATTLE.NET
+	</footer>
 
 </body>
 
@@ -56,3 +60,5 @@ include_once("resources/close_connection.php");
 
 <script src="js/lobby.js"></script>
 <script src="js/oXHR.js"></script>
+<script src="js/classes.js"></script>
+<script src="js/game.js"></script>
