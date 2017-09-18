@@ -40,6 +40,7 @@ $is_ready = $player["is_ready"];
 				<chat>
 					<ul id="messages">
 					</ul>
+					<input type="text" placeholder="Tapez un message" />
 				</chat>
 			</article>
 		</lobby>

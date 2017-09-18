@@ -53,11 +53,6 @@ h1 {
 	text-shadow: 0px 1px rgba(255, 255, 255, 0.15), 0px 2px rgba(255, 255, 255, 0.15), 0px 3px rgba(255, 255, 255, 0.15);
 }
 
-input {
-	border: none;
-	background: none;
-}
-
 button {
 	margin-top: -3px;
 	margin-bottom: 4px;
