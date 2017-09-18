@@ -23,8 +23,8 @@ var SIDE = 20; // pixels
 var UNITE = SIDE + BORDER * 2; // pixels
 var WELL = document.getElementsByTagName("well")[0];
 var NEXT = document.getElementsByTagName("next")[0];
-var COLUMNS_NB = 10; // default
-var ROWS_NB = 22; // default
+var COLUMNS_NB = 10;
+var ROWS_NB = 22;
 
 /**
  * Back-end properties
@@ -42,15 +42,15 @@ var SQUARE_ID = 0; // A.I.
 
 /**
  * Main function
- * Recover the matrix from the database for the back-end, set the well's dimensions and its columns for the front-end, and launch + prepare the first pieces
+ * Fill the matrix for the back-end, set the well's dimensions and its columns for the front-end, and launch + prepare the first pieces
  */
 function startGame() {
 	// The game is not over yet
 	GAME_OVER = false;
-	// Clean the matrix, it might be recycled
-	MATRIX = [];
-	// Recover the matrix from the database
-	// TODO récupérer la matrice depuis la base
+	// Set well's dimensions
+	WELL.style.width = UNITE * COLUMNS_NB + "px";
+	WELL.style.height = UNITE * ROWS_NB + "px";
+	// Fill the matrix
 	for (var r = 0; r < ROWS_NB; ++r) {
 		var row = [];
 		for (var c = 0; c < COLUMNS_NB; ++c) {
@@ -58,16 +58,6 @@ function startGame() {
 		}
 		MATRIX.push(row);
 	}
-	// Update the number of rows and colomns with those obtained from the matrix
-	ROWS_NB = MATRIX.length;
-	COLUMNS_NB = (ROWS_NB > 0) ? MATRIX[0].length : 0;
-	// Clean the well, it might be recycled
-	while (WELL.hasChildNodes()) {
-		WELL.removeChild(WELL.lastChild);
-	}
-	// Set well's dimensions
-	WELL.style.width = UNITE * COLUMNS_NB + "px";
-	WELL.style.height = UNITE * ROWS_NB + "px";
 	// Displays wells's columns
 	for (var c = 0; c < COLUMNS_NB; ++c) {
 		var column = document.createElement("column");
@@ -388,8 +378,6 @@ function gameOver() {
 	// Stop the timer clock
 	clearTimeout(TIMER_CLOCK);
 	// TODO message de game over
-	// Set the player as not playing
-	executeScript("player_game_over.php", nothing);
 }
 
 /*
@@ -405,22 +393,3 @@ function gameOver() {
 [x, y]
 
 */
-
-
-/**************************
- * Database functions
- */
-
-/**
- * Check the database every x milliseconds
- */
-function databaseClock() {
-	setTimeout(function() {
-		if (!GAME_OVER) {
-			// 
-			// TODO active les items présents ds la bdd destinés au joueur (le script php les supprime ensuite) -> TODO idem et qui traite le résultat (JSON ?)
-				// new item().launch
-			databaseClock();
-		}
-	}, 100);
-}

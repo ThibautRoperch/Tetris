@@ -1,9 +1,11 @@
 <?php
 
-include_once("manage_session.php");
+session_start();
 
 if (isset($_SESSION["lobby"]) && isset($_SESSION["player"])) {
-	$lobby_id = $_SESSION["lobby"];
+	include_once("open_connection.php");
+
+    $lobby_id = $_SESSION["lobby"];
     $player_id = $_SESSION["player"];
 
     // Update the user's timestamp
@@ -11,6 +13,8 @@ if (isset($_SESSION["lobby"]) && isset($_SESSION["player"])) {
 
     // Deconnect players who have timeout
     $dbh->exec("UPDATE players SET last_timestamp = 0 WHERE last_timestamp < ".(time() - 3));
+    
+	include_once("close_connection.php");
 }
 
 ?>

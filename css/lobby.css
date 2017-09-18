@@ -19,6 +19,7 @@ lobby article {
 	display: flex;
 	flex-direction: row;
 	justify-content: center;
+	flex-wrap: wrap;
 }
 
 lobby article > * {
@@ -27,28 +28,34 @@ lobby article > * {
 
 lobby chat {
 	display: flex;
+	min-width: 500px;
 	flex-direction: column;
 }
 
 /* Players list and player button */
 
 lobby button {
-	flex: 0.05;
+	display: none;
+	flex: 0.075;
+}
+
+lobby button#close {
+	flex: 0.2;
 }
 
 lobby ul#players li {
 	display: flex;
+	padding: 0 20px;
 }
 
 lobby ul#players li * {
 	flex: 1;
 	line-height: 150%;
 	padding: 10px 0;
-	text-align: center;
 }
 
 lobby ul#players li ready {
-	flex: 0.13;
+	flex: 0.3;
 	font-weight: bold;
 	color: rgba(0, 0, 0, 0.2);
 }
@@ -67,7 +74,7 @@ lobby ul#players li:nth-child(odd) {
 
 /* Messages list */
 
-ul#messages {
+lobby ul#messages {
 	flex:1;
 	background: rgba(0, 0, 0, 0.2);	
 }

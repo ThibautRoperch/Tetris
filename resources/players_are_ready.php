@@ -1,8 +1,10 @@
 <?php
 
-include_once("manage_session.php");
+session_start();
 
 if (isset($_SESSION["lobby"])) {
+	include_once("open_connection.php");
+	
 	$lobby_id = $_SESSION["lobby"];
 
 	// Retrieve players of the lobby
@@ -12,6 +14,8 @@ if (isset($_SESSION["lobby"])) {
 	}
 
 	echo $players_are_ready;
+
+	include_once("close_connection.php");	
 }
 
 ?>

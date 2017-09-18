@@ -1,8 +1,10 @@
 <?php
 
-include_once("manage_session.php");
+session_start();
 
 if (isset($_SESSION["player"]) && isset($_GET["name"])) {
+	include_once("open_connection.php");
+
 	$player_id = $_SESSION["player"];
 	$gift_name = $_SESSION["name"];
 
@@ -18,6 +20,8 @@ if (isset($_SESSION["player"]) && isset($_GET["name"])) {
 			$dbh->exec("INSERT INTO gifts (name, sender_id, recipient_id) VALUES('$gift_name', $player_id, $recipient_id)");
 		}
 	}
+
+	include_once("close_connection.php");
 }
 
 ?>

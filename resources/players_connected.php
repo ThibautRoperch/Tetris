@@ -1,8 +1,10 @@
 <?php
 
-include_once("manage_session.php");
+session_start();
 
 if (isset($_SESSION["lobby"]) && isset($_SESSION["player"])) {
+	include_once("open_connection.php");
+
 	$lobby_id = $_SESSION["lobby"];
 	$player_id = $_SESSION["player"];
 
@@ -21,7 +23,9 @@ if (isset($_SESSION["lobby"]) && isset($_SESSION["player"])) {
 	}
 	$players .= "]";
 
-	echo $players;	
+	echo $players;
+
+	include_once("close_connection.php");	
 }
 
 ?>

@@ -1,0 +1,18 @@
+
+ul li {
+    display: flex;
+    padding: 10px 25px;
+}
+
+ul li * {
+	flex: 1;
+	padding: 10px 0;
+}
+
+ul li button {
+    flex: 0.6;
+}
+
+ul li:hover {
+    background: linear-gradient(to left, transparent, rgba(255, 255, 255, 0.05));
+}

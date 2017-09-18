@@ -1,8 +1,10 @@
 <?php
 
-include_once("manage_session.php");
+session_start();
 
 if (isset($_SESSION["lobby"])) {
+	include_once("open_connection.php");
+
     $lobby_id = $_SESSION["lobby"];
     
 	// Retrieve connected and ready players of the lobby
@@ -16,10 +18,12 @@ if (isset($_SESSION["lobby"])) {
     if ($players->rowCount() == 1) {
         $game_is_over = $players_playing->rowCount() == 0;
     } else {
-        $game_is_over = $players_playing->rowCount() == 1;
+        $game_is_over = $players_playing->rowCount() <= 1;
     }
 
     echo $game_is_over;
+
+	include_once("close_connection.php");    
 }
 
 ?>

@@ -1,24 +1,11 @@
-<?php
-include_once("resources/manage_session.php");
-
-$player = $dbh->query("SELECT * FROM players WHERE id = ".$_SESSION["player"])->fetch();
-$pseudo = $player["pseudo"];
-$is_ready = $player["is_ready"];
-
-$lobby = $dbh->query("SELECT * FROM lobbies WHERE id = ".$_SESSION["lobby"])->fetch(); // provisoire, l'id du lobby sera dans le lien et pas dans un cookie
-?>
-
-<!-- à terme deviendra lobby.php, index.php sera l'accueil des différents lobbies -->
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
 	<meta charset="UTF-8">
-	<title>Play Tetris</title>
+	<title>Tetris</title>
 	<link rel="stylesheet" href="css/main.css">
-	<link rel="stylesheet" href="css/lobby.css">
-	<link rel="stylesheet" href="css/game.css">
+	<link rel="stylesheet" href="css/index.css">
 </head>
 
 <body onload="connections()" onkeydown="keyPressed(event)">
@@ -28,46 +15,28 @@ $lobby = $dbh->query("SELECT * FROM lobbies WHERE id = ".$_SESSION["lobby"])->fe
 	</header>
 
 	<section>
-		<lobby>
-			<article>
+		<article>
+			<ul>
 				<?php
-				// Display a message if a game is in progress, a ready button else
-				if ($lobby["is_playing"]) {
-					echo "Game in progress";
-					// TODO spectate the game
-					/* <button class="<?php echo ($is_ready == 1) ? "ready" : ""; ?>" onclick="<?php echo ($is_ready == 1) ? "setAsNotReady(this)" : "setAsReady(this)"; ?>">spectate the game</button>*/
-				} else {
-					?>
-					<button class="<?php echo ($is_ready == 1) ? "ready" : ""; ?>" onclick="<?php echo ($is_ready == 1) ? "setAsNotReady(this)" : "setAsReady(this)"; ?>">ready</button>
-					<?php
+				include_once("resources/open_connection.php");
+
+				foreach($dbh->query("SELECT * FROM lobbies") as $row) {
+					$lobby_id = $row["id"];
+					$statut = ($row["is_playing"] == 1) ? "Game in progress" : "Open";
+					$players_nb = $dbh->query("SELECT * FROM players WHERE lobby_id = $lobby_id AND last_timestamp > 0")->rowCount();
+
+					echo "<li>";
+						echo "<name>Lobby $lobby_id</name>";
+						echo "<playing>$statut</playing>";
+						echo "<players>$players_nb players</players>";
+						echo "<button onclick=\"goToLobby($lobby_id)\">go to lobby $lobby_id</button>";
+					echo "</li>";
 				}
 				?>
-			</article>
-
-			<article>
-				<ul id="players">
-					<li>
-						<ready class="<?php echo ($is_ready == 1) ? "ready" : ""; ?>">READY</ready>
-						<input type="text" onkeyup="renamePlayer(this)" value="<?php echo $pseudo; ?>" required />
-					</li>
-				</ul>
-				<chat>
-					<ul id="messages">
-					</ul>
-				</chat>
-			</article>
-		</lobby>
-		
-		<game>
-			<left-neighbour></left-neighbour>
-			<board>
-				<well></well>
-				<next></next>
-			</board>
-			<right-neighbour></right-neighbour>
-		</game>
+			</ul>
+		</article>
 	</section>
-
+	
 	<footer>
 		RIP IN PEACE BLOCKBATTLE.NET
 	</footer>
@@ -76,11 +45,10 @@ $lobby = $dbh->query("SELECT * FROM lobbies WHERE id = ".$_SESSION["lobby"])->fe
 
 </html>
 
-<?php
-include_once("resources/close_connection.php");
-?>
+<script>
 
-<script src="js/lobby.js"></script>
-<script src="js/oXHR.js"></script>
-<script src="js/classes.js"></script>
-<script src="js/game.js"></script>
+function goToLobby(lobby_id) {
+	document.location = "lobby.php?id=" + lobby_id;
+}
+
+</script>

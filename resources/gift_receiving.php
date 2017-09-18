@@ -1,8 +1,10 @@
 <?php
 
-include_once("manage_session.php");
+session_start();
 
 if (isset($_SESSION["player"])) {
+	include_once("open_connection.php");
+
 	$player_id = $_SESSION["player"];
 	
 	// Retrieve gifts destined to the player and remove them
@@ -20,7 +22,9 @@ if (isset($_SESSION["player"])) {
 	}
 	$gifts .= "]";
 
-	echo $gifts;	
+	echo $gifts;
+		
+	include_once("close_connection.php");
 }
 
 ?>

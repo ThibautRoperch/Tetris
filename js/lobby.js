@@ -12,6 +12,7 @@ var GAME_STARTED = false;
 function connections() {
 	setTimeout(function() {
 		if (!GAME_STARTED) {
+			executeScript("game_is_over.php", displayButtonsOpenClose);
 			executeScript("player_connection.php", nothing);
 			executeScript("players_connected.php", displayPlayers);
 			// executeScript("????.php", displayChat); // TODO le chat
@@ -22,7 +23,20 @@ function connections() {
 }
 
 /**
- * Update or display the players list in an HTML element
+ * Display or not the open button and the close button
+ */
+function displayButtonsOpenClose(contents) {
+	if (contents == "1") {
+		document.getElementById("open").style.display = "block";
+		document.getElementById("close").style.display = "none";
+	} else {
+		document.getElementById("open").style.display = "none";
+		document.getElementById("close").style.display = "block";
+	}
+}
+
+/**
+ * Save the players list in a JS array and display it in an HTML element
  */
 function displayPlayers(contents) {
 	var list = document.getElementById("players");
@@ -111,7 +125,8 @@ function setAsNotReady(button) {
 /**
  * Launch the game if all players are ready
  */
-function launchGame(contents) {	
+function launchGame(contents) {
+	// console.log(contents);
 	if (contents == "1") {
 		GAME_STARTED = true;
 		// The game starts in the database
@@ -128,9 +143,13 @@ function launchGame(contents) {
 	}
 }
 
+/**
+ * Permanantly check databases during the game
+ */
 function playingGame() {
 	setTimeout(function() {
 		if (GAME_STARTED) {
+			console.log(GAME_STARTED);
 			executeScript("game_is_over.php", gameOverForEveryone);
 			// TODO afficher les matrices des autres joueurs
 			playingGame();
@@ -139,6 +158,7 @@ function playingGame() {
 }
 
 function gameOverForEveryone(contents) {
+	// console.log(contents);
 	if (contents == "1") {
 		GAME_STARTED = false;
 		// The game overs in the database
@@ -146,7 +166,9 @@ function gameOverForEveryone(contents) {
 		// Call the game's GameOver function
 		gameOver();
 		// Start the lobby's clock
-		// connections();
+		connections();
+		// Set the player as not ready
+		setAsNotReady(document.getElementById("open"));
 		// Display the lobby instead of the game
 		document.getElementsByTagName("game")[0].className = "invisible";
 		document.getElementsByTagName("lobby")[0].className = "visible";
