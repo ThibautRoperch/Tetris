@@ -463,3 +463,21 @@ class Square {
 		this.type = type;
 	}
 }
+
+/**
+ * Gift representation, with a name and an associated effect
+ */
+class Gift {
+	constructor(name) {
+		this.name = name;
+
+		switch (this.type) {
+			case "line" :
+				break;
+			case "rumble" :
+				break;
+			default:
+				break;
+		}
+	}
+}

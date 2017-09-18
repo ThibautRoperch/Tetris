@@ -1,11 +1,16 @@
 
+/*
+http://colorschemedesigner.com/csd-3.5/#3B40whW6p6q6q
+*/
+
 /* All elements */
 
 * {
 	margin: 0;
 	padding: 0;
+	font-size: 24px;
 	font-family: Consolas, monaco, monospace;
-	color: white;
+	color: rgba(255, 255, 255, 0.65);
 }
 
 /* Basic structure */
@@ -17,13 +22,21 @@ body {
 	background: #0D161F;
 }
 
-header {
+header, footer {
 	display: flex;
 	justify-content: center;
+	background: rgba(0, 0, 0, 0.2);
 }
 
 section {
+	padding: 20px 0;
 	margin: 0 13%;
+}
+
+footer {
+	padding: 20px;
+	font-size: 75%;
+	color: rgba(255, 255, 255, 0.3);
 }
 
 /* Components */
@@ -31,6 +44,8 @@ section {
 h1 {
 	padding: 20px 0;
 	font-size: 40px;
+	letter-spacing: 10px;
+	text-shadow: 0 1px rgba(255, 255, 255, 0.2), 0 2px rgba(255, 255, 255, 0.2), 0 3px rgba(255, 255, 255, 0.2), 0 4px rgba(255, 255, 255, 0.2);
 }
 
 input {
@@ -39,5 +54,21 @@ input {
 }
 
 button {
-	background: 
+	padding: 10px 15px;
+	text-transform: uppercase;
+	background: #1D2A37;
+	border: none;
+	box-shadow: 0 7px 0px 1px rgba(0, 0, 0, 0.3);
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+button:hover, button.ready {
+	margin-top: 7px;
+	margin-bottom: -7px;
+	box-shadow: 0 0px 2px 0px rgba(0, 0, 0, 0.6);
+}
+
+button:active, button.ready {
+	background: #1B2C13;
 }

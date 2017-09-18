@@ -25,6 +25,7 @@ if (isset($_SESSION["player"])) {
 if (!isset($_SESSION["player"]) || $recreate_player) {
 	$lobby_id = $_SESSION["lobby"];	
 	$dbh->exec("INSERT INTO players (lobby_id) VALUES ($lobby_id)");
+	// ajouter des valeurs par défaut aux colonnes, ou les donner ici
 	$_SESSION["player"] = $dbh->lastInsertId();
 }
 

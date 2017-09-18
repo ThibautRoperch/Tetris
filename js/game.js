@@ -47,9 +47,6 @@ var SQUARE_ID = 0; // A.I.
 function startGame() {
 	// The game is not over yet
 	GAME_OVER = false;
-	// Display the game instead of the lobby
-	document.getElementsByTagName("game")[0].style.display = "flex";
-	document.getElementsByTagName("lobby")[0].style.display = "none";
 	// Set well's dimensions
 	WELL.style.width = UNITE * COLUMNS_NB + "px";
 	WELL.style.height = UNITE * ROWS_NB + "px";
@@ -74,9 +71,9 @@ function startGame() {
 	NEXT.style.height = UNITE * (NEXT_PIECE.getStructure().length) + "px";
 	// Launch a first piece
 	launchPiece();
-	// Call the game clock
+	// Start the game clock
 	gameClock();
-	// Start the timer
+	// Start the timer clock
 	timerClock();
 	// Permanently check the database
 	databaseClock();
@@ -381,7 +378,8 @@ function gameOver() {
 	// Stop the timer clock
 	clearTimeout(TIMER_CLOCK);
 	// TODO message de game over
-	// TODO script php qui met à false "playing" pour ce joueur dans la bdd
+	// Set the player as not playing
+	executeScript("player_game_over.php", nothing);
 }
 
 /*
@@ -408,9 +406,11 @@ function gameOver() {
  */
 function databaseClock() {
 	setTimeout(function() {
-		// TODO
-		// active les items présents ds la bdd destinés au joueur (le script php les supprime ensuite) -> TODO idem et qui traite le résultat (JSON ?)
-			// new item().launch
-		databaseClock();
+		if (!GAME_OVER) {			
+			// 
+			// TODO active les items présents ds la bdd destinés au joueur (le script php les supprime ensuite) -> TODO idem et qui traite le résultat (JSON ?)
+				// new item().launch
+			databaseClock();
+		}
 	}, 100);
 }

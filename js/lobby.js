@@ -1,6 +1,6 @@
 
-var CONNECTIONS;
 var PLAYERS = [];
+var GAME_STARTED = false;
 
 /**************************
  * Handle connections and players
@@ -10,10 +10,14 @@ var PLAYERS = [];
  * Update the user's timestamp each second and retrieve the players list
  */
 function connections() {
-	CONNECTIONS = setTimeout(function() {
-		executeScript('player_connection.php', nothing);
-		executeScript('players_connected.php', displayPlayers);
-		connections();
+	setTimeout(function() {
+		if (!GAME_STARTED) {
+			executeScript("player_connection.php", nothing);
+			executeScript("players_connected.php", displayPlayers);
+			// executeScript("????.php", displayChat); // TODO le chat
+			executeScript("players_are_ready.php", launchGame);
+			connections();
+		}
 	}, 500);
 }
 
@@ -24,57 +28,130 @@ function displayPlayers(contents) {
 	var list = document.getElementById("players");
 	contents = JSON.parse(contents);
 
-	// Compare the local JS array with the retrieved JSON array, there is a difference between only if two ids are different
+	// Compare the local JS array with the retrieved JSON array
+	// Clean and reacreate the local JS array if their number of players are different
+	var need_to_recreate_html = false;
 	if (PLAYERS.length != contents.length) {
 		PLAYERS = [];
+		var need_to_recreate_html = true;
 	}
-	var differences = false;
+
+	// Update the local JS array (and the HTML list if existing) with the retrieved JSON array
 	for (p = 0; p < contents.length; ++p) {
-		// Update the local JS array if there is a difference
-		// Else, update the pseudo if they are different
-		if (!PLAYERS[p] || PLAYERS[p].id != contents[p].id) {
-			differences = true;
-			PLAYERS[p] = contents[p];
-		} else if (PLAYERS[p].pseudo != contents[p].pseudo) {
-			PLAYERS[p].pseudo = contents[p].pseudo;
-			list.getElementsByTagName("li")[p + 1].innerHTML = PLAYERS[p].pseudo;
+		PLAYERS[p] = contents[p];
+		if (!need_to_recreate_html) {
+			list.getElementsByTagName("li")[p + 1].getElementsByTagName("ready")[0].className = (PLAYERS[p].is_ready == 1) ? "ready" : "";
+			list.getElementsByTagName("li")[p + 1].getElementsByTagName("pseudo")[0].innerHTML = PLAYERS[p].pseudo;
 		}
 	}
 
-	// If some differences has been detected, update the HTML list
-	if (differences) {
-		while (list.getElementsByTagName("li")[1]) {
+	// Clean and recreate the HTML list with the local JS array, if have to do
+	if (need_to_recreate_html) {
+		// Clean
+		while (list.getElementsByTagName("li")[1]) { // the li[0] contains the player's input
 			list.removeChild(list.getElementsByTagName("li")[1]);
 		}
+		// Recreate
 		for (p in PLAYERS) {
 			var player = document.createElement("li");
-			player.innerHTML = PLAYERS[p].pseudo;
+				var ready = document.createElement("ready");
+				ready.innerHTML = "READY";
+				if (PLAYERS[p].ready == 1) {
+					ready.className = "ready";
+				}
+			player.appendChild(ready);
+				var pseudo = document.createElement("pseudo");
+				pseudo.innerHTML = PLAYERS[p].pseudo;
+			player.appendChild(pseudo);
 			list.appendChild(player);
 		}
 	}
 }
 
+function displayChat(contents) {
+	// affiche le Chat (rquete script php) dans un noeud html -> TODO une fonction qui check en permanance et qui affiche le résultat
+}
+
+/**
+ * Rename the player
+ */
 function renamePlayer(input) {
 	executeScript("rename_player.php?pseudo=" + input.value, nothing);
 }
+
+/**
+ * Set the player as ready
+ */
+function setAsReady(button) {
+	executeScript("player_ready.php?is_ready=true", nothing);	
+	// Change button's look and its onclick's target
+	button.className = "ready";
+	button.onclick = function() { setAsNotReady(this); };
+	// Update player's mark
+	document.getElementById("players").getElementsByTagName("li")[0].getElementsByTagName("ready")[0].className = "ready";
+}
+
+/**
+ * Set the player as not ready
+ */
+function setAsNotReady(button) {
+	executeScript("player_ready.php?is_ready=false", nothing);	
+	// Change button's look and its onclick's target
+	button.className = "";
+	button.onclick = function() { setAsReady(this); };
+	// Update player's mark
+	document.getElementById("players").getElementsByTagName("li")[0].getElementsByTagName("ready")[0].className = "";
+}
+
 
 /**************************
  * Let's gooooo
  */
 
-function launchGame() {
-	startGame();
-	// lance les fonction qui tourneront h24 : le tchat, les autres joueurs
+/**
+ * Launch the game if all players are ready
+ */
+function launchGame(contents) {	
+	if (contents == "1") {
+		GAME_STARTED = true;
+		// The game starts in the database
+		executeScript("game_starts.php", nothing);
+		// Display the game instead of the lobby
+		document.getElementsByTagName("game")[0].className = "visible";
+		document.getElementsByTagName("lobby")[0].className = "invisible";	
+		// TODO décompte qui tempo la fin de la boucle des scripts
+		// A la fin du décompte :
+			// Call the game's StartGame function
+			startGame();
+			// Start the lobby PlayingGame clock
+			playingGame();
+	}
 }
 
-function displayTchat() {
-	// affiche le tchat (rquete script php) dans un noeud html -> TODO une fonction qui check en permanance et qui affiche le résultat
+function playingGame() {
+	setTimeout(function() {
+		if (GAME_STARTED) {
+			executeScript("game_is_over.php", gameOverForEveryone);
+			// TODO afficher les matrices des autres joueurs
+			playingGame();
+		}
+	}, 500);
 }
 
-function display() {
-	// affiche le tchat (rquete script php) dans un noeud html -> TODO une fonction qui check en permanance et qui affiche le résultat
+function gameOverForEveryone(contents) {
+	if (contents == "1") {
+		GAME_STARTED = false;
+		// The game overs in the database
+		executeScript("game_overs.php", nothing);
+		// Call the game's GameOver function
+		gameOver();
+		// Start the lobby's clock
+		// connections();
+		// Display the lobby instead of the game
+		document.getElementsByTagName("game")[0].className = "invisible";
+		document.getElementsByTagName("lobby")[0].className = "visible";
+	}
 }
-
 
 /**************************
  * Void function

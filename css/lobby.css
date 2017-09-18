@@ -1,11 +1,83 @@
 
-lobby ul {
+/* Lobby structure */
+
+lobby, lobby.visible {
+	display: flex;
+	flex-direction: column;
 }
 
-lobby ul li {
-    display: flex;
+lobby.invisible {
+	display: none;
 }
 
-game {
-    display: none;
+lobby > * {
+	flex: 1;
+	margin: 20px 0;
+}
+
+lobby article {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+}
+
+lobby article > * {
+	flex: 1;
+}
+
+lobby chat {
+	display: flex;
+	flex-direction: column;
+}
+
+/* Players list and player button */
+
+lobby button {
+	flex: 0.05;
+}
+
+lobby ul#players li {
+	display: flex;
+}
+
+lobby ul#players li * {
+	flex: 1;
+	line-height: 150%;
+	padding: 10px 0;
+	text-align: center;
+}
+
+lobby ul#players li ready {
+	flex: 0.13;
+	font-weight: bold;
+	color: rgba(0, 0, 0, 0.2);
+}
+
+lobby ul#players li ready.ready {
+	color: #2A4120;
+}
+
+lobby ul#players li:nth-child(even) {
+	background: linear-gradient(to left, rgba(255, 255, 255, 0.05), transparent); 
+}
+
+lobby ul#players li:nth-child(odd) {
+	background: linear-gradient(to left, rgba(255, 255, 255, 0.025), transparent); 
+}
+
+/* Messages list */
+
+ul#messages {
+	flex:1;
+	background: rgba(0, 0, 0, 0.2);	
+}
+
+/* Game */
+
+game, game.invisible {
+	display: none;
+}
+
+game.visible {
+	display: flex;
 }

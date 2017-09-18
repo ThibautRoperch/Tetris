@@ -1,7 +1,11 @@
 <?php
 include_once("resources/manage_session.php");
 
-$pseudo = $dbh->query("SELECT pseudo FROM players WHERE id = ".$_SESSION["player"])->fetch()[0];
+$player = $dbh->query("SELECT * FROM players WHERE id = ".$_SESSION["player"])->fetch();
+$pseudo = $player["pseudo"];
+$is_ready = $player["is_ready"];
+
+$lobby = $dbh->query("SELECT * FROM lobbies WHERE id = ".$_SESSION["lobby"])->fetch(); // provisoire, l'id du lobby sera dans le lien et pas dans un cookie
 ?>
 
 <!-- à terme deviendra lobby.php, index.php sera l'accueil des différents lobbies -->
@@ -25,15 +29,33 @@ $pseudo = $dbh->query("SELECT pseudo FROM players WHERE id = ".$_SESSION["player
 
 	<section>
 		<lobby>
-			Liste des joueurs :
+			<article>
+				<?php
+				// Display a message if a game is in progress, a ready button else
+				if ($lobby["is_playing"]) {
+					echo "Game in progress";
+					// TODO spectate the game
+					/* <button class="<?php echo ($is_ready == 1) ? "ready" : ""; ?>" onclick="<?php echo ($is_ready == 1) ? "setAsNotReady(this)" : "setAsReady(this)"; ?>">spectate the game</button>*/
+				} else {
+					?>
+					<button class="<?php echo ($is_ready == 1) ? "ready" : ""; ?>" onclick="<?php echo ($is_ready == 1) ? "setAsNotReady(this)" : "setAsReady(this)"; ?>">ready</button>
+					<?php
+				}
+				?>
+			</article>
 
-			<ul id="players">
-				<li>
-					<input type="text" onchange="renamePlayer(this)" value="<?php echo $pseudo; ?>" />
-				</li>
-			</ul>
-
-			<button onclick="launchGame()">JOUER</button>
+			<article>
+				<ul id="players">
+					<li>
+						<ready class="<?php echo ($is_ready == 1) ? "ready" : ""; ?>">READY</ready>
+						<input type="text" onkeyup="renamePlayer(this)" value="<?php echo $pseudo; ?>" required />
+					</li>
+				</ul>
+				<chat>
+					<ul id="messages">
+					</ul>
+				</chat>
+			</article>
 		</lobby>
 		
 		<game>

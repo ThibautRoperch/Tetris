@@ -1,0 +1,26 @@
+<?php
+
+include_once("manage_session.php");
+
+if (isset($_SESSION["player"])) {
+	$player_id = $_SESSION["player"];
+	
+	// Retrieve gifts destined to the player and remove them
+	$gifts = "[";
+	foreach($dbh->query("SELECT * FROM gifts WHERE recipient_id = $player_id") as $row) {
+		if (strlen($gifts) > 1) {
+			$gifts .= ", ";
+		}
+		$gifts .=
+		"{
+			\"name\" : ".$row["name"].",
+			\"sender\" : \"".$row["sender_id"]."\"
+		}";
+		$dbh->exec("DELETE FROM gifts WHERE id = ".$row["id"]);
+	}
+	$gifts .= "]";
+
+	echo $gifts;	
+}
+
+?>

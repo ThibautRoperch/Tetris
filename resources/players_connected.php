@@ -15,12 +15,13 @@ if (isset($_SESSION["lobby"]) && isset($_SESSION["player"])) {
 		$players .=
 		"{
 			\"id\" : ".$row["id"].",
-			\"pseudo\" : \"".$row["pseudo"]."\"
+			\"pseudo\" : \"".$row["pseudo"]."\",
+			\"is_ready\" : \"".$row["is_ready"]."\"
 		}";
 	}
 	$players .= "]";
-}
 
-echo $players;
+	echo $players;	
+}
 
 ?>

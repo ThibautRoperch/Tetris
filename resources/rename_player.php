@@ -2,7 +2,7 @@
 
 include_once("manage_session.php");
 
-if (isset($_SESSION["player"])) {
+if (isset($_SESSION["player"]) && isset($_GET["pseudo"])) {
     $player_id = $_SESSION["player"];
     $new_pseudo = $_GET["pseudo"];
 
