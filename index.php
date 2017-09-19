@@ -1,3 +1,11 @@
+<?php
+include_once("resources/manage_session.php");
+
+include("resources/open_connection.php");
+
+$player_id = $_SESSION["player"];
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -8,22 +16,23 @@
 	<link rel="stylesheet" href="css/index.css">
 </head>
 
-<body onload="connections()" onkeydown="keyPressed(event)">
+<body onload="executeScript('player_deconnection.php', nothing)">
 	
 	<header>
-		<h1>Tetris</h1>
+		<h1>TETRIS</h1>
 	</header>
 
 	<section>
+		<article style="margin:10px 25px;">
+			<button onclick="refresh()" style="float: right">&#11118;</button>
+		</article>
 		<article>
 			<ul>
 				<?php
-				include_once("resources/open_connection.php");
-
 				foreach($dbh->query("SELECT * FROM lobbies") as $row) {
 					$lobby_id = $row["id"];
 					$statut = ($row["is_playing"] == 1) ? "Game in progress" : "Open";
-					$players_nb = $dbh->query("SELECT * FROM players WHERE lobby_id = $lobby_id AND last_timestamp > 0")->rowCount();
+					$players_nb = $dbh->query("SELECT * FROM players WHERE lobby_id = $lobby_id AND last_timestamp > 0 AND id != $player_id")->rowCount();
 
 					echo "<li>";
 						echo "<name>Lobby $lobby_id</name>";
@@ -45,10 +54,9 @@
 
 </html>
 
-<script>
+<?php
+include("resources/close_connection.php");				
+?>				
 
-function goToLobby(lobby_id) {
-	document.location = "lobby.php?id=" + lobby_id;
-}
-
-</script>
+<script src="js/oXHR.js"></script>
+<script src="js/index.js"></script>

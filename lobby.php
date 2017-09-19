@@ -1,6 +1,18 @@
 <?php
 include_once("resources/manage_session.php");
 
+// Update the lobby session with the URL
+if (isset($_GET["id"])) {
+	$_SESSION["lobby"] = $_GET["id"];
+} else {
+	header("Location: index.php");
+}
+
+include("resources/open_connection.php");
+
+// Update the database with the lobby session
+$dbh->exec("UPDATE players SET lobby_id = ".$_SESSION["lobby"]." WHERE id = ".$_SESSION["player"]);
+
 $player = $dbh->query("SELECT * FROM players WHERE id = ".$_SESSION["player"])->fetch();
 $pseudo = $player["pseudo"];
 $is_ready = $player["is_ready"];
@@ -20,7 +32,7 @@ $is_ready = $player["is_ready"];
 <body onload="connections()" onkeydown="keyPressed(event)">
 	
 	<header>
-		<h1>Tetris</h1>
+		<h1>TETRIS</h1>
 	</header>
 
 	<section>
@@ -48,12 +60,16 @@ $is_ready = $player["is_ready"];
 		</lobby>
 		
 		<game>
-			<left-neighbour></left-neighbour>
 			<board>
 				<well></well>
 				<next></next>
 			</board>
-			<right-neighbour></right-neighbour>
+			<others>
+				<!-- <player>
+					<name>ducon</name>
+					<field></field>
+				</player> -->
+			<others>
 		</game>
 	</section>
 
@@ -66,10 +82,10 @@ $is_ready = $player["is_ready"];
 </html>
 
 <?php
-include_once("resources/close_connection.php");
+include("resources/close_connection.php");
 ?>
 
-<script src="js/lobby.js"></script>
 <script src="js/oXHR.js"></script>
+<script src="js/lobby.js"></script>
 <script src="js/classes.js"></script>
 <script src="js/game.js"></script>

@@ -109,9 +109,21 @@ lobby chat ul#messages {
 game, game.invisible {
 	display: none;
 	flex-direction: row;
-	justify-content: center;
+	justify-content: flex-start;
 }
 
 game.visible {
 	display: flex;
+}
+
+game others {
+	flex: 1;
+	display: flex;
+	flex-wrap: wrap;
+	/* background: black; */
+}
+
+game others player {
+	height: 50%;
+	background: white;
 }

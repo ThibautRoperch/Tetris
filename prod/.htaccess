@@ -1,0 +1,4 @@
+RewriteBase /
+Options +FollowSymlinks
+RewriteEngine On
+RewriteRule ^([0-9]+)$ lobby.php?id=$1 [L]

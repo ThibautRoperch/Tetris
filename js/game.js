@@ -8,32 +8,32 @@
  * Game properties
  */
 
-var TIME = 0; // seconds
-var SPEED = 1; // square per second
-var LINES = 0;
+var TIME; // seconds
+var SPEED; // square per second
+var LINES;
 var TIMER_CLOCK;
-var GAME_OVER = true;
+var GAME_OVER;
 
 /**
  * Front-end properties
  */
 
-var BORDER = 3; // pixels
-var SIDE = 20; // pixels
-var UNITE = SIDE + BORDER * 2; // pixels
-var WELL = document.getElementsByTagName("well")[0];
-var NEXT = document.getElementsByTagName("next")[0];
-var COLUMNS_NB = 10; // default
-var ROWS_NB = 22; // default
+var BORDER; // pixels
+var SIDE; // pixels
+var UNITE; // pixels
+var WELL;
+var NEXT;
+var COLUMNS_NB;
+var ROWS_NB;
 
 /**
  * Back-end properties
  */
 
-var MATRIX = []; // row's list, elements are squares
-var CURRENT_PIECE = null; // piece type
-var NEXT_PIECE = null; // piece type
-var SQUARE_ID = 0; // A.I.
+var MATRIX; // row's list, elements are squares
+var CURRENT_PIECE; // piece type
+var NEXT_PIECE; // piece type
+var SQUARE_ID; // A.I.
 
 
 /**************************
@@ -41,14 +41,38 @@ var SQUARE_ID = 0; // A.I.
  */
 
 /**
+ * Reset all properties
+ */
+function resetProperties() {
+	// Game ones
+	TIME = 0;
+	SPEED = 1;
+	LINES = 0;
+	GAME_OVER = true;
+	// Front-end ones
+	BORDER = 3;
+	SIDE = 20;
+	UNITE = SIDE + BORDER * 2;
+	WELL = document.getElementsByTagName("well")[0];
+	NEXT = document.getElementsByTagName("next")[0];
+	COLUMNS_NB = 10;
+	ROWS_NB = 22;
+	// Back-end ones
+	MATRIX = [];
+	CURRENT_PIECE = null;
+	NEXT_PIECE = null;
+	SQUARE_ID = 0;
+}
+
+/**
  * Main function
  * Recover the matrix from the database for the back-end, set the well's dimensions and its columns for the front-end, and launch + prepare the first pieces
  */
 function startGame() {
+	// Reset properties, they might be recycled
+	resetProperties();
 	// The game is not over yet
 	GAME_OVER = false;
-	// Clean the matrix, it might be recycled
-	MATRIX = [];
 	// Recover the matrix from the database
 	// TODO récupérer la matrice depuis la base
 	for (var r = 0; r < ROWS_NB; ++r) {
@@ -119,12 +143,12 @@ function timerClock() {
 		TIME++;
 		// Increase the speed by x squares per seconds every y seconds
 		if (TIME % 60 == 0) {
-			SPEED += 0.75;
+			SPEED += 1;
 		}
 		// Reduce the columns' opacity
 		var c = 0;
 		while (WELL.getElementsByTagName("column")[c]) {
-			WELL.getElementsByTagName("column")[c].style.opacity = 1 - TIME / 75;
+			WELL.getElementsByTagName("column")[c].style.opacity = 1 - TIME / 100;
 			++c;
 		}
 		// Continue the timer

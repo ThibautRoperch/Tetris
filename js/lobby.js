@@ -1,5 +1,6 @@
 
 var PLAYERS = [];
+var MESSAGES = [];
 var GAME_STARTED = false;
 
 /**************************
@@ -83,12 +84,11 @@ function displayPlayers(contents) {
 }
 
 function displayChat(contents) {
+	// MESSAGES
 	// TODO
 	// id message, id envoyeur, sending_time
 	// messages ds un tableau js ; si la taille de ce tableau change :
-		// tq le premier id du tabl js est différent du tabl json, enlever le premier child li de chat ul
-		// tq le dernier id du tabl js erst diff du tabl json, ajouter a utabl js le message et au chat ul
-	// affiche le Chat (rquete script php) dans un noeud html -> TODO une fonction qui check en permanance et qui affiche le résultat
+		// tq le dernier id du tabl js erst diff du tabl json, ajouter au tableau js l'id et au chat ul le message dans un li avec le nom du type
 }
 
 /**
@@ -146,7 +146,6 @@ function submitChatForm(event, form) {
  * Launch the game if all players are ready
  */
 function launchGame(contents) {
-	// console.log(contents);
 	if (contents == "1") {
 		GAME_STARTED = true;
 		// The game starts in the database
@@ -169,7 +168,6 @@ function launchGame(contents) {
 function playingGame() {
 	setTimeout(function() {
 		if (GAME_STARTED) {
-			console.log(GAME_STARTED);
 			executeScript("game_is_over.php", gameOverForEveryone);
 			// TODO afficher les matrices des autres joueurs
 			playingGame();
@@ -178,7 +176,6 @@ function playingGame() {
 }
 
 function gameOverForEveryone(contents) {
-	// console.log(contents);
 	if (contents == "1") {
 		GAME_STARTED = false;
 		// The game overs in the database
