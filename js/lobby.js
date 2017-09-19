@@ -15,7 +15,7 @@ function connections() {
 			executeScript("game_is_over.php", displayButtonsOpenClose);
 			executeScript("player_connection.php", nothing);
 			executeScript("players_connected.php", displayPlayers);
-			// executeScript("????.php", displayChat); // TODO le chat
+			executeScript("messages_receiving.php", displayChat);
 			executeScript("players_are_ready.php", launchGame);
 			connections();
 		}
@@ -83,6 +83,11 @@ function displayPlayers(contents) {
 }
 
 function displayChat(contents) {
+	// TODO
+	// id message, id envoyeur, sending_time
+	// messages ds un tableau js ; si la taille de ce tableau change :
+		// tq le premier id du tabl js est différent du tabl json, enlever le premier child li de chat ul
+		// tq le dernier id du tabl js erst diff du tabl json, ajouter a utabl js le message et au chat ul
 	// affiche le Chat (rquete script php) dans un noeud html -> TODO une fonction qui check en permanance et qui affiche le résultat
 }
 
@@ -115,6 +120,21 @@ function setAsNotReady(button) {
 	button.onclick = function() { setAsReady(this); };
 	// Update player's mark
 	document.getElementById("players").getElementsByTagName("li")[0].getElementsByTagName("ready")[0].className = "";
+}
+
+/**
+ * Send the input chat message
+ */
+function submitChatForm(event, form) {
+	event.preventDefault();
+	// Retrieve the message from the chat input
+	var message = form.getElementsByTagName("input")[0].value;
+	// Clean the chat input
+	form.getElementsByTagName("input")[0].value = "";
+	// Send the message
+	executeScript("message_sending.php?message="+message, nothing);
+	// Make an extra call to the messages receipt function
+	executeScript("messages_receiving.php", displayChat);
 }
 
 

@@ -40,7 +40,9 @@ $is_ready = $player["is_ready"];
 				<chat>
 					<ul id="messages">
 					</ul>
-					<input type="text" placeholder="Tapez un message" />
+					<form onsubmit="submitChatForm(event, this)" action="resources/message_sending.php" method="GET" >
+						<input id="message" type="text" placeholder="Tapez un message" />
+					</form>
 				</chat>
 			</article>
 		</lobby>
