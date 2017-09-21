@@ -3,6 +3,7 @@ var PLAYERS = [];
 var MESSAGES = [];
 var GAME_STARTED = false;
 
+
 /**************************
  * Handle connections and players
  */
@@ -11,13 +12,13 @@ var GAME_STARTED = false;
  * Update the user's timestamp each second and retrieve the players list
  */
 function connections() {
+	executeScript("game_is_over.php", displayButtonsOpenClose);
+	executeScript("player_connection.php", nothing);
+	executeScript("players_connected.php", displayPlayers);
+	executeScript("message_receiving.php", displayChat);
+	executeScript("players_are_ready.php", launchGame);
 	setTimeout(function() {
 		if (!GAME_STARTED) {
-			executeScript("game_is_over.php", displayButtonsOpenClose);
-			executeScript("player_connection.php", nothing);
-			executeScript("players_connected.php", displayPlayers);
-			executeScript("message_receiving.php", displayChat);
-			executeScript("players_are_ready.php", launchGame);
 			connections();
 		}
 	}, 500);
@@ -89,6 +90,7 @@ function displayPlayers(contents) {
  */
 function displayChat(contents) {
 	contents = JSON.parse(contents);
+	
 	// Compare the local JS array with the retrieved JSON array, find the last common message's position in the JSON array
 	var i = 0;
 
@@ -210,10 +212,10 @@ function launchGame(contents) {
  * Permanantly check databases during the game
  */
 function playingGame() {
+	executeScript("game_is_over.php", gameOverForEveryone);
+	// TODO afficher les matrices des autres joueurs
 	setTimeout(function() {
 		if (GAME_STARTED) {
-			executeScript("game_is_over.php", gameOverForEveryone);
-			// TODO afficher les matrices des autres joueurs
 			playingGame();
 		}
 	}, 500);

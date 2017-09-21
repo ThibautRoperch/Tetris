@@ -12,7 +12,7 @@ lobby.invisible {
 
 lobby > * {
 	flex: 1;
-	margin: 20px 0;
+	margin-bottom: 40px;
 }
 
 lobby article {
@@ -101,7 +101,9 @@ lobby chat form input:focus {
 }
 
 lobby chat ul#messages {
-	flex:1;
+	flex: 1;
+	min-height: 50vh;
+	max-height: 50vh;
 	overflow: auto;
 	background: rgba(0, 0, 0, 0.2);	
 }
