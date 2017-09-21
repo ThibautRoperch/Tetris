@@ -1,8 +1,9 @@
 
 var PLAYERS = [];
 var MESSAGES = [];
-var GAME_STARTED = false;
 
+var CONNEXIONS_CLOCK;
+var PLAYING_CLOCK;
 
 /**************************
  * Handle connections and players
@@ -17,11 +18,9 @@ function connections() {
 	executeScript("players_connected.php", displayPlayers);
 	executeScript("message_receiving.php", displayChat);
 	executeScript("players_are_ready.php", launchGame);
-	setTimeout(function() {
-		if (!GAME_STARTED) {
-			connections();
-		}
-	}, 500);
+	CONNEXIONS_CLOCK = setTimeout(function() {
+		connections();
+	}, 300);
 }
 
 /**
@@ -193,7 +192,7 @@ function submitChatForm(event, form) {
  */
 function launchGame(contents) {
 	if (contents == "1") {
-		GAME_STARTED = true;
+		clearTimeout(CONNEXIONS_CLOCK);
 		// The game starts in the database
 		executeScript("game_starts.php", nothing);
 		// Display the game instead of the lobby
@@ -212,18 +211,17 @@ function launchGame(contents) {
  * Permanantly check databases during the game
  */
 function playingGame() {
-	executeScript("game_is_over.php", gameOverForEveryone);
+	executeScript("player_connection.php", nothing);
 	// TODO afficher les matrices des autres joueurs
-	setTimeout(function() {
-		if (GAME_STARTED) {
+	PLAYING_CLOCK = setTimeout(function() {
+			executeScript("game_is_over.php", gameOverForEveryone);
 			playingGame();
-		}
-	}, 500);
+	}, 300);
 }
 
 function gameOverForEveryone(contents) {
 	if (contents == "1") {
-		GAME_STARTED = false;
+		clearTimeout(PLAYING_CLOCK);
 		// The game overs in the database
 		executeScript("game_overs.php", nothing);
 		// Call the game's GameOver function

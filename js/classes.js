@@ -1,5 +1,13 @@
 
 /**************************
+ * Classes' properties
+ */
+
+var SQUARE_ID = 0; // A.I.
+var TYPES = ["O", "I", "S", "Z", "L", "J", "T"];
+
+
+/**************************
  * Classes
  */
 
@@ -15,7 +23,7 @@ class Piece {
 		this.preview;
 
 		switch (this.type) {
-			case "O" :
+			case TYPES[0]:
 				this.structure =
 				[
 					[
@@ -31,7 +39,7 @@ class Piece {
 					[1, 1]
 				]
 				break;
-			case "I" :
+			case TYPES[1]:
 				this.structure =
 				[
 					[
@@ -52,7 +60,7 @@ class Piece {
 					[1, 1, 1, 1]
 				]
 				break;
-			case "S" :
+			case TYPES[2]:
 				this.structure =
 				[
 					[
@@ -74,7 +82,7 @@ class Piece {
 					[1, 1, 0]
 				]
 				break;
-			case "Z" :
+			case TYPES[3]:
 				this.structure =
 				[
 					[
@@ -96,7 +104,7 @@ class Piece {
 					[0, 1, 1]
 				]
 				break;
-			case "L" :
+			case TYPES[4]:
 				this.structure =
 				[
 					[
@@ -130,7 +138,7 @@ class Piece {
 					[1, 0, 0]
 				]
 				break;
-			case "J" :
+			case TYPES[5]:
 				this.structure =
 				[
 					[
@@ -164,7 +172,7 @@ class Piece {
 					[0, 0, 1]
 				]
 				break;
-			case "T" :
+			case TYPES[6]:
 				this.structure =
 				[
 					[
@@ -470,11 +478,51 @@ class Square {
 class Gift {
 	constructor(name) {
 		this.name = name;
+	}
 
-		switch (this.type) {
-			case "line" :
+	launch() {
+		switch (this.name) {
+			case "add_row":
+				// If the highest row contains a square, it's a game over
+				for (c = 0; c < MATRIX[0].length; ++c) {
+					if (MATRIX[0][c] != null) {
+						gameOver();
+					}
+				}
+				// For each row, move its squares to the row above
+				for (r = 0; r < MATRIX.length - 1; ++r) { // start with the highest row
+					for (c = 0; c < MATRIX[r].length; ++c) {
+						// Up the bottom square, from the matrix and the well
+						MATRIX[r][c] = MATRIX[r + 1][c];
+						if (MATRIX[r + 1][c] != null) {
+							document.getElementById(MATRIX[r + 1][c].id).style.marginTop = UNITE * r + "px";
+						}
+						MATRIX[r + 1][c] = null;
+					}
+				}
+				// Generate a new random row and append its squares
+				var hole_position = Math.round(Math.random() * (COLUMNS_NB - 1));
+				for (c = 0; c < COLUMNS_NB; ++c) {
+					if (c != hole_position) {
+						// Pick a random square's type
+						var type = Math.round(Math.random() * 6);
+						// Create and append a new square to the new row and the well
+						var new_square = new Square(SQUARE_ID++, TYPES[type])
+						MATRIX[ROWS_NB - 1][c] = new_square;
+						var square = document.createElement("square");
+							square.style.width = SIDE + "px";
+							square.style.height = SIDE + "px";
+							square.style.borderWidth = BORDER + "px";
+							square.style.marginLeft = UNITE * c + "px";
+							square.style.marginTop = UNITE * (ROWS_NB - 1) + "px";
+							square.id = new_square.id;
+							// square.innerHTML = square.id;
+							square.className = new_square.type;
+						WELL.appendChild(square);
+					}
+				}
 				break;
-			case "rumble" :
+			case "rumble":
 				break;
 			default:
 				break;

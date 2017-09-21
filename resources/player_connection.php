@@ -10,8 +10,8 @@ if (isset($_SESSION["player"])) {
 	// Update the user's timestamp
 	$dbh->exec("UPDATE players SET last_timestamp = ".time()." WHERE id = $player_id");   
 
-	// Deconnect players who have timeout
-	$dbh->exec("UPDATE players SET last_timestamp = 0 WHERE last_timestamp < ".(time() - 3));
+	// Reset players who have timeout
+	$dbh->exec("UPDATE players SET last_timestamp = 0, is_ready = 0, is_playing = 0 WHERE last_timestamp < ".(time() - 3));
 
 	include_once("close_connection.php");
 }

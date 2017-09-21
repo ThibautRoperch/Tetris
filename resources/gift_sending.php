@@ -2,11 +2,12 @@
 
 session_start();
 
-if (isset($_SESSION["player"]) && isset($_GET["name"])) {
+if (isset($_SESSION["lobby"]) && isset($_SESSION["player"]) && isset($_GET["name"])) {
 	include_once("open_connection.php");
 
+	$lobby_id = $_SESSION["lobby"];
 	$player_id = $_SESSION["player"];
-	$gift_name = $_SESSION["name"];
+	$gift_name = $_GET["name"];
 
 	// Send the gift to one player if their is a recipient, to all players else
 	if (isset($_GET["recipient"])) {

@@ -33,7 +33,6 @@ var ROWS_NB;
 var MATRIX; // row's list, elements are squares
 var CURRENT_PIECE; // piece type
 var NEXT_PIECE; // piece type
-var SQUARE_ID; // A.I.
 
 
 /**************************
@@ -194,27 +193,10 @@ function preparePiece() {
 function generatePiece() {
 	var type = "";
 	
-	var rand_int = Math.round(Math.random() * 6);
-	
-	if (rand_int == 0) { // tetrimino O
-		type = "O";
-	} else if (rand_int == 1) { // tetrimino I
-		type = "I";
-	} else if (rand_int == 2) { // tetrimino S
-		type = "S";
-	} else if (rand_int == 3) { // tetrimino Z
-		type = "Z";
-	} else if (rand_int == 4) { // tetrimino L
-		type = "L";
-	} else if (rand_int == 5) { // tetrimino J
-		type = "J";
-	} else if (rand_int == 6) { // tetrimino T
-		type = "T";
-	}
-
+	var rand_int = Math.round(Math.random() * 6); // tetrimino type
 	var rotation = 0; // default rotation of the piece
 
-	return new Piece(type, rotation);
+	return new Piece(TYPES[rand_int], rotation);
 }
 
 /**
@@ -224,7 +206,7 @@ function displayPiece(rows, node, class_name) {
 	var tetrimino = document.createElement("tetrimino");
 	tetrimino.style.width = UNITE * rows[0].length + "px";
 	tetrimino.style.height = UNITE * rows.length + "px";
-
+	
 	// Append a HTML square for each square in the piece's structure
 	for (r = 0; r < rows.length; ++r) {
 		for (c = 0; c < rows[r].length; ++c) {
@@ -246,22 +228,29 @@ function displayPiece(rows, node, class_name) {
 }
 
 /**
+ * Return the well's current piece
+ */
+function wellCurrentPiece() {
+	return WELL.getElementsByTagName("tetrimino")[0];
+}
+
+/**
  * Actualize the position of the piece moving in the well
  */
 function actualizeCurrentPiece() {
 	// Remove the piece
-	WELL.removeChild(WELL.lastChild);
+	WELL.removeChild(wellCurrentPiece());
 	// Display the piece
 	displayPiece(CURRENT_PIECE.getStructure(), WELL, CURRENT_PIECE.getType());
 	// Position the piece
-	WELL.lastChild.style.marginLeft = UNITE * (CURRENT_PIECE.absolute_position[0] - CURRENT_PIECE.relative_position[0]) + "px";
-	WELL.lastChild.style.marginTop = UNITE * (CURRENT_PIECE.absolute_position[1] - CURRENT_PIECE.relative_position[1]) + "px";
+	wellCurrentPiece().style.marginLeft = UNITE * (CURRENT_PIECE.absolute_position[0] - CURRENT_PIECE.relative_position[0]) + "px";
+	wellCurrentPiece().style.marginTop = UNITE * (CURRENT_PIECE.absolute_position[1] - CURRENT_PIECE.relative_position[1]) + "px";
 	// Hide blocks who are out of bounds
 	for (r = 0; r < CURRENT_PIECE.getStructure().length; ++r) {
 		for (c = 0; c < CURRENT_PIECE.getStructure()[r].length; ++c) {
 			var y_abs_pos = [CURRENT_PIECE.absolute_position[1] + r - CURRENT_PIECE.relative_position[1]];			
 			if (y_abs_pos < 0) {
-				WELL.lastChild.getElementsByTagName("square")[r * CURRENT_PIECE.getStructure().length + c].className = "invisible";
+				wellCurrentPiece().getElementsByTagName("square")[r * CURRENT_PIECE.getStructure().length + c].className = "invisible";
 			}
 		}
 	}
@@ -275,7 +264,7 @@ function blockCurrentPiece() {
 	var rows_updated = []; // order : highest row -> lowest row
 
 	// Remove the piece
-	WELL.removeChild(WELL.lastChild);
+	WELL.removeChild(wellCurrentPiece());
 
 	// Append each square of the piece's structure in the matrix
 	for (r = 0; r < CURRENT_PIECE.getStructure().length; ++r) {
@@ -306,7 +295,7 @@ function blockCurrentPiece() {
 
 	var lines_counter = 0;
 
-	// For each updated rows, remove squares contained in formed lines and drop the rows that are above
+	// For each updated row, remove squares contained in formed lines and drop the rows that are above
 	for (r = 0; r < rows_updated.length; ++r) { // start with the highest line
 		// If the entire row does not contain a null, this is a formed line
 		if (MATRIX[rows_updated[r]].indexOf(null) === -1) {
@@ -335,6 +324,12 @@ function blockCurrentPiece() {
 	}
 
 	LINES += lines_counter;
+
+	// Send the gift associated to the lines
+	while (lines_counter > 0) {
+		executeScript("gift_sending.php?name=add_row", nothing);
+		lines_counter--;
+	}
 }
 
 /**
@@ -397,7 +392,7 @@ function keyPressed(event) {
 					CURRENT_PIECE.counterClockWiseRotate();
 				}
 				break;
-			// touches pour sendItem() qui appelle un script php qui ajoute l'item en bdd, avec id du joueur et nom de l'item
+			// TODO touches pour executeScript("gift_sending.php?name=dazuhdp", nothing); qui appelle un script php qui ajoute l'item en bdd, avec id du joueur et nom de l'item
 			default:
 				break;
 		}
@@ -441,10 +436,21 @@ function gameOver() {
 function databaseClock() {
 	setTimeout(function() {
 		if (!GAME_OVER) {
-			// 
-			// TODO active les items présents ds la bdd destinés au joueur (le script php les supprime ensuite) -> TODO idem et qui traite le résultat (JSON ?)
+			// TODO active les items présents ds la bdd destinés au joueur (le script php les supprime ensuite)
 				// new item().launch
+			executeScript("gift_receiving.php", receiveGift);
 			databaseClock();
 		}
 	}, 100);
+}
+
+/**
+ * Active received gifts
+ */
+function receiveGift(contents) {
+	contents = JSON.parse(contents);
+
+	for (g in contents) {
+		new Gift(contents[g].name).launch();
+	}
 }

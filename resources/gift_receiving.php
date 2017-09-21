@@ -15,8 +15,8 @@ if (isset($_SESSION["player"])) {
 		}
 		$gifts .=
 		"{
-			\"name\" : ".$row["name"].",
-			\"sender\" : \"".$row["sender_id"]."\"
+			\"name\" : \"".$row["name"]."\",
+			\"sender\" : ".$row["sender_id"]."
 		}";
 		$dbh->exec("DELETE FROM gifts WHERE id = ".$row["id"]);
 	}
