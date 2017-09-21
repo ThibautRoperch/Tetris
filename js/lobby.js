@@ -16,7 +16,7 @@ function connections() {
 			executeScript("game_is_over.php", displayButtonsOpenClose);
 			executeScript("player_connection.php", nothing);
 			executeScript("players_connected.php", displayPlayers);
-			executeScript("messages_receiving.php", displayChat);
+			executeScript("message_receiving.php", displayChat);
 			executeScript("players_are_ready.php", launchGame);
 			connections();
 		}
@@ -37,7 +37,7 @@ function displayButtonsOpenClose(contents) {
 }
 
 /**
- * Save the players list in a JS array and display it in an HTML element
+ * Save the players list in a JS array and display it in the HTML players list
  */
 function displayPlayers(contents) {
 	var list = document.getElementById("players");
@@ -60,10 +60,10 @@ function displayPlayers(contents) {
 		}
 	}
 
-	// Clean and recreate the HTML list with the local JS array, if have to do
+	// Clean and recreate the HTML players list with the local JS array, if have to do
 	if (need_to_recreate_html) {
 		// Clean
-		while (list.getElementsByTagName("li")[1]) { // the li[0] contains the player's input
+		while (list.getElementsByTagName("li")[1]) { // the li[0] contains the player's input, so don't remove it
 			list.removeChild(list.getElementsByTagName("li")[1]);
 		}
 		// Recreate
@@ -83,12 +83,56 @@ function displayPlayers(contents) {
 	}
 }
 
+/**
+ * Save the retrieved messages in a JS array and display it in an HTML element
+ * The oldest (0) to the newest (.length - 1)
+ */
 function displayChat(contents) {
-	// MESSAGES
-	// TODO
-	// id message, id envoyeur, sending_time
-	// messages ds un tableau js ; si la taille de ce tableau change :
-		// tq le dernier id du tabl js erst diff du tabl json, ajouter au tableau js l'id et au chat ul le message dans un li avec le nom du type
+	contents = JSON.parse(contents);
+	// Compare the local JS array with the retrieved JSON array, find the last common message's position in the JSON array
+	var i = 0;
+
+	if (contents.length > 0 && MESSAGES.length > 0) {
+		// When the local JS array is up-to-date
+		if (contents[contents.length - 1].id == MESSAGES[MESSAGES.length - 1].id) {
+			i = contents.length;
+		}
+		// When the local JS array is behind
+		else {
+			var i = contents.length - 1;
+			while (i > 0 && contents[i].id != MESSAGES[MESSAGES.length - 1].id) {
+				i--;
+			}
+			++i;
+		}
+	}
+if (contents.length != 0) {
+	console.log(contents)
+console.log("MESS : 0 à " + parseInt(MESSAGES.length-1) + "\ncontents : 0 à " + parseInt(contents.length-1) + "\ni = " + i);
+
+}
+
+	// Append new messages in the local JS array and in the messages list
+	while (i < contents.length) {
+		console.log(" ==> " + contents[i].contents + "\n");
+		MESSAGES.push(contents[i]);
+		appendMessageHTML(contents[i].sender, contents[i].contents)
+		++i;
+	}
+
+if (contents.length != 0) {
+	console.log(MESSAGES)
+}
+}
+
+/**
+ * Append a message in the HTML messages list
+ */
+function appendMessageHTML(sender, contents) {
+	var list = document.getElementById("messages");
+	var message = document.createElement("li");
+	message.innerHTML = "<pseudo>" + sender + " :</pseudo><contents>" + contents + "</contents>";
+	list.appendChild(message);
 }
 
 /**
@@ -129,12 +173,22 @@ function submitChatForm(event, form) {
 	event.preventDefault();
 	// Retrieve the message from the chat input
 	var message = form.getElementsByTagName("input")[0].value;
+	// Avoid spaces who are at the begining and at the ending of the message
+	while (message.length > 0 && message[0] == " ") {
+		message = message.substr(1, message.length);
+	}
+	while (message.length > 0 && message[message.length - 1] == " ") {
+		message = message.substr(0, message.length - 1);
+	}
+	// If the messages isn't empty, send and display it
+	if (message != "") {
+		// Send the message
+		executeScript("message_sending.php?contents=" + message, nothing);
+		// Append the message in the HTML messages list
+		appendMessageHTML("you", message);
+	}
 	// Clean the chat input
 	form.getElementsByTagName("input")[0].value = "";
-	// Send the message
-	executeScript("message_sending.php?message="+message, nothing);
-	// Make an extra call to the messages receipt function
-	executeScript("messages_receiving.php", displayChat);
 }
 
 
