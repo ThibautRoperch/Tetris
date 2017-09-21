@@ -106,23 +106,13 @@ function displayChat(contents) {
 			++i;
 		}
 	}
-if (contents.length != 0) {
-	console.log(contents)
-console.log("MESS : 0 à " + parseInt(MESSAGES.length-1) + "\ncontents : 0 à " + parseInt(contents.length-1) + "\ni = " + i);
-
-}
 
 	// Append new messages in the local JS array and in the messages list
 	while (i < contents.length) {
-		console.log(" ==> " + contents[i].contents + "\n");
 		MESSAGES.push(contents[i]);
 		appendMessageHTML(contents[i].sender, contents[i].contents)
 		++i;
 	}
-
-if (contents.length != 0) {
-	console.log(MESSAGES)
-}
 }
 
 /**
