@@ -7,7 +7,7 @@ if (isset($_SESSION["player"]) && isset($_GET["is_ready"])) {
 
 	$player_id = $_SESSION["player"];
 
-	// Set the user ready
+	// Set the user as ready
 	$dbh->exec("UPDATE players SET is_ready = ".$_GET["is_ready"]." WHERE id = $player_id");
 
 	include_once("close_connection.php");

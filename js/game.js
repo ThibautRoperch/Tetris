@@ -10,7 +10,6 @@
 
 var TIME; // seconds
 var SPEED; // square per second
-var LINES;
 var TIMER_CLOCK;
 var GAME_OVER;
 
@@ -40,13 +39,58 @@ var NEXT_PIECE; // piece type
  */
 
 /**
+ * Main function
+ * Recover the matrix from the database for the back-end, set the well's dimensions and its columns for the front-end, and launch + prepare the first pieces
+ */
+function startGame() {
+	// Reset properties, they might be recycled
+	resetProperties();
+	// The game is not over yet
+	GAME_OVER = false;
+	// Fill the matrix with null squares
+	for (var r = 0; r < ROWS_NB; ++r) {
+		var row = [];
+		for (var c = 0; c < COLUMNS_NB; ++c) {
+			row.push(null);
+		}
+		MATRIX.push(row);
+	}
+	// Prepare the well from the matrix's dimensions
+	prepareWell();
+	// Clean the well, it might be recycled
+	while (WELL.hasChildNodes()) {
+		WELL.removeChild(WELL.lastChild);
+	}
+	// Displays wells's columns
+	for (var c = 0; c < COLUMNS_NB; ++c) {
+		var column = document.createElement("column");
+		column.style.width = UNITE + "px";
+		WELL.appendChild(column);
+	}
+	// Recover game datas from the database ; might call the prepareWell function if the matrix isn't empty in the database
+	executeScript("player_game_receiving.php", receiveGameDatas);
+	// Prepare a first piece
+	preparePiece();
+	// Set next's dimensions
+	NEXT.style.width = UNITE * (NEXT_PIECE.getStructure()[0].length + 1) + "px";
+	NEXT.style.height = UNITE * (NEXT_PIECE.getStructure().length) + "px";
+	// Launch a first piece
+	launchPiece();
+	// Start the game clock
+	gameClock();
+	// Start the timer clock
+	timerClock();
+	// Permanently check the database
+	databaseClock();
+}
+
+/**
  * Reset all properties
  */
 function resetProperties() {
 	// Game ones
 	TIME = 0;
 	SPEED = 1;
-	LINES = 0;
 	GAME_OVER = true;
 	// Front-end ones
 	BORDER = 3;
@@ -64,52 +108,15 @@ function resetProperties() {
 }
 
 /**
- * Main function
- * Recover the matrix from the database for the back-end, set the well's dimensions and its columns for the front-end, and launch + prepare the first pieces
+ * Prepare the HMTL well from the matrix's dimensions
  */
-function startGame() {
-	// Reset properties, they might be recycled
-	resetProperties();
-	// The game is not over yet
-	GAME_OVER = false;
-	// Recover the matrix from the database
-	// TODO récupérer la matrice depuis la base
-	for (var r = 0; r < ROWS_NB; ++r) {
-		var row = [];
-		for (var c = 0; c < COLUMNS_NB; ++c) {
-			row.push(null);
-		}
-		MATRIX.push(row);
-	}
+function prepareWell() {
 	// Update the number of rows and colomns with those obtained from the matrix
 	ROWS_NB = MATRIX.length;
 	COLUMNS_NB = (ROWS_NB > 0) ? MATRIX[0].length : 0;
-	// Clean the well, it might be recycled
-	while (WELL.hasChildNodes()) {
-		WELL.removeChild(WELL.lastChild);
-	}
 	// Set well's dimensions
 	WELL.style.width = UNITE * COLUMNS_NB + "px";
 	WELL.style.height = UNITE * ROWS_NB + "px";
-	// Displays wells's columns
-	for (var c = 0; c < COLUMNS_NB; ++c) {
-		var column = document.createElement("column");
-		column.style.width = UNITE + "px";
-		WELL.appendChild(column);
-	}
-	// Prepare a first piece
-	preparePiece();
-	// Set next's dimensions
-	NEXT.style.width = UNITE * (NEXT_PIECE.getStructure()[0].length + 1) + "px";
-	NEXT.style.height = UNITE * (NEXT_PIECE.getStructure().length) + "px";
-	// Launch a first piece
-	launchPiece();
-	// Start the game clock
-	gameClock();
-	// Start the timer clock
-	timerClock();
-	// Permanently check the database
-	databaseClock();
 }
 
 /**
@@ -323,13 +330,14 @@ function blockCurrentPiece() {
 		}
 	}
 
-	LINES += lines_counter;
-
 	// Send the gift associated to the lines
 	while (lines_counter > 0) {
 		executeScript("gift_sending.php?name=add_row", nothing);
 		lines_counter--;
 	}
+
+	// Update database's game datas
+	sendGameDatas();
 }
 
 /**
@@ -445,12 +453,45 @@ function databaseClock() {
 }
 
 /**
+ * Update JS game datas with database's ones
+ */
+function receiveGameDatas(contents) {
+	contents = JSON.parse(contents);
+
+	if (contents[0].matrix != "") {
+		// var new_matrix = [];
+		// push les squares de la matrice de la bdd, et les ajoute en HTML (cf la fonction blockCurrentPiece)
+		// MATRIX = new_matrix
+		// Re-prepare the well from the matrix's dimensions
+		// prepareWell();
+	}
+	if (contents[0].time != 0) {
+		TIME = 0;
+	}
+	if (contents[0].speed != 0) {
+		SPEED = 0;
+	}
+}
+
+/**
+ * Update database game datas with JS's ones
+ */
+function sendGameDatas() {
+	executeScript("player_game_sending.php?matrix=" + MATRIX + "&time=" + TIME + "&speed=" + SPEED, caca);
+}
+function caca(a) {
+	alert(a);
+}
+/**
  * Active received gifts
  */
 function receiveGift(contents) {
 	contents = JSON.parse(contents);
 
+	// Launch each received gift
 	for (g in contents) {
 		new Gift(contents[g].name).launch();
+		// Update database's game datas
+		sendGameDatas();
 	}
 }

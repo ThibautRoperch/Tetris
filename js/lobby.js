@@ -10,17 +10,29 @@ var PLAYING_CLOCK;
  */
 
 /**
- * Update the user's timestamp each second and retrieve the players list
+ * Update the user's timestamp each second and retrieve the players list and the messages list if the player is not already playing (according to the database) when he comes in the lobby
  */
 function connections() {
-	executeScript("game_is_over.php", displayButtonsOpenClose);
-	executeScript("player_connection.php", nothing);
-	executeScript("players_connected.php", displayPlayers);
-	executeScript("message_receiving.php", displayChat);
-	executeScript("players_are_ready.php", launchGame);
-	CONNEXIONS_CLOCK = setTimeout(function() {
-		connections();
-	}, 300);
+	// alert(playerIsAlreadyPlaying("?")) // bad idea, met trop de temps TODO
+	if (playerIsAlreadyPlaying("?")) { // if the player does F5, he is playing according to the database, then don't recreate him a game data with the launchGame function
+		alert("oui");
+		// Display the game instead of the lobby
+		document.getElementsByTagName("game")[0].className = "visible";
+		document.getElementsByTagName("lobby")[0].className = "invisible";
+		// Call the game's StartGame function
+		startGame();
+		// Start the lobby PlayingGame clock
+		playingGame();
+	} else {
+		executeScript("game_is_over.php", displayButtonsOpenClose);
+		executeScript("player_connection.php", nothing);
+		executeScript("players_connected.php", displayPlayers);
+		executeScript("message_receiving.php", displayChat);
+		executeScript("players_are_ready.php", launchGame);
+		CONNEXIONS_CLOCK = setTimeout(function() {
+			connections();
+		}, 300);
+	}
 }
 
 /**
@@ -33,6 +45,17 @@ function displayButtonsOpenClose(contents) {
 	} else {
 		document.getElementById("open").style.display = "none";
 		document.getElementById("close").style.display = "block";
+	}
+}
+
+/**
+ * Return true if the player is playing according to the database, false else
+ */
+function playerIsAlreadyPlaying(query) {
+	if (query == "?") {
+		executeScript("player_is_playing.php", playerIsAlreadyPlaying);
+	} else {
+		return query == "1";
 	}
 }
 
