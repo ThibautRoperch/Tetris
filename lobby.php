@@ -16,6 +16,12 @@ $dbh->exec("UPDATE players SET lobby_id = ".$_SESSION["lobby"]." WHERE id = ".$_
 $player = $dbh->query("SELECT * FROM players WHERE id = ".$_SESSION["player"])->fetch();
 $pseudo = $player["pseudo"];
 $is_ready = $player["is_ready"];
+
+// TODO
+// Si le lobby est playing : GAME_STARTED = true; (a mettre dans une fonction js)
+	// Si le joueur est prêt et playing : call comeBack
+	// if the player does F5, he is playing according to the database, then don't recreate him a game data with the launchGame function
+	// Sinon, call connections()
 ?>
 
 <!DOCTYPE html>

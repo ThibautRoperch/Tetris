@@ -12,7 +12,7 @@ if (isset($_SESSION["player"]) && isset($_GET["matrix"]) && isset($_GET["time"])
 
 	// Update user's game datas
 	$dbh->exec("UPDATE game_datas SET player_matrix = '$player_matrix', player_time = $player_time, player_speed = $player_speed WHERE player_id = $player_id");
-	// TODO la matrice ne passe pas, changer le format de la db pour JSON ?
+	// TODO changer le format de la db pour JSON
 
 	include_once("close_connection.php");
 }

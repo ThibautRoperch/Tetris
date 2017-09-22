@@ -331,7 +331,7 @@ function blockCurrentPiece() {
 	}
 
 	// Send the gift associated to the lines
-	while (lines_counter > 0) {
+	while (lines_counter > 1) {
 		executeScript("gift_sending.php?name=add_row", nothing);
 		lines_counter--;
 	}
@@ -444,8 +444,6 @@ function gameOver() {
 function databaseClock() {
 	setTimeout(function() {
 		if (!GAME_OVER) {
-			// TODO active les items présents ds la bdd destinés au joueur (le script php les supprime ensuite)
-				// new item().launch
 			executeScript("gift_receiving.php", receiveGift);
 			databaseClock();
 		}
@@ -477,9 +475,9 @@ function receiveGameDatas(contents) {
  * Update database game datas with JS's ones
  */
 function sendGameDatas() {
-	executeScript("player_game_sending.php?matrix=" + MATRIX + "&time=" + TIME + "&speed=" + SPEED, caca);
+	executeScript("player_game_sending.php?matrix=" + MATRIX + "&time=" + TIME + "&speed=" + SPEED, test); // TODO (cf fichier php correspondant)
 }
-function caca(a) {
+function test(a) {
 	alert(a);
 }
 /**
