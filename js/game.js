@@ -90,11 +90,11 @@ function startGame() {
 function resetProperties() {
 	// Game ones
 	TIME = 0;
-	SPEED = 1;
+	SPEED = 1.2;
 	GAME_OVER = true;
 	// Front-end ones
 	BORDER = 3;
-	SIDE = 20;
+	SIDE = 17;
 	UNITE = SIDE + BORDER * 2;
 	WELL = document.getElementsByTagName("well")[0];
 	NEXT = document.getElementsByTagName("next")[0];
@@ -149,7 +149,7 @@ function timerClock() {
 		TIME++;
 		// Increase the speed by x squares per seconds every y seconds
 		if (TIME % 60 == 0) {
-			SPEED += 1;
+			SPEED += 0.8;
 		}
 		// Reduce the columns' opacity
 		var c = 0;
@@ -454,6 +454,7 @@ function databaseClock() {
  * Update JS game datas with database's ones
  */
 function receiveGameDatas(contents) {
+	alert(contents);
 	contents = JSON.parse(contents);
 
 	if (contents[0].matrix != "") {
@@ -475,10 +476,11 @@ function receiveGameDatas(contents) {
  * Update database game datas with JS's ones
  */
 function sendGameDatas() {
-	executeScript("player_game_sending.php?matrix=" + MATRIX + "&time=" + TIME + "&speed=" + SPEED, test); // TODO (cf fichier php correspondant)
+	var MATRIX_JSON = JSON.stringify(MATRIX);
+	executeScript("player_game_sending.php?matrix=" + MATRIX_JSON + "&time=" + TIME + "&speed=" + SPEED, test); // TODO (cf fichier php correspondant)
 }
 function test(a) {
-	alert(a);
+	// alert(a);
 }
 /**
  * Active received gifts

@@ -9,7 +9,7 @@ if (isset($_SESSION["player"])) {
 
 	// Receive user's game datas
 	$player_game_datas = $dbh->query("SELECT * FROM game_datas WHERE player_id = $player_id ORDER BY id DESC LIMIT 1")->fetch(); // there might be many game datas for a player id, just take the most recent one
-
+print_r($player_game_datas);
 	$datas = "[";
 	$datas .=
 	" {

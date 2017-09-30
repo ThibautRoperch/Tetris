@@ -211,13 +211,11 @@ function launchGame(contents) {
 		executeScript("game_starts.php", nothing);
 		// Display the game instead of the lobby
 		document.getElementsByTagName("game")[0].className = "visible";
-		document.getElementsByTagName("lobby")[0].className = "invisible";	
-		// TODO décompte qui tempo la fin de la boucle des scripts
-		// A la fin du décompte :
-			// Call the game's StartGame function
-			startGame();
-			// Start the lobby PlayingGame clock
-			playingGame();
+		document.getElementsByTagName("lobby")[0].className = "invisible";
+		// Call the game's StartGame function
+		startGame();
+		// Start the lobby's PlayingGame clock
+		playingGame();
 	}
 }
 
@@ -225,11 +223,13 @@ function launchGame(contents) {
  * Permanantly check databases during the game
  */
 function playingGame() {
-	executeScript("player_connection.php", nothing);
-	// TODO afficher les matrices des autres joueurs
 	setTimeout(function() {
+		if (GAME_STARTED) {
+			executeScript("player_connection.php", nothing);
+			// TODO afficher les matrices des autres joueurs
 			executeScript("game_is_over.php", gameOverForEveryone);
 			playingGame();
+		}
 	}, 300);
 }
 
