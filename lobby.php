@@ -16,12 +16,6 @@ $dbh->exec("UPDATE players SET lobby_id = ".$_SESSION["lobby"]." WHERE id = ".$_
 $player = $dbh->query("SELECT * FROM players WHERE id = ".$_SESSION["player"])->fetch();
 $pseudo = $player["pseudo"];
 $is_ready = $player["is_ready"];
-
-// TODO
-// Si le lobby est playing : GAME_STARTED = true; (a mettre dans une fonction js)
-	// Si le joueur est prêt et playing : call comeBack
-	// if the player does F5, he is playing according to the database, then don't recreate him a game data with the launchGame function
-	// Sinon, call connections()
 ?>
 
 <!DOCTYPE html>
@@ -35,7 +29,7 @@ $is_ready = $player["is_ready"];
 	<link rel="stylesheet" href="css/game.css">
 </head>
 
-<body onload="connections()" onkeydown="keyPressed(event)">
+<body onkeydown="keyPressed(event)">
 	
 	<header>
 		<h1>TETRIS</h1>
@@ -70,12 +64,7 @@ $is_ready = $player["is_ready"];
 				<well></well>
 				<next></next>
 			</board>
-			<others>
-				<!-- <player>
-					<name>ducon</name>
-					<field></field>
-				</player> -->
-			<others>
+			<others></others>
 		</game>
 	</section>
 
@@ -87,11 +76,22 @@ $is_ready = $player["is_ready"];
 
 </html>
 
-<?php
-include("resources/close_connection.php");
-?>
-
 <script src="js/oXHR.js"></script>
 <script src="js/lobby.js"></script>
 <script src="js/classes.js"></script>
 <script src="js/game.js"></script>
+
+<?php
+// If the player does F5, he is playing according to the database, then don't recreate him a game data with the launchGame function
+$lobby = $dbh->query("SELECT * FROM lobbies WHERE id = ".$_SESSION["lobby"])->fetch();
+
+if ($lobby["is_playing"] && $player["is_playing"]) {
+	if ($is_ready) {
+		echo "<script>comeBack();</script>";
+	}
+} else {
+	echo "<script>connections();</script>";
+}
+
+include("resources/close_connection.php");
+?>

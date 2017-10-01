@@ -7,7 +7,7 @@ if (isset($_SESSION["player"])) {
 
 	$player_id = $_SESSION["player"];
 
-	// Update the user's timestamp
+	// Update the player's timestamp
 	$dbh->exec("UPDATE players SET last_timestamp = ".time()." WHERE id = $player_id");   
 
 	// Reset players who have timeout

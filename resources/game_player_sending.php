@@ -10,7 +10,7 @@ if (isset($_SESSION["player"]) && isset($_GET["matrix"]) && isset($_GET["time"])
 	$player_time = $_GET["time"];
 	$player_speed = $_GET["speed"];
 
-	// Update user's game datas
+	// Update the player's game datas
 	$dbh->exec("UPDATE game_datas SET player_matrix = '$player_matrix', player_time = $player_time, player_speed = $player_speed WHERE player_id = $player_id");
 
 	include_once("close_connection.php");

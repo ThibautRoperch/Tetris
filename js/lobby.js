@@ -12,6 +12,7 @@ var GAME_STARTED = false;
   * Make the player come back in the game
   */
 function comeBack() {
+	GAME_STARTED = true;
 	// Display the game instead of the lobby
 	document.getElementsByTagName("game")[0].className = "visible";
 	document.getElementsByTagName("lobby")[0].className = "invisible";
@@ -226,13 +227,16 @@ function playingGame() {
 	setTimeout(function() {
 		if (GAME_STARTED) {
 			executeScript("player_connection.php", nothing);
-			// TODO afficher les matrices des autres joueurs
 			executeScript("game_is_over.php", gameOverForEveryone);
-			playingGame();
+			executeScript("game_players.php", displayOthersPlayers);
+			// playingGame(); TODO décommenter cette ligne
 		}
 	}, 300);
 }
 
+/**
+ * Set the game as over for everyone 
+ */
 function gameOverForEveryone(contents) {
 	if (contents == "1") {
 		GAME_STARTED = false;
@@ -247,6 +251,47 @@ function gameOverForEveryone(contents) {
 		// Display the lobby instead of the game
 		document.getElementsByTagName("game")[0].className = "invisible";
 		document.getElementsByTagName("lobby")[0].className = "visible";
+	}
+}
+
+/**
+ * Display the well of other players from their matrix
+ */
+function displayOthersPlayers(contents) {
+	contents = JSON.parse(contents);
+
+	// Display each player name and player matrix in a new HTML element
+	for (m in contents) {
+		// Create HTML elements if they are not already
+		if (!document.getElementsByTagName("player")[m]) {
+			var player = document.createElement("player");
+				var name = document.createElement("name");
+					name.innerHTML = contents[m].player;
+				var field = document.createElement("field");
+				player.appendChild(name);
+				player.appendChild(field);
+			document.getElementsByTagName("others")[0].appendChild(player);
+		}
+		// Remove all squares that are in the field
+		var player_field = document.getElementsByTagName("field")[m];
+		while (player_field.hasChildNodes()) {
+			player_field.removeChild(player_field.lastChild);
+		}
+		// Append squares in the field
+		var json_matrix = JSON.parse(contents[m].matrix);
+		for (r in json_matrix) {
+			var row = document.createElement("row");
+			for (s in json_matrix[r]) {
+				// Append this square of the piece to the field
+				var square = document.createElement("square");
+				if (json_matrix[r][s] != null) {
+					// square.innerHTML = json_matrix[r][s].id;
+					square.className = json_matrix[r][s].type;
+				}
+				row.appendChild(square);
+			}
+			player_field.appendChild(row);
+		}
 	}
 }
 

@@ -7,13 +7,13 @@ if (isset($_SESSION["player"])) {
 
 	$player_id = $_SESSION["player"];
 
-	// Receive user's game datas
-	$player_game_datas = $dbh->query("SELECT * FROM game_datas WHERE player_id = $player_id ORDER BY id DESC LIMIT 1")->fetch(); // there might be many game datas for a player id, just take the most recent one
-print_r($player_game_datas);
+	// Receive the player's game datas
+	$player_game_datas = $dbh->query("SELECT * FROM game_datas WHERE player_id = $player_id")->fetch();
+
 	$datas = "[";
 	$datas .=
 	" {
-		\"matrix\" : \"".$player_game_datas["player_matrix"]."\",
+		\"matrix\" : \"".addslashes($player_game_datas["player_matrix"])."\",
 		\"time\" : ".$player_game_datas["player_time"].",
 		\"speed\" : ".$player_game_datas["player_speed"]."
 	}";

@@ -68,7 +68,7 @@ function startGame() {
 		WELL.appendChild(column);
 	}
 	// Recover game datas from the database ; might call the prepareWell function if the matrix isn't empty in the database
-	executeScript("player_game_receiving.php", receiveGameDatas);
+	executeScript("game_player_receiving.php", receiveGameDatas);
 	// Prepare a first piece
 	preparePiece();
 	// Set next's dimensions
@@ -200,7 +200,7 @@ function preparePiece() {
 function generatePiece() {
 	var type = "";
 	
-	var rand_int = Math.round(Math.random() * 6); // tetrimino type
+	var rand_int = Math.round(Math.random() * 6); // tetrimino's type
 	var rotation = 0; // default rotation of the piece
 
 	return new Piece(TYPES[rand_int], rotation);
@@ -454,21 +454,40 @@ function databaseClock() {
  * Update JS game datas with database's ones
  */
 function receiveGameDatas(contents) {
-	alert(contents);
 	contents = JSON.parse(contents);
 
 	if (contents[0].matrix != "") {
-		// var new_matrix = [];
-		// push les squares de la matrice de la bdd, et les ajoute en HTML (cf la fonction blockCurrentPiece)
-		// MATRIX = new_matrix
+		// Copy the JSON matrix into the JS game's matrix
+		var json_matrix = JSON.parse(contents[0].matrix);
+		MATRIX = json_matrix;
+
+		// Display the squares in the well from the game's matrix
+		for (r in MATRIX) {
+			for (s in MATRIX[r]) {
+				if (MATRIX[r][s] != null) {
+					// Append this square of the piece to the well
+					var square = document.createElement("square");
+						square.style.width = SIDE + "px";
+						square.style.height = SIDE + "px";
+						square.style.borderWidth = BORDER + "px";
+						square.style.marginLeft = UNITE * s + "px";
+						square.style.marginTop = UNITE * r + "px";
+						square.id = MATRIX[r][s].id;
+						// square.innerHTML = square.id;
+						square.className = MATRIX[r][s].type;
+					WELL.appendChild(square);
+				}
+			}
+		}
+
 		// Re-prepare the well from the matrix's dimensions
-		// prepareWell();
+		prepareWell();
 	}
 	if (contents[0].time != 0) {
-		TIME = 0;
+		TIME = contents[0].time;
 	}
 	if (contents[0].speed != 0) {
-		SPEED = 0;
+		SPEED = contents[0].speed;
 	}
 }
 
@@ -477,11 +496,9 @@ function receiveGameDatas(contents) {
  */
 function sendGameDatas() {
 	var MATRIX_JSON = JSON.stringify(MATRIX);
-	executeScript("player_game_sending.php?matrix=" + MATRIX_JSON + "&time=" + TIME + "&speed=" + SPEED, test); // TODO (cf fichier php correspondant)
+	executeScript("game_player_sending.php?matrix=" + MATRIX_JSON + "&time=" + TIME + "&speed=" + SPEED, nothing);
 }
-function test(a) {
-	// alert(a);
-}
+
 /**
  * Active received gifts
  */
