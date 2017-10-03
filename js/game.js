@@ -67,8 +67,10 @@ function startGame() {
 		column.style.width = UNITE + "px";
 		WELL.appendChild(column);
 	}
-	// Recover game datas from the database ; might call the prepareWell function if the matrix isn't empty in the database
-	executeScript("game_player_receiving.php", receiveGameDatas);
+	// Recover game datas from the database (with a delay, in order to wait the deletation of the matrix of the previous game) ; might call the prepareWell function if the matrix isn't empty in the database
+	setTimeout(function() {
+		executeScript("game_player_receiving.php", receiveGameDatas);		
+	}, 300);
 	// Prepare a first piece
 	preparePiece();
 	// Set next's dimensions

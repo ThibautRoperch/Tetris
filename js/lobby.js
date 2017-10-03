@@ -229,7 +229,7 @@ function playingGame() {
 			executeScript("player_connection.php", nothing);
 			executeScript("game_is_over.php", gameOverForEveryone);
 			executeScript("game_players.php", displayOthersPlayers);
-			// playingGame(); TODO décommenter cette ligne
+			playingGame();
 		}
 	}, 300);
 }
@@ -251,6 +251,7 @@ function gameOverForEveryone(contents) {
 		// Display the lobby instead of the game
 		document.getElementsByTagName("game")[0].className = "invisible";
 		document.getElementsByTagName("lobby")[0].className = "visible";
+		// TODO display stats
 	}
 }
 
@@ -270,6 +271,7 @@ function displayOthersPlayers(contents) {
 				var field = document.createElement("field");
 				player.appendChild(name);
 				player.appendChild(field);
+				player.style.width = UNITE * (NEXT_PIECE.getStructure()[0].length + 1) + "px";
 			document.getElementsByTagName("others")[0].appendChild(player);
 		}
 		// Remove all squares that are in the field

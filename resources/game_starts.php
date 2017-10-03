@@ -14,8 +14,8 @@ if (isset($_SESSION["lobby"]) && isset($_SESSION["player"])) {
 	// Set the player as playing
 	$dbh->exec("UPDATE players SET is_playing = 1 WHERE id = $player_id");
 
-	// Remove old datas of the player
-	$dbh->exec("DELETE FROM game_datas WHERE player_id = $player_id");
+	// Remove old datas of players of the lobby (all players to prevent leavers)
+	$dbh->exec("DELETE FROM game_datas WHERE player_id IN (SELECT id FROM players WHERE lobby_id = $lobby_id)");
 
 	// Create a new game datas for the player
 	$dbh->exec("INSERT INTO game_datas (player_id) VALUES ($player_id)");
