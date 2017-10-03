@@ -32,6 +32,8 @@ var ROWS_NB;
 var MATRIX; // row's list, elements are squares
 var CURRENT_PIECE; // piece type
 var NEXT_PIECE; // piece type
+var PIECES; // pieces dropped
+var ROWS; // lines cleared
 
 
 /**************************
@@ -69,7 +71,7 @@ function startGame() {
 	}
 	// Recover game datas from the database (with a delay, in order to wait the deletation of the matrix of the previous game) ; might call the prepareWell function if the matrix isn't empty in the database
 	setTimeout(function() {
-		executeScript("game_player_receiving.php", receiveGameDatas);		
+		executeScript("datas_player_receiving.php", retrievedGameDatas);		
 	}, 300);
 	// Prepare a first piece
 	preparePiece();
@@ -92,7 +94,7 @@ function startGame() {
 function resetProperties() {
 	// Game ones
 	TIME = 0;
-	SPEED = 1.2;
+	SPEED = 2;
 	GAME_OVER = true;
 	// Front-end ones
 	BORDER = 3;
@@ -107,6 +109,8 @@ function resetProperties() {
 	CURRENT_PIECE = null;
 	NEXT_PIECE = null;
 	SQUARE_ID = 0;
+	PIECES = 0;
+	ROWS = 0;
 }
 
 /**
@@ -151,7 +155,7 @@ function timerClock() {
 		TIME++;
 		// Increase the speed by x squares per seconds every y seconds
 		if (TIME % 60 == 0) {
-			SPEED += 0.8;
+			SPEED += 1.1;
 		}
 		// Reduce the columns' opacity
 		var c = 0;
@@ -228,7 +232,6 @@ function displayPiece(rows, node, class_name) {
 			} else {
 				square.className = class_name;
 			}
-			
 			tetrimino.appendChild(square);
 		}
 	}
@@ -272,7 +275,8 @@ function actualizeCurrentPiece() {
 function blockCurrentPiece() {
 	var rows_updated = []; // order : highest row -> lowest row
 
-	// Remove the piece
+	// Remove the piece (it can pop with delay, so check before remove)
+	while (!wellCurrentPiece()); // SURVEY
 	WELL.removeChild(wellCurrentPiece());
 
 	// Append each square of the piece's structure in the matrix
@@ -330,6 +334,18 @@ function blockCurrentPiece() {
 				--line;
 			}
 		}
+	}
+
+	PIECES += 1;	
+	ROWS += lines_counter;
+
+	// Send a dab in the chat if the player did a Tetris
+	if (lines_counter == 4) {
+		var dab_img = "<img src=\"https://emoji.slack-edge.com/T6VPU2CEB/dab/b9f9a2dc59b07cde.png\" />";
+		// Send the message
+		executeScript("message_sending.php?contents=" + dab_img, nothing);
+		// Append the message in the HTML messages list
+		appendMessageHTML("you", dab_img);
 	}
 
 	// Send the gift associated to the lines
@@ -446,7 +462,7 @@ function gameOver() {
 function databaseClock() {
 	setTimeout(function() {
 		if (!GAME_OVER) {
-			executeScript("gift_receiving.php", receiveGift);
+			executeScript("gift_receiving.php", receiveGifts);
 			databaseClock();
 		}
 	}, 100);
@@ -455,7 +471,7 @@ function databaseClock() {
 /**
  * Update JS game datas with database's ones
  */
-function receiveGameDatas(contents) {
+function retrievedGameDatas(contents) {
 	contents = JSON.parse(contents);
 
 	if (contents[0].matrix != "") {
@@ -485,11 +501,20 @@ function receiveGameDatas(contents) {
 		// Re-prepare the well from the matrix's dimensions
 		prepareWell();
 	}
-	if (contents[0].time != 0) {
-		TIME = contents[0].time;
+	if (contents[0].player_time != 0) {
+		TIME = contents[0].player_time;
 	}
-	if (contents[0].speed != 0) {
-		SPEED = contents[0].speed;
+	if (contents[0].player_speed != 0) {
+		SPEED = contents[0].player_speed;
+	}
+	if (contents[0].square_id != 0) {
+		SQUARE_ID = contents[0].square_id;
+	}
+	if (contents[0].pieces_dropped != 0) {
+		PIECES = contents[0].pieces_dropped;
+	}
+	if (contents[0].lines_cleared != 0) {
+		ROWS = contents[0].lines_cleared;
 	}
 }
 
@@ -498,13 +523,13 @@ function receiveGameDatas(contents) {
  */
 function sendGameDatas() {
 	var MATRIX_JSON = JSON.stringify(MATRIX);
-	executeScript("game_player_sending.php?matrix=" + MATRIX_JSON + "&time=" + TIME + "&speed=" + SPEED, nothing);
+	executeScript("datas_player_sending.php?matrix=" + MATRIX_JSON + "&time=" + TIME + "&speed=" + SPEED + "&square_id=" + SQUARE_ID + "&pieces=" + PIECES + "&rows=" + ROWS, nothing);
 }
 
 /**
  * Active received gifts
  */
-function receiveGift(contents) {
+function receiveGifts(contents) {
 	contents = JSON.parse(contents);
 
 	// Launch each received gift

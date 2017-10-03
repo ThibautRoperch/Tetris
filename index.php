@@ -19,7 +19,7 @@ $player_id = $_SESSION["player"];
 <body onload="executeScript('player_deconnection.php', nothing)">
 	
 	<header>
-		<h1>TETRIS</h1>
+		<h1><a href="index.php">TETRIS</a></h1>
 	</header>
 
 	<section>

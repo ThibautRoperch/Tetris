@@ -507,7 +507,7 @@ class Gift {
 						// Pick a random square's type
 						var type = Math.round(Math.random() * 6);
 						// Create and append a new square to the new row and the well
-						var new_square = new Square(SQUARE_ID++, TYPES[type])
+						var new_square = new Square(SQUARE_ID++, TYPES[type]);
 						MATRIX[ROWS_NB - 1][c] = new_square;
 						var square = document.createElement("square");
 							square.style.width = SIDE + "px";

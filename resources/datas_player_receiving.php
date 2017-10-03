@@ -14,8 +14,11 @@ if (isset($_SESSION["player"])) {
 	$datas .=
 	" {
 		\"matrix\" : \"".addslashes($player_game_datas["player_matrix"])."\",
-		\"time\" : ".$player_game_datas["player_time"].",
-		\"speed\" : ".$player_game_datas["player_speed"]."
+		\"player_time\" : ".$player_game_datas["player_time"].",
+		\"player_speed\" : ".$player_game_datas["player_speed"].",
+		\"square_id\" : ".$player_game_datas["square_id"].",
+		\"pieces_dropped\" : ".$player_game_datas["pieces_dropped"].",
+		\"lines_cleared\" : ".$player_game_datas["lines_cleared"]."
 	}";
 	$datas .= "]";
 

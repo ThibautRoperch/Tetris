@@ -53,22 +53,26 @@ lobby ul#players li * {
 	padding: 10px 0;
 }
 
-lobby ul#players li ready {
-	flex: 0.3;
-	font-weight: bold;
-	color: transparent;
-}
-
-lobby ul#players li ready.ready {
-	color: #2A4120;
-}
-
 lobby ul#players li:nth-child(even) {
 	background: linear-gradient(to left, rgba(255, 255, 255, 0.05), transparent); 
 }
 
 lobby ul#players li:nth-child(odd) {
 	background: linear-gradient(to left, rgba(255, 255, 255, 0.025), transparent); 
+}
+
+lobby ul#players li.ready {
+	background: linear-gradient(to left, #1B2C13, transparent); 	
+}
+
+lobby ul#players li winner {
+	flex: 0.3;
+	font-weight: bold;
+	color: transparent;
+}
+
+lobby ul#players li winner.true {
+	color: #BFD308;
 }
 
 /* Messages list */
@@ -113,9 +117,18 @@ lobby chat ul#messages li {
 	display: flex;
 }
 
+lobby chat ul#messages li > * {
+	line-height: 20px;
+}
+
 lobby chat ul#messages li pseudo {
-	margin-right: 5px;
+	margin-left: 5px;
+	margin-right: 13px;
 	color: gray;
+}
+
+lobby chat ul#messages li contents img {
+	height: 25px;
 }
 
 /* Game */
@@ -140,6 +153,7 @@ game others {
 game others player {
 	display: flex;
 	flex-direction: column;
+	max-height: 50%;
 	margin: 10px;
 	border: 7px outset rgba(0, 0, 0, 0.05);
 	box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.15) inset, 0 0 1px 3px rgba(0, 0, 0, 0.15);
@@ -167,4 +181,5 @@ game others player field row {
 game others player field row square {
 	flex: 1;
 	border-radius: 0;
+	box-shadow: 0 0 0px 2px rgba(0, 0, 0, 0.2) inset;
 }

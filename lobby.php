@@ -32,7 +32,7 @@ $is_ready = $player["is_ready"];
 <body onkeydown="keyPressed(event)">
 	
 	<header>
-		<h1>TETRIS</h1>
+		<h1><a href="index.php">TETRIS</a></h1>
 	</header>
 
 	<section>
@@ -44,9 +44,16 @@ $is_ready = $player["is_ready"];
 
 			<article>
 				<ul id="players">
-					<li>
-						<ready class="<?php echo ($is_ready == 1) ? "ready" : ""; ?>">READY</ready>
+					<li class="<?php echo ($is_ready == 1) ? "ready" : ""; ?>">
+						<winner>&#9885;</winner>
 						<input type="text" onkeyup="renamePlayer(this)" value="<?php echo $pseudo; ?>" required />
+						<stats>
+							<pieces></pieces>
+							<time></time>
+							<apm></apm>
+						</stats>
+						<medals>
+						</medals>
 					</li>
 				</ul>
 				<chat>

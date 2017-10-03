@@ -1,5 +1,6 @@
 
 var PLAYERS = [];
+var STATISTICS = [];
 var MESSAGES = [];
 
 var GAME_STARTED = false;
@@ -52,6 +53,35 @@ function displayButtonsOpenClose(contents) {
 }
 
 /**
+ * Retrieve end of game's statistics, they will be displayed when players will be
+ */
+function retrieveStatistics(contents) {
+	var list = document.getElementById("players");
+	contents = JSON.parse(contents);
+
+	// Set the local JS array with the retrieved JSON array (the player is in first ([0]))
+	STATISTICS = contents;
+
+	// Display stats of the player ([0])
+	list.getElementsByTagName("li")[0].getElementsByTagName("winner")[0].className = (STATISTICS[0].is_winner) ? "true" : "";
+	list.getElementsByTagName("li")[0].getElementsByTagName("pieces")[0].innerHTML = STATISTICS[0].pieces_dropped + " pieces";
+	list.getElementsByTagName("li")[0].getElementsByTagName("time")[0].innerHTML = STATISTICS[0].player_time + " seconds";
+	list.getElementsByTagName("li")[0].getElementsByTagName("apm")[0].innerHTML = Math.round(STATISTICS[0].pieces_dropped / (STATISTICS[0].player_time / 60)) + " p/m";
+}
+
+/**
+ * Returns the  end of game's statistics of the player's given id
+ */
+function statsOfPlayer(id) {
+	for (p in STATISTICS) {
+		if (STATISTICS[p].id == id) {
+			return STATISTICS[p];
+		}
+	}
+	return NULL;
+}
+
+/**
  * Save the players list in a JS array and display it in the HTML players list
  */
 function displayPlayers(contents) {
@@ -63,39 +93,68 @@ function displayPlayers(contents) {
 	var need_to_recreate_html = false;
 	if (PLAYERS.length != contents.length) {
 		PLAYERS = [];
-		var need_to_recreate_html = true;
-	}
-
-	// Update the local JS array (and the HTML list if existing) with the retrieved JSON array
-	for (p = 0; p < contents.length; ++p) {
-		PLAYERS[p] = contents[p];
-		if (!need_to_recreate_html) {
-			list.getElementsByTagName("li")[p + 1].getElementsByTagName("ready")[0].className = (PLAYERS[p].is_ready == 1) ? "ready" : "";
-			list.getElementsByTagName("li")[p + 1].getElementsByTagName("pseudo")[0].innerHTML = PLAYERS[p].pseudo;
-		}
-	}
-
-	// Clean and recreate the HTML players list with the local JS array, if have to do
-	if (need_to_recreate_html) {
-		// Clean
+		// Clean the HTML players list
 		while (list.getElementsByTagName("li")[1]) { // the li[0] contains the player's input, so don't remove it
 			list.removeChild(list.getElementsByTagName("li")[1]);
 		}
-		// Recreate
+		// Recreate the HTML players list with the local JS array
 		for (p in PLAYERS) {
 			var player = document.createElement("li");
-				var ready = document.createElement("ready");
-				ready.innerHTML = "READY";
-				if (PLAYERS[p].ready == 1) {
-					ready.className = "ready";
-				}
+				var ready = document.createElement("winner");
+				ready.innerHTML = "&#9885;";
 			player.appendChild(ready);
 				var pseudo = document.createElement("pseudo");
-				pseudo.innerHTML = PLAYERS[p].pseudo;
 			player.appendChild(pseudo);
+				var stats = document.createElement("stats");
+					var pieces = document.createElement("pieces");
+				stats.appendChild(pieces);
+					var time = document.createElement("time");
+				stats.appendChild(time);
+					var apm = document.createElement("apm");
+				stats.appendChild(apm);
+			player.appendChild(stats);
 			list.appendChild(player);
 		}
 	}
+
+	// Update the local JS array and the HTML list with the retrieved JSON array
+	for (p = 0; p < contents.length; ++p) {
+		PLAYERS[p] = contents[p];
+		list.getElementsByTagName("li")[p + 1].className = (PLAYERS[p].is_ready == 1) ? "ready" : "";
+		list.getElementsByTagName("li")[p + 1].getElementsByTagName("pseudo")[0].innerHTML = PLAYERS[p].pseudo;
+		var statsOfPlayer = statsOfPlayer(PLAYERS[p].id);
+		if (statsOfPlayer != NULL) {
+			list.getElementsByTagName("li")[p + 1].getElementsByTagName("winner")[0].className = (statsOfPlayer.is_winner) ? "true" : "";
+			list.getElementsByTagName("li")[p + 1].getElementsByTagName("pieces")[0].innerHTML = statsOfPlayer.pieces_dropped + " pieces";
+			list.getElementsByTagName("li")[p + 1].getElementsByTagName("time")[0].innerHTML = statsOfPlayer.player_time + " seconds";
+			list.getElementsByTagName("li")[p + 1].getElementsByTagName("apm")[0].innerHTML = Math.round(statsOfPlayer.pieces_dropped / (statsOfPlayer.player_time / 60)) + "p/m";
+		}
+	}
+}
+
+/**
+ * Send the input chat message
+ */
+function submitChatForm(event, form) {
+	event.preventDefault();
+	// Retrieve the message from the chat input
+	var message = form.getElementsByTagName("input")[0].value;
+	// Avoid spaces who are at the begining and at the ending of the message
+	while (message.length > 0 && message[0] == " ") {
+		message = message.substr(1, message.length);
+	}
+	while (message.length > 0 && message[message.length - 1] == " ") {
+		message = message.substr(0, message.length - 1);
+	}
+	// If the messages isn't empty, send and display it
+	if (message != "") {
+		// Send the message
+		executeScript("message_sending.php?contents=" + message, nothing);
+		// Append the message in the HTML messages list
+		appendMessageHTML("you", message);
+	}
+	// Clean the chat input
+	form.getElementsByTagName("input")[0].value = "";
 }
 
 /**
@@ -157,7 +216,7 @@ function setAsReady(button) {
 	button.className = "ready";
 	button.onclick = function() { setAsNotReady(this); };
 	// Update player's mark
-	document.getElementById("players").getElementsByTagName("li")[0].getElementsByTagName("ready")[0].className = "ready";
+	document.getElementById("players").getElementsByTagName("li")[0].className = "ready";
 }
 
 /**
@@ -169,32 +228,7 @@ function setAsNotReady(button) {
 	button.className = "";
 	button.onclick = function() { setAsReady(this); };
 	// Update player's mark
-	document.getElementById("players").getElementsByTagName("li")[0].getElementsByTagName("ready")[0].className = "";
-}
-
-/**
- * Send the input chat message
- */
-function submitChatForm(event, form) {
-	event.preventDefault();
-	// Retrieve the message from the chat input
-	var message = form.getElementsByTagName("input")[0].value;
-	// Avoid spaces who are at the begining and at the ending of the message
-	while (message.length > 0 && message[0] == " ") {
-		message = message.substr(1, message.length);
-	}
-	while (message.length > 0 && message[message.length - 1] == " ") {
-		message = message.substr(0, message.length - 1);
-	}
-	// If the messages isn't empty, send and display it
-	if (message != "") {
-		// Send the message
-		executeScript("message_sending.php?contents=" + message, nothing);
-		// Append the message in the HTML messages list
-		appendMessageHTML("you", message);
-	}
-	// Clean the chat input
-	form.getElementsByTagName("input")[0].value = "";
+	document.getElementById("players").getElementsByTagName("li")[0].className = "";
 }
 
 
@@ -228,7 +262,7 @@ function playingGame() {
 		if (GAME_STARTED) {
 			executeScript("player_connection.php", nothing);
 			executeScript("game_is_over.php", gameOverForEveryone);
-			executeScript("game_players.php", displayOthersPlayers);
+			executeScript("datas_players.php", displayOthersPlayers);
 			playingGame();
 		}
 	}, 300);
@@ -251,7 +285,8 @@ function gameOverForEveryone(contents) {
 		// Display the lobby instead of the game
 		document.getElementsByTagName("game")[0].className = "invisible";
 		document.getElementsByTagName("lobby")[0].className = "visible";
-		// TODO display stats
+		// Retrieve end of game's statistics, they will be displayed when players will be
+		executeScript("datas_stats.php", retrieveStatistics);
 	}
 }
 
@@ -286,7 +321,9 @@ function displayOthersPlayers(contents) {
 			for (s in json_matrix[r]) {
 				// Append this square of the piece to the field
 				var square = document.createElement("square");
-				if (json_matrix[r][s] != null) {
+				if (json_matrix[r][s] == null) {
+					square.className = "invisible";
+				} else {				
 					// square.innerHTML = json_matrix[r][s].id;
 					square.className = json_matrix[r][s].type;
 				}
