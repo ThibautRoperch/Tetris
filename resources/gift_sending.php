@@ -2,7 +2,7 @@
 
 session_start();
 
-if (isset($_SESSION["lobby"]) && isset($_SESSION["player"]) && isset($_GET["name"])) {
+if (isset($_SESSION["lobby"]) && isset($_SESSION["player"]) && !empty($_GET["name"])) {
 	include_once("open_connection.php");
 
 	$lobby_id = $_SESSION["lobby"];
@@ -10,7 +10,7 @@ if (isset($_SESSION["lobby"]) && isset($_SESSION["player"]) && isset($_GET["name
 	$gift_name = $_GET["name"];
 
 	// Send the gift to one player if their is a recipient, to all players else
-	if (isset($_GET["recipient"])) {
+	if (!empty($_GET["recipient"])) {
 		$recipient_id = $_GET["recipient"];
 		// Append the gift
 		$dbh->exec("INSERT INTO gifts (name, sender_id, recipient_id) VALUES('$gift_name', $player_id, $recipient_id)");

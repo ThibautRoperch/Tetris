@@ -41,57 +41,10 @@ var ROWS; // lines cleared
  */
 
 /**
- * Main function
- * Recover the matrix from the database for the back-end, set the well's dimensions and its columns for the front-end, and launch + prepare the first pieces
+ * Recover the matrix from the database for the back-end, set the well's dimensions and its columns for the front-end, and 
  */
-function startGame() {
+function setGame() {
 	// Reset properties, they might be recycled
-	resetProperties();
-	// The game is not over yet
-	GAME_OVER = false;
-	// Fill the matrix with null squares
-	for (var r = 0; r < ROWS_NB; ++r) {
-		var row = [];
-		for (var c = 0; c < COLUMNS_NB; ++c) {
-			row.push(null);
-		}
-		MATRIX.push(row);
-	}
-	// Prepare the well from the matrix's dimensions
-	prepareWell();
-	// Clean the well, it might be recycled
-	while (WELL.hasChildNodes()) {
-		WELL.removeChild(WELL.lastChild);
-	}
-	// Displays wells's columns
-	for (var c = 0; c < COLUMNS_NB; ++c) {
-		var column = document.createElement("column");
-		column.style.width = UNITE + "px";
-		WELL.appendChild(column);
-	}
-	// Recover game datas from the database (with a delay, in order to wait the deletation of the matrix of the previous game) ; might call the prepareWell function if the matrix isn't empty in the database
-	setTimeout(function() {
-		executeScript("datas_player_receiving.php", retrievedGameDatas);		
-	}, 300);
-	// Prepare a first piece
-	preparePiece();
-	// Set next's dimensions
-	NEXT.style.width = UNITE * (NEXT_PIECE.getStructure()[0].length + 1) + "px";
-	NEXT.style.height = UNITE * (NEXT_PIECE.getStructure().length) + "px";
-	// Launch a first piece
-	launchPiece();
-	// Start the game clock
-	gameClock();
-	// Start the timer clock
-	timerClock();
-	// Permanently check the database
-	databaseClock();
-}
-
-/**
- * Reset all properties
- */
-function resetProperties() {
 	// Game ones
 	TIME = 0;
 	SPEED = 2;
@@ -111,18 +64,35 @@ function resetProperties() {
 	SQUARE_ID = 0;
 	PIECES = 0;
 	ROWS = 0;
+	// Clean the well, it might be recycled
+	while (WELL.hasChildNodes()) {
+		WELL.removeChild(WELL.lastChild);
+	}
+	// Recover game's datas from the database ; might change the matrix and the other parameters
+	executeScript("datas_player_receiving.php", retrievedGameDatas);
+	// TODO retrievedGameDatas sert juste à la matrice. Ajouter avant ce script la récup d'un script qui cntient la valeur des autres param (columns, rows, ...) qui sont des props du lobby
+	// dans game_starts.php : matrix = lobby.default_matrix if not = to ""
 }
 
 /**
- * Prepare the HMTL well from the matrix's dimensions
+ * Prepare and launch the first piece
  */
-function prepareWell() {
-	// Update the number of rows and colomns with those obtained from the matrix
-	ROWS_NB = MATRIX.length;
-	COLUMNS_NB = (ROWS_NB > 0) ? MATRIX[0].length : 0;
-	// Set well's dimensions
-	WELL.style.width = UNITE * COLUMNS_NB + "px";
-	WELL.style.height = UNITE * ROWS_NB + "px";
+function startGame() {
+	// The game is not over yet
+	GAME_OVER = false;
+	// Prepare a first piece
+	preparePiece();
+	// Set next's dimensions
+	NEXT.style.width = UNITE * (NEXT_PIECE.getStructure()[0].length + 1) + "px";
+	NEXT.style.height = UNITE * (NEXT_PIECE.getStructure().length) + "px";
+	// Launch a first piece
+	launchPiece();
+	// Start the game clock
+	gameClock();
+	// Start the timer clock
+	timerClock();
+	// Permanently check the database
+	databaseClock();
 }
 
 /**
@@ -480,6 +450,7 @@ function databaseClock() {
 function retrievedGameDatas(contents) {
 	contents = JSON.parse(contents);
 
+	// If the database's matrix isn't empty, fill the well with it, with null squares otherwise
 	if (contents[0].matrix != "") {
 		// Copy the JSON matrix into the JS game's matrix
 		var json_matrix = JSON.parse(contents[0].matrix);
@@ -503,10 +474,32 @@ function retrievedGameDatas(contents) {
 				}
 			}
 		}
-
-		// Re-prepare the well from the matrix's dimensions
-		prepareWell();
+	} else {
+		// Fill the matrix with null squares
+		for (var r = 0; r < ROWS_NB; ++r) {
+			var row = [];
+			for (var c = 0; c < COLUMNS_NB; ++c) {
+				row.push(null);
+			}
+			MATRIX.push(row);
+		}
 	}
+
+	// Prepare the HMTL well from the matrix's dimensions
+	// Update the number of rows and colomns with those obtained from the matrix
+	ROWS_NB = MATRIX.length;
+	COLUMNS_NB = (ROWS_NB > 0) ? MATRIX[0].length : 0;
+	// Set well's dimensions
+	WELL.style.width = UNITE * COLUMNS_NB + "px";
+	WELL.style.height = UNITE * ROWS_NB + "px";
+
+	// Displays wells's columns
+	for (var c = 0; c < COLUMNS_NB; ++c) {
+		var column = document.createElement("column");
+		column.style.width = UNITE + "px";
+		WELL.appendChild(column);
+	}
+
 	if (contents[0].player_time != 0) {
 		TIME = contents[0].player_time;
 	}

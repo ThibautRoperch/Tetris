@@ -2,7 +2,7 @@
 
 session_start();
 
-if (isset($_SESSION["player"]) && isset($_GET["matrix"]) && isset($_GET["time"]) && isset($_GET["speed"]) && isset($_GET["pieces"]) && isset($_GET["rows"])) {
+if (isset($_SESSION["player"]) && !empty($_GET["matrix"]) && isset($_GET["time"]) && isset($_GET["speed"]) && isset($_GET["square_id"]) && isset($_GET["pieces"]) && isset($_GET["rows"])) {
 	include_once("open_connection.php");
 
 	$player_id = $_SESSION["player"];

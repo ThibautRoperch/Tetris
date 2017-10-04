@@ -2,7 +2,7 @@
 include_once("resources/manage_session.php");
 
 // Update the lobby session with the URL
-if (isset($_GET["id"])) {
+if (!empty($_GET["id"])) {
 	$_SESSION["lobby"] = $_GET["id"];
 } else {
 	header("Location: index.php");

@@ -17,10 +17,18 @@ function comeBack() {
 	// Display the game instead of the lobby
 	document.getElementsByTagName("game")[0].className = "visible";
 	document.getElementsByTagName("lobby")[0].className = "invisible";
-	// Call the game's StartGame function
-	startGame();
-	// Start the lobby PlayingGame clock
-	playingGame();
+	// Call the game's SetGame function
+	setGame();
+	// Wait for the recovery of the dabatase's matrix and parameters
+	setTimeout(function() {
+		// Display the game instead of the lobby
+		document.getElementsByTagName("game")[0].className = "visible";
+		document.getElementsByTagName("lobby")[0].className = "invisible";
+		// Call the game's StartGame function
+		startGame();
+		// Start the lobby's PlayingGame clock
+		playingGame();
+	}, 1000);
 }
 
 /**
@@ -174,7 +182,6 @@ function submitChatForm(event, form) {
 	}
 	// If the messages isn't empty, send and display it
 	if (message != "") {
-		message = (message == "dab") ? "<img src=\"https://emoji.slack-edge.com/T6VPU2CEB/dab/b9f9a2dc59b07cde.png\" />" : message;
 		// Send the message
 		executeScript("message_sending.php?contents=" + message, nothing);
 		// Append the message in the HTML messages list
@@ -271,13 +278,22 @@ function launchGame(contents) {
 		GAME_STARTED = true;
 		// The game starts in the database
 		executeScript("game_starts.php", nothing);
-		// Display the game instead of the lobby
-		document.getElementsByTagName("game")[0].className = "visible";
-		document.getElementsByTagName("lobby")[0].className = "invisible";
-		// Call the game's StartGame function
-		startGame();
-		// Start the lobby's PlayingGame clock
-		playingGame();
+		// TODO fonction compteur(3) qui affiche 3 puis compteur-1 jusqu'à 0, gros chiffre pleine page ("position: absolute")
+		// Wait for the deletation of the previous matrix and the creation of a new one
+		setTimeout(function() {
+			// Call the game's SetGame function
+			setGame();
+			// Wait for the recovery of the dabatase's matrix and parameters
+			setTimeout(function() {
+				// Display the game instead of the lobby
+				document.getElementsByTagName("game")[0].className = "visible";
+				document.getElementsByTagName("lobby")[0].className = "invisible";
+				// Call the game's StartGame function
+				startGame();
+				// Start the lobby's PlayingGame clock
+				playingGame();
+			}, 1000);
+		}, 1000);
 	}
 }
 
