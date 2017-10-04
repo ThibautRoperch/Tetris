@@ -11,7 +11,7 @@ if (isset($_SESSION["player"])) {
 	$dbh->exec("UPDATE players SET last_timestamp = ".time()." WHERE id = $player_id");   
 
 	// Reset players who have timeout
-	$dbh->exec("UPDATE players SET last_timestamp = 0, is_ready = 0, is_playing = 0 WHERE last_timestamp < ".(time() - 3));
+	$dbh->exec("UPDATE players SET last_timestamp = 0, is_ready = 0, is_playing = 0 WHERE last_timestamp < ".(time() - 7));
 
 	// Remove gifts of players who have timeout
 	$dbh->exec("DELETE FROM gifts WHERE player_id IN (SELECT id FROM players WHERE last_timestamp = 0)");
