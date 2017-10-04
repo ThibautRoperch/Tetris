@@ -9,7 +9,7 @@ if (isset($_SESSION["player"])) {
 	
 	// Retrieve all recent messages
 	$messages = "[";
-	foreach($dbh->query("SELECT * FROM messages WHERE sending_timestamp >= ".(time() - 3)." AND sender_id != $player_id ORDER BY id ASC") as $row) {
+	foreach($dbh->query("SELECT * FROM messages WHERE sending_timestamp >= ".(time() - 6)." AND sender_id != $player_id ORDER BY id ASC") as $row) {
         $sender_pseudo = $dbh->query("SELECT pseudo FROM players WHERE id = ".$row["sender_id"])->fetch()[0];
 		if (strlen($messages) > 1) {
 			$messages .= ", ";
