@@ -174,6 +174,7 @@ function submitChatForm(event, form) {
 	}
 	// If the messages isn't empty, send and display it
 	if (message != "") {
+		message = (message == "dab") ? "<img src=\"https://emoji.slack-edge.com/T6VPU2CEB/dab/b9f9a2dc59b07cde.png\" />" : message;
 		// Send the message
 		executeScript("message_sending.php?contents=" + message, nothing);
 		// Append the message in the HTML messages list

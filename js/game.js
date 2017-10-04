@@ -340,10 +340,11 @@ function blockCurrentPiece() {
 
 		// Send a dab in the chat if the player did a Tetris, and update his datas
 		if (lines_counter == 4) {
+			var dab = "<img src=\"https://emoji.slack-edge.com/T6VPU2CEB/dab/b9f9a2dc59b07cde.png\" />";
 			// Send the message
-			executeScript("message_sending.php?contents=dab", nothing);
+			executeScript("message_sending.php?contents=" + dab, nothing);
 			// Append the message in the HTML messages list
-			appendMessageHTML("you", "<img src=\"https://emoji.slack-edge.com/T6VPU2CEB/dab/b9f9a2dc59b07cde.png\" />");
+			appendMessageHTML("you", dab);
 			// Update the player's datas
 			executeScript("player_did_tetris.php", nothing);
 		}
