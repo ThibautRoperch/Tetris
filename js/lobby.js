@@ -53,6 +53,31 @@ function displayButtonsOpenClose(contents) {
 }
 
 /**
+ * Returns the end of game's statistics of the player's given id
+ */
+function statsOfPlayer(id) {
+	for (p in STATISTICS) {
+		if (STATISTICS[p].id == id) {
+			return STATISTICS[p];
+		}
+	}
+	return NULL;
+}
+
+/**
+ * Find and return the player who has the highest APM
+ */
+function hotestPlayer() {
+	var hotest_player = null;
+	for (p in STATISTICS) {
+		if (hotest_player == null || (STATISTICS[p].pieces_dropped / STATISTICS[p].player_time) > (hotest_player.pieces_dropped / hotest_player.player_time)) {
+			hotest_player = STATISTICS[p];
+		}
+	}
+	return hotest_player;
+}
+
+/**
  * Retrieve end of game's statistics, they will be displayed when players will be
  */
 function retrieveStatistics(contents) {
@@ -67,18 +92,11 @@ function retrieveStatistics(contents) {
 	list.getElementsByTagName("li")[0].getElementsByTagName("pieces")[0].innerHTML = STATISTICS[0].pieces_dropped + " pieces";
 	list.getElementsByTagName("li")[0].getElementsByTagName("time")[0].innerHTML = STATISTICS[0].player_time + " seconds";
 	list.getElementsByTagName("li")[0].getElementsByTagName("apm")[0].innerHTML = Math.round(STATISTICS[0].pieces_dropped / (STATISTICS[0].player_time / 60)) + " p/m";
-}
 
-/**
- * Returns the  end of game's statistics of the player's given id
- */
-function statsOfPlayer(id) {
-	for (p in STATISTICS) {
-		if (STATISTICS[p].id == id) {
-			return STATISTICS[p];
-		}
-	}
-	return NULL;
+	// Reset and display medals of the player ([0])
+	list.getElementsByTagName("li")[0].getElementsByTagName("medals")[0].innerHTML = "";
+	list.getElementsByTagName("li")[0].getElementsByTagName("medals")[0].innerHTML += (STATISTICS[0].did_tetris) ? "<medal><img src=\"https://emoji.slack-edge.com/T6VPU2CEB/dab/b9f9a2dc59b07cde.png\" /><bubble>:dab: You did a Tetris!</bubble></medal>" : "";
+	list.getElementsByTagName("li")[0].getElementsByTagName("medals")[0].innerHTML += (hotestPlayer().id == STATISTICS[0].id) ? "<medal>&#128293<bubble>Congrats! " + Math.round(STATISTICS[0].pieces_dropped / (STATISTICS[0].player_time / 60)) + " pieces/min</bubble></medal>" : "";
 }
 
 /**
@@ -101,7 +119,7 @@ function displayPlayers(contents) {
 		for (p in PLAYERS) {
 			var player = document.createElement("li");
 				var ready = document.createElement("winner");
-				ready.innerHTML = "&#9885;";
+				ready.innerHTML = "&#127775;";
 			player.appendChild(ready);
 				var pseudo = document.createElement("pseudo");
 			player.appendChild(pseudo);
@@ -113,6 +131,8 @@ function displayPlayers(contents) {
 					var apm = document.createElement("apm");
 				stats.appendChild(apm);
 			player.appendChild(stats);
+				var medals = document.createElement("medals");
+			player.appendChild(medals);
 			list.appendChild(player);
 		}
 	}
@@ -120,14 +140,21 @@ function displayPlayers(contents) {
 	// Update the local JS array and the HTML list with the retrieved JSON array
 	for (p = 0; p < contents.length; ++p) {
 		PLAYERS[p] = contents[p];
+		// Set as ready this player if he is, and update his pseudo
 		list.getElementsByTagName("li")[p + 1].className = (PLAYERS[p].is_ready == 1) ? "ready" : "";
 		list.getElementsByTagName("li")[p + 1].getElementsByTagName("pseudo")[0].innerHTML = PLAYERS[p].pseudo;
+		// If there is informations about this player's stats, display them
 		var statsOfPlayer = statsOfPlayer(PLAYERS[p].id);
 		if (statsOfPlayer != NULL) {
+			// Display his stats
 			list.getElementsByTagName("li")[p + 1].getElementsByTagName("winner")[0].className = (statsOfPlayer.is_winner) ? "true" : "";
 			list.getElementsByTagName("li")[p + 1].getElementsByTagName("pieces")[0].innerHTML = statsOfPlayer.pieces_dropped + " pieces";
 			list.getElementsByTagName("li")[p + 1].getElementsByTagName("time")[0].innerHTML = statsOfPlayer.player_time + " seconds";
 			list.getElementsByTagName("li")[p + 1].getElementsByTagName("apm")[0].innerHTML = Math.round(statsOfPlayer.pieces_dropped / (statsOfPlayer.player_time / 60)) + "p/m";
+			// Reset and display his medals
+			list.getElementsByTagName("li")[p + 1].getElementsByTagName("medals")[0].innerHTML = "";
+			list.getElementsByTagName("li")[p + 1].getElementsByTagName("medals")[0].innerHTML += (statsOfPlayer.did_tetris) ? "<medal><img src=\"https://emoji.slack-edge.com/T6VPU2CEB/dab/b9f9a2dc59b07cde.png\" /><bubble>Did a Tetris</bubble></medal>" : "";
+			list.getElementsByTagName("li")[p + 1].getElementsByTagName("medals")[0].innerHTML += (hotestPlayer().id == PLAYERS[p].id) ? "<medal>&#128293<bubble>Highest APM</bubble></medal>" : "";
 		}
 	}
 }

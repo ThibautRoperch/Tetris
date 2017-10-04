@@ -45,7 +45,7 @@ $is_ready = $player["is_ready"];
 			<article>
 				<ul id="players">
 					<li class="<?php echo ($is_ready == 1) ? "ready" : ""; ?>">
-						<winner>&#9885;</winner>
+						<winner>&#127775;</winner>
 						<input type="text" onkeyup="renamePlayer(this)" value="<?php echo $pseudo; ?>" required />
 						<stats>
 							<pieces></pieces>

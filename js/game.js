@@ -267,95 +267,100 @@ function actualizeCurrentPiece() {
 		}
 	}
 }
-
 /**
  * Update the matrix with each square of the current piece (the piece is blocked at its position)
  * Update the well by removing the piece and appending the corresponding squares
  */
 function blockCurrentPiece() {
-	var rows_updated = []; // order : highest row -> lowest row
+	if (wellCurrentPiece()) {
+		var rows_updated = []; // order : highest row -> lowest row
 
-	// Remove the piece (it can pop with delay, so check before remove)
-	while (!wellCurrentPiece()); // SURVEY
-	WELL.removeChild(wellCurrentPiece());
-
-	// Append each square of the piece's structure in the matrix
-	for (r = 0; r < CURRENT_PIECE.getStructure().length; ++r) {
-		for (c = 0; c < CURRENT_PIECE.getStructure()[r].length; ++c) {
-			if (CURRENT_PIECE.getStructure()[r][c] == 1) {
-				// Compute the absolute position of the square
-				// absolute position of the origin of the piece + position of the square in the piece - position of the origin in the piece
-				var absolute_square_position = [CURRENT_PIECE.absolute_position[0] + c - CURRENT_PIECE.relative_position[0], CURRENT_PIECE.absolute_position[1] + r - CURRENT_PIECE.relative_position[1]];
-				MATRIX[absolute_square_position[1]][absolute_square_position[0]] = new Square(SQUARE_ID++, CURRENT_PIECE.type);
-				// Append this square of the piece to the well
-				var square = document.createElement("square");
-					square.style.width = SIDE + "px";
-					square.style.height = SIDE + "px";
-					square.style.borderWidth = BORDER + "px";
-					square.style.marginLeft = UNITE * absolute_square_position[0] + "px";
-					square.style.marginTop = UNITE * absolute_square_position[1] + "px";
-					square.id = MATRIX[absolute_square_position[1]][absolute_square_position[0]].id;
-					// square.innerHTML = square.id;
-					square.className = CURRENT_PIECE.type;
-				WELL.appendChild(square);
-				// Add the position of this updated row
-				if (rows_updated.indexOf(absolute_square_position[1]) === -1) {
-					rows_updated.push(absolute_square_position[1]);
-				}
-			}
-		}
-	}
-
-	var lines_counter = 0;
-
-	// For each updated row, remove squares contained in formed lines and drop the rows that are above
-	for (r = 0; r < rows_updated.length; ++r) { // start with the highest line
-		// If the entire row does not contain a null, this is a formed line
-		if (MATRIX[rows_updated[r]].indexOf(null) === -1) {
-			var line = rows_updated[r];
-			lines_counter++;
-			
-			// Remove the squares's line from the well
-			for (c = 0; c < MATRIX[line].length; ++c) {
-				document.getElementById(MATRIX[line][c].id).remove();
-			}				
-
-			// For each row above the cleaned one...
-			while (line > 0) {
-				// ... drop its squares
-				for (c = 0; c < MATRIX[line].length; ++c) {
-					// Drop the top square, from the matrix and the well
-					MATRIX[line][c] = MATRIX[line - 1][c];
-					if (MATRIX[line - 1][c] != null) {
-						document.getElementById(MATRIX[line - 1][c].id).style.marginTop = UNITE * line + "px";
+		// Remove the piece (it can pop with delay, so check before remove)
+		WELL.removeChild(wellCurrentPiece());
+		
+		// Append each square of the piece's structure in the matrix
+		for (r = 0; r < CURRENT_PIECE.getStructure().length; ++r) {
+			for (c = 0; c < CURRENT_PIECE.getStructure()[r].length; ++c) {
+				if (CURRENT_PIECE.getStructure()[r][c] == 1) {
+					// Compute the absolute position of the square
+					// absolute position of the origin of the piece + position of the square in the piece - position of the origin in the piece
+					var absolute_square_position = [CURRENT_PIECE.absolute_position[0] + c - CURRENT_PIECE.relative_position[0], CURRENT_PIECE.absolute_position[1] + r - CURRENT_PIECE.relative_position[1]];
+					MATRIX[absolute_square_position[1]][absolute_square_position[0]] = new Square(SQUARE_ID++, CURRENT_PIECE.type);
+					// Append this square of the piece to the well
+					var square = document.createElement("square");
+						square.style.width = SIDE + "px";
+						square.style.height = SIDE + "px";
+						square.style.borderWidth = BORDER + "px";
+						square.style.marginLeft = UNITE * absolute_square_position[0] + "px";
+						square.style.marginTop = UNITE * absolute_square_position[1] + "px";
+						square.id = MATRIX[absolute_square_position[1]][absolute_square_position[0]].id;
+						// square.innerHTML = square.id;
+						square.className = CURRENT_PIECE.type;
+					WELL.appendChild(square);
+					// Add the position of this updated row
+					if (rows_updated.indexOf(absolute_square_position[1]) === -1) {
+						rows_updated.push(absolute_square_position[1]);
 					}
-					MATRIX[line - 1][c] = null;
 				}
-				--line;
 			}
 		}
+
+		var lines_counter = 0;
+
+		// For each updated row, remove squares contained in formed lines and drop the rows that are above
+		for (r = 0; r < rows_updated.length; ++r) { // start with the highest line
+			// If the entire row does not contain a null, this is a formed line
+			if (MATRIX[rows_updated[r]].indexOf(null) === -1) {
+				var line = rows_updated[r];
+				lines_counter++;
+				
+				// Remove the squares's line from the well
+				for (c = 0; c < MATRIX[line].length; ++c) {
+					document.getElementById(MATRIX[line][c].id).remove();
+				}				
+
+				// For each row above the cleaned one...
+				while (line > 0) {
+					// ... drop its squares
+					for (c = 0; c < MATRIX[line].length; ++c) {
+						// Drop the top square, from the matrix and the well
+						MATRIX[line][c] = MATRIX[line - 1][c];
+						if (MATRIX[line - 1][c] != null) {
+							document.getElementById(MATRIX[line - 1][c].id).style.marginTop = UNITE * line + "px";
+						}
+						MATRIX[line - 1][c] = null;
+					}
+					--line;
+				}
+			}
+		}
+
+		PIECES += 1;	
+		ROWS += lines_counter;
+
+		// Send a dab in the chat if the player did a Tetris, and update his datas
+		if (lines_counter == 4) {
+			// Send the message
+			executeScript("message_sending.php?contents=dab", nothing);
+			// Append the message in the HTML messages list
+			appendMessageHTML("you", "<img src=\"https://emoji.slack-edge.com/T6VPU2CEB/dab/b9f9a2dc59b07cde.png\" />");
+			// Update the player's datas
+			executeScript("player_did_tetris.php", nothing);
+		}
+
+		// Send the gift associated to the lines
+		while (lines_counter > 1) {
+			executeScript("gift_sending.php?name=add_row", nothing);
+			lines_counter--;
+		}
+
+		// Update database's game datas
+		sendGameDatas();
+	} else {
+		setTimeout(function() {
+			blockCurrentPiece();
+		}, 50);
 	}
-
-	PIECES += 1;	
-	ROWS += lines_counter;
-
-	// Send a dab in the chat if the player did a Tetris
-	if (lines_counter == 4) {
-		var dab_img = "<img src=\"https://emoji.slack-edge.com/T6VPU2CEB/dab/b9f9a2dc59b07cde.png\" />";
-		// Send the message
-		executeScript("message_sending.php?contents=" + dab_img, nothing);
-		// Append the message in the HTML messages list
-		appendMessageHTML("you", dab_img);
-	}
-
-	// Send the gift associated to the lines
-	while (lines_counter > 1) {
-		executeScript("gift_sending.php?name=add_row", nothing);
-		lines_counter--;
-	}
-
-	// Update database's game datas
-	sendGameDatas();
 }
 
 /**
