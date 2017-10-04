@@ -93,9 +93,7 @@ $is_ready = $player["is_ready"];
 $lobby = $dbh->query("SELECT * FROM lobbies WHERE id = ".$_SESSION["lobby"])->fetch();
 
 if ($lobby["is_playing"] && $player["is_playing"]) {
-	if ($is_ready) {
-		echo "<script>comeBack();</script>";
-	}
+	echo "<script>comeBack();</script>";
 } else {
 	echo "<script>connections();</script>";
 }

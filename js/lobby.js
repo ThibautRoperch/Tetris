@@ -61,7 +61,7 @@ function statsOfPlayer(id) {
 			return STATISTICS[p];
 		}
 	}
-	return NULL;
+	return null;
 }
 
 /**
@@ -108,7 +108,6 @@ function displayPlayers(contents) {
 
 	// Compare the local JS array with the retrieved JSON array
 	// Clean and reacreate the local JS array if their number of players are different
-	var need_to_recreate_html = false;
 	if (PLAYERS.length != contents.length) {
 		PLAYERS = [];
 		// Clean the HTML players list
@@ -116,7 +115,7 @@ function displayPlayers(contents) {
 			list.removeChild(list.getElementsByTagName("li")[1]);
 		}
 		// Recreate the HTML players list with the local JS array
-		for (p in PLAYERS) {
+		for (p in contents) {
 			var player = document.createElement("li");
 				var ready = document.createElement("winner");
 				ready.innerHTML = "&#127775;";
@@ -138,22 +137,22 @@ function displayPlayers(contents) {
 	}
 
 	// Update the local JS array and the HTML list with the retrieved JSON array
-	for (p = 0; p < contents.length; ++p) {
+	for (var p = 0; p < contents.length; ++p) {
 		PLAYERS[p] = contents[p];
 		// Set as ready this player if he is, and update his pseudo
 		list.getElementsByTagName("li")[p + 1].className = (PLAYERS[p].is_ready == 1) ? "ready" : "";
 		list.getElementsByTagName("li")[p + 1].getElementsByTagName("pseudo")[0].innerHTML = PLAYERS[p].pseudo;
 		// If there is informations about this player's stats, display them
-		var statsOfPlayer = statsOfPlayer(PLAYERS[p].id);
-		if (statsOfPlayer != NULL) {
+		var player_stats = statsOfPlayer(PLAYERS[p].id);
+		if (player_stats != null) {
 			// Display his stats
-			list.getElementsByTagName("li")[p + 1].getElementsByTagName("winner")[0].className = (statsOfPlayer.is_winner) ? "true" : "";
-			list.getElementsByTagName("li")[p + 1].getElementsByTagName("pieces")[0].innerHTML = statsOfPlayer.pieces_dropped + " pieces";
-			list.getElementsByTagName("li")[p + 1].getElementsByTagName("time")[0].innerHTML = statsOfPlayer.player_time + " seconds";
-			list.getElementsByTagName("li")[p + 1].getElementsByTagName("apm")[0].innerHTML = Math.round(statsOfPlayer.pieces_dropped / (statsOfPlayer.player_time / 60)) + "p/m";
+			list.getElementsByTagName("li")[p + 1].getElementsByTagName("winner")[0].className = (player_stats.is_winner) ? "true" : "";
+			list.getElementsByTagName("li")[p + 1].getElementsByTagName("pieces")[0].innerHTML = player_stats.pieces_dropped + " pieces";
+			list.getElementsByTagName("li")[p + 1].getElementsByTagName("time")[0].innerHTML = player_stats.player_time + " seconds";
+			list.getElementsByTagName("li")[p + 1].getElementsByTagName("apm")[0].innerHTML = Math.round(player_stats.pieces_dropped / (player_stats.player_time / 60)) + "p/m";
 			// Reset and display his medals
 			list.getElementsByTagName("li")[p + 1].getElementsByTagName("medals")[0].innerHTML = "";
-			list.getElementsByTagName("li")[p + 1].getElementsByTagName("medals")[0].innerHTML += (statsOfPlayer.did_tetris) ? "<medal><img src=\"https://emoji.slack-edge.com/T6VPU2CEB/dab/b9f9a2dc59b07cde.png\" /><bubble>Did a Tetris</bubble></medal>" : "";
+			list.getElementsByTagName("li")[p + 1].getElementsByTagName("medals")[0].innerHTML += (player_stats.did_tetris) ? "<medal><img src=\"https://emoji.slack-edge.com/T6VPU2CEB/dab/b9f9a2dc59b07cde.png\" /><bubble>Did a Tetris</bubble></medal>" : "";
 			list.getElementsByTagName("li")[p + 1].getElementsByTagName("medals")[0].innerHTML += (hotestPlayer().id == PLAYERS[p].id) ? "<medal>&#128293<bubble>Highest APM</bubble></medal>" : "";
 		}
 	}
@@ -323,40 +322,39 @@ function gameOverForEveryone(contents) {
 function displayOthersPlayers(contents) {
 	contents = JSON.parse(contents);
 
-	// Display each player name and player matrix in a new HTML element
+	// Remove all other players
+	while (document.getElementsByTagName("others")[0].hasChildNodes()) {
+		document.getElementsByTagName("others")[0].removeChild(document.getElementsByTagName("others")[0].lastChild);
+	}
+	// Display each other player name and player matrix in a new HTML element
 	for (m in contents) {
-		// Create HTML elements if they are not already
-		if (!document.getElementsByTagName("player")[m]) {
-			var player = document.createElement("player");
-				var name = document.createElement("name");
-					name.innerHTML = contents[m].player;
-				var field = document.createElement("field");
-				player.appendChild(name);
-				player.appendChild(field);
-				player.style.width = UNITE * (NEXT_PIECE.getStructure()[0].length + 1) + "px";
-			document.getElementsByTagName("others")[0].appendChild(player);
-		}
-		// Remove all squares that are in the field
-		var player_field = document.getElementsByTagName("field")[m];
-		while (player_field.hasChildNodes()) {
-			player_field.removeChild(player_field.lastChild);
-		}
-		// Append squares in the field
-		var json_matrix = JSON.parse(contents[m].matrix);
-		for (r in json_matrix) {
-			var row = document.createElement("row");
-			for (s in json_matrix[r]) {
-				// Append this square of the piece to the field
-				var square = document.createElement("square");
-				if (json_matrix[r][s] == null) {
-					square.className = "invisible";
-				} else {				
-					// square.innerHTML = json_matrix[r][s].id;
-					square.className = json_matrix[r][s].type;
+		// Create HTML elements
+		var player = document.createElement("player");
+			var name = document.createElement("name");
+				name.innerHTML = contents[m].player;
+			var field = document.createElement("field");
+			player.appendChild(name);
+			player.appendChild(field);
+			player.style.width = UNITE * (NEXT_PIECE.getStructure()[0].length + 1) + "px";
+		document.getElementsByTagName("others")[0].appendChild(player);
+		// Append squares to the field if there is squares in the matrix
+		if (contents[m].matrix != "") {
+			var json_matrix = JSON.parse(contents[m].matrix);
+			for (r in json_matrix) {
+				var row = document.createElement("row");
+				for (s in json_matrix[r]) {
+					// Append this square of the piece to the field
+					var square = document.createElement("square");
+					if (json_matrix[r][s] == null) {
+						square.className = "invisible";
+					} else {				
+						// square.innerHTML = json_matrix[r][s].id;
+						square.className = json_matrix[r][s].type;
+					}
+					row.appendChild(square);
 				}
-				row.appendChild(square);
+				field.appendChild(row);
 			}
-			player_field.appendChild(row);
 		}
 	}
 }
