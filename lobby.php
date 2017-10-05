@@ -76,7 +76,8 @@ $is_ready = $player["is_ready"];
 	</section>
 
 	<footer>
-		RIP IN PEACE BLOCKBATTLE.NET
+		<div>RIP IN PEACE BLOCKBATTLE.NET</div>
+		<div><a href="changelog.html">Changelog</a></div>
 	</footer>
 
 </body>
