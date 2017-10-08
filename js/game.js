@@ -179,7 +179,7 @@ function generatePiece() {
 	var rand_int = Math.round(Math.random() * 6); // tetrimino's type
 	var rotation = 0; // default rotation of the piece
 
-	return new Piece(TYPES[rand_int], rotation);
+	return new Piece(TETRIMINOS_TYPES[rand_int], rotation);
 }
 
 /**

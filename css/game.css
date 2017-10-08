@@ -11,6 +11,7 @@ board {
 	border-right-color: rgba(0, 0, 0, 0.2);
 	border-bottom-color: rgba(0, 0, 0, 0.2);
 	background: #1D2A37;
+	transition: all 0.05s ease;
 }
 
 well, hitboxes, next, board div > * {
