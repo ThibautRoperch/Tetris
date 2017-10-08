@@ -31,9 +31,13 @@ $player_id = $_SESSION["player"];
 				<?php
 				foreach($dbh->query("SELECT * FROM lobbies") as $row) {
 					$lobby_id = $row["id"];
-					$statut = ($row["is_playing"] == 1) ? "Game in progress" : "Open";
 					$players_nb = $dbh->query("SELECT * FROM players WHERE lobby_id = $lobby_id AND last_timestamp > 0 AND id != $player_id")->rowCount();
-
+					$statut = ($row["is_playing"] == 1 && $players_nb > 0) ? "Game in progress" : "Open";
+					
+					if ($players_nb == 0) {
+						$dbh->exec("UPDATE lobbies SET is_playing = 0 WHERE id = $lobby_id");
+					}
+					
 					echo "<li>";
 						echo "<name>Lobby $lobby_id</name>";
 						echo "<playing>$statut</playing>";
