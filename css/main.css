@@ -42,7 +42,7 @@ footer {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
-	padding: 20px;
+	padding: 13px;
 	font-size: 75%;
 	color: rgba(255, 255, 255, 0.3);
 }
@@ -85,7 +85,11 @@ button:active, button.ready {
 
 footer div {
 	text-align: center;
-	margin-bottom: 10px;
+	margin-bottom: 5px;
+}
+
+footer div:last-child {
+	margin-bottom: 0;
 }
 
 footer div, footer div * {

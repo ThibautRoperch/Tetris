@@ -4,6 +4,7 @@ var STATISTICS = [];
 var MESSAGES = [];
 
 var GAME_STARTED = false;
+var TARGETS = [];
 
 /**************************
  * Handle connections and players
@@ -14,9 +15,6 @@ var GAME_STARTED = false;
   */
 function comeBack() {
 	GAME_STARTED = true;
-	// Display the game instead of the lobby
-	document.getElementsByTagName("game")[0].className = "visible";
-	document.getElementsByTagName("lobby")[0].className = "invisible";
 	// Call the game's SetGame function
 	setGame();
 	// Wait for the recovery of the dabatase's matrix and parameters
@@ -115,14 +113,14 @@ function displayPlayers(contents) {
 	contents = JSON.parse(contents);
 
 	// Compare the local JS array with the retrieved JSON array
-	// Clean and reacreate the local JS array if their number of players are different
+	// Clean the local JS array and clean and recreate the HTML list if their number of players are different
 	if (PLAYERS.length != contents.length) {
 		PLAYERS = [];
 		// Clean the HTML players list
 		while (list.getElementsByTagName("li")[1]) { // the li[0] contains the player's input, so don't remove it
 			list.removeChild(list.getElementsByTagName("li")[1]);
 		}
-		// Recreate the HTML players list with the local JS array
+		// Recreate the HTML players list with the retrieved JSON array
 		for (p in contents) {
 			var player = document.createElement("li");
 				var ready = document.createElement("winner");
@@ -338,17 +336,18 @@ function gameOverForEveryone(contents) {
  */
 function displayOthersPlayers(contents) {
 	contents = JSON.parse(contents);
-
+	
 	// Remove all other players
 	while (document.getElementsByTagName("others")[0].hasChildNodes()) {
 		document.getElementsByTagName("others")[0].removeChild(document.getElementsByTagName("others")[0].lastChild);
 	}
+	targets = [""];
 	// Display each other player name and player matrix in a new HTML element
 	for (m in contents) {
 		// Create HTML elements
 		var player = document.createElement("player");
 			var name = document.createElement("name");
-				name.innerHTML = contents[m].player;
+				name.innerHTML = parseInt(targets.length) + contents[m].player;
 			var field = document.createElement("field");
 			player.appendChild(name);
 			player.appendChild(field);
@@ -373,7 +372,10 @@ function displayOthersPlayers(contents) {
 				field.appendChild(row);
 			}
 		}
+		targets.push(contents[m].id);
 	}
+
+	TARGETS = targets;
 }
 
 /**************************

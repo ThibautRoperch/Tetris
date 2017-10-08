@@ -5,7 +5,7 @@
 
 var TETRIMINOS_TYPES = ["O", "I", "S", "Z", "L", "J", "T"];
 var SQUARE_ID = 0; // A.I.
-var GIFT_TYPES = ["add_row", "rumble", "hight_speed"];
+var GIFTS_TYPES = ["add_row", "rumble", "high_speed", "nuke", "rotate"];
 
 
 /**************************
@@ -479,11 +479,32 @@ class Square {
 class Gift {
 	constructor(name) {
 		this.name = name;
+		// &#9790; lune
+		// &#9208; pause
+		// &#128123; or &#128123; ghost
+		// &#9660; V
+		switch (this.name) {
+			case GIFTS_TYPES[0]:
+				this.symbol = "&#9650;";
+				break;
+			case GIFTS_TYPES[1]:
+				this.symbol = "&#8967;&#8967;";
+				break;
+			case GIFTS_TYPES[2]:
+				this.symbol = "&#9193;";
+				break;
+			case GIFTS_TYPES[3]:
+				this.symbol = "&#9762;";
+				break;
+			case GIFTS_TYPES[4]:
+				this.symbol = "&#8635;";
+				break;
+		}
 	}
 
 	launch() {
 		switch (this.name) {
-			case GIFT_TYPES[0]:
+			case GIFTS_TYPES[0]:
 				// If the highest row contains a square, it's a game over
 				for (c = 0; c < MATRIX[0].length; ++c) {
 					if (MATRIX[0][c] != null) {
@@ -523,7 +544,7 @@ class Gift {
 					}
 				}
 				break;
-			case GIFT_TYPES[1]:
+			case GIFTS_TYPES[1]:
 				var board = document.getElementsByTagName("board")[0];
 				var delay = 50;
 				var time_spent = 0;
@@ -541,12 +562,41 @@ class Gift {
 				board.style.marginLeft = "0px";
 				board.style.marginTop = "0px";
 				break;
-			case GIFT_TYPES[2]:
+			case GIFTS_TYPES[2]:
 				var delta = 5;
 				SPEED += delta;
 				setTimeout(function() {
 					SPEED -= delta;
 				}, 2000);
+				break;
+			case GIFTS_TYPES[3]:
+				var matrix = [];
+				// Fill the matrix with null squares
+				for (var r = 0; r < ROWS_NB; ++r) {
+					var row = [];
+					for (var c = 0; c < COLUMNS_NB; ++c) {
+						row.push(null);
+					}
+					matrix.push(row);
+				}
+				MATRIX = matrix;
+				var childs_to_delete = [];
+				for (c in WELL.getElementsByTagName("square")) {
+					var child = WELL.getElementsByTagName("square")[c];
+					if (child.id && child.id != "") {
+						childs_to_delete.push(child);
+					}
+				}
+				for (c in childs_to_delete) {
+					WELL.removeChild(childs_to_delete[c]);
+				}
+				break;
+			case GIFTS_TYPES[4]:
+				var board = document.getElementsByTagName("board")[0];
+				board.style.transform = "rotateZ(180deg)";
+				setTimeout(function() {
+					board.style.transform = "rotateZ(360deg)";
+				}, 3000);
 				break;
 		}
 	}

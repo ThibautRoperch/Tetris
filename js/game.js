@@ -24,16 +24,18 @@ var WELL;
 var NEXT;
 var COLUMNS_NB;
 var ROWS_NB;
+var ITEMS;
 
 /**
  * Back-end properties
  */
 
-var MATRIX; // row's list, elements are squares
+var MATRIX; // rows list, elements are squares
 var CURRENT_PIECE; // piece type
 var NEXT_PIECE; // piece type
-var PIECES; // pieces dropped
-var ROWS; // lines cleared
+var PIECES; // number of pieces dropped
+var ROWS; // number of lines cleared
+var GIFTS; // items list
 
 
 /**************************
@@ -55,8 +57,9 @@ function setGame() {
 	UNITE = SIDE + BORDER * 2;
 	WELL = document.getElementsByTagName("well")[0];
 	NEXT = document.getElementsByTagName("next")[0];
-	COLUMNS_NB = 10;
-	ROWS_NB = 22;
+	COLUMNS_NB = 10; // 10
+	ROWS_NB = 22; // 22
+	ITEMS = document.getElementsByTagName("items")[0];
 	// Back-end ones
 	MATRIX = [];
 	CURRENT_PIECE = null;
@@ -64,9 +67,14 @@ function setGame() {
 	SQUARE_ID = 0;
 	PIECES = 0;
 	ROWS = 0;
+	GIFTS = [];
 	// Clean the well, it might be recycled
 	while (WELL.hasChildNodes()) {
 		WELL.removeChild(WELL.lastChild);
+	}
+	// Clean the items' list, it might be recycled
+	while (ITEMS.hasChildNodes()) {
+		ITEMS.removeChild(ITEMS.lastChild);
 	}
 	// Recover game's datas from the database ; might change the matrix and the other parameters
 	executeScript("datas_player_receiving.php", retrievedGameDatas);
@@ -176,7 +184,7 @@ function preparePiece() {
 function generatePiece() {
 	var type = "";
 	
-	var rand_int = Math.round(Math.random() * 6); // tetrimino's type
+	var rand_int = Math.round(Math.random() * (TETRIMINOS_TYPES.length - 1)); // tetrimino's type
 	var rotation = 0; // default rotation of the piece
 
 	return new Piece(TETRIMINOS_TYPES[rand_int], rotation);
@@ -207,6 +215,20 @@ function displayPiece(rows, node, class_name) {
 	}
 
 	node.appendChild(tetrimino);
+}
+
+/**
+ * Display the items' list in the items' HTML node
+ */
+function displayItems() {
+	while (ITEMS.hasChildNodes()) {
+		ITEMS.removeChild(ITEMS.lastChild);
+	}
+	for (g in GIFTS) {
+		var item = document.createElement("item");
+			item.innerHTML = GIFTS[g].symbol;
+		ITEMS.appendChild(item);
+	}
 }
 
 /**
@@ -305,7 +327,7 @@ function blockCurrentPiece() {
 			}
 		}
 
-		PIECES += 1;	
+		PIECES += 1;
 		ROWS += lines_counter;
 
 		// Send a dab in the chat if the player did a Tetris, and update his datas
@@ -319,9 +341,15 @@ function blockCurrentPiece() {
 			executeScript("player_did_tetris.php", nothing);
 		}
 
+		for (i = 0; i < lines_counter; ++i) {
+			var rand_int = Math.round(Math.random() * (GIFTS_TYPES.length - 1));
+			GIFTS.push(new Gift(GIFTS_TYPES[rand_int]));
+		}
+		if (lines_counter > 0) displayItems();
+		
 		// Send the gift associated to the lines
 		while (lines_counter > 1) {
-			executeScript("gift_sending.php?name=add_row", nothing);
+			executeScript("gift_sending.php?item=add_row", nothing);
 			lines_counter--;
 		}
 
@@ -394,7 +422,39 @@ function keyPressed(event) {
 					CURRENT_PIECE.counterClockWiseRotate();
 				}
 				break;
-			// TODO touches pour executeScript("gift_sending.php?name=dazuhdp", nothing); qui appelle un script php qui ajoute l'item en bdd, avec id du joueur et nom de l'item
+			case "Escape":
+				sendGift(null, 0);
+				break;
+			case "0":
+				sendGift(TARGETS[0], 0);
+				break;
+			case "1":
+				sendGift(TARGETS[1], 0);
+				break;
+			case "2":
+				sendGift(TARGETS[2], 0);
+				break;
+			case "3":
+				sendGift(TARGETS[3], 0);
+				break;
+			case "4":
+				sendGift(TARGETS[4], 0);
+				break;
+			case "5":
+				sendGift(TARGETS[5], 0);
+				break;
+			case "6":
+				sendGift(TARGETS[6], 0);
+				break;
+			case "7":
+				sendGift(TARGETS[7], 0);
+				break;
+			case "8":
+				sendGift(TARGETS[8], 0);
+				break;
+			case "9":
+				sendGift(TARGETS[9], 0);
+				break;
 			default:
 				break;
 		}
@@ -537,4 +597,21 @@ function receiveGifts(contents) {
 		// Update database's game datas
 		sendGameDatas();
 	}
+}
+
+/**
+ * Send to the given id's player the given position's item
+ */
+function sendGift(player_id, item_pos) {
+	if (player_id == null) { // just delete the item
+		// nothing
+	} else if (player_id == "") { // use the item on himself
+		GIFTS[item_pos].launch();
+		// Update database's game datas
+		sendGameDatas();
+	} else { // send the item to the player
+		executeScript("gift_sending.php?player=" + player_id + "&item=" + GIFTS[item_pos].name);
+	}
+	GIFTS.splice(item_pos, 1);
+	displayItems();
 }

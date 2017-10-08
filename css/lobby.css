@@ -1,7 +1,7 @@
 
 /* Lobby structure */
 
-lobby, lobby.visible {
+lobby {
 	display: flex;
 	flex-direction: column;
 }
@@ -90,7 +90,7 @@ lobby ul#players li medals medal {
 	cursor: default;
 }
 
-lobby ul#players li medals medal img {	
+lobby ul#players li medals medal img {
 	width: 25px;
 }
 	
@@ -170,24 +170,42 @@ lobby chat ul#messages li contents img {
 
 /* Game */
 
-game, game.invisible {
-	display: none;
-	flex-direction: row;
-	justify-content: flex-start;
-}
-
-game.visible {
+game {
 	display: flex;
+	flex-direction: column;
 }
 
-game others {
+game.invisible {
+	display: none;
+}
+
+game article {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	margin-bottom: 40px;
+}
+
+game article timer {
+	flex: 0.075;
+	margin-top: 4px;
+	margin-bottom: -3px;
+	padding: 10px 15px;
+	text-align: center;
+	background: rgba(255, 255, 255, 0.1);
+	box-shadow: 0 0px 2px 1px rgba(0, 0, 0, 0.4) inset;
+	border-radius: 5px;
+}
+
+
+game article others {
 	flex: 1;
 	display: flex;
 	flex-wrap: wrap;
 	padding: 20px;
 }
 
-game others player {
+game article others player {
 	display: flex;
 	flex-direction: column;
 	max-height: 50%;
@@ -196,26 +214,26 @@ game others player {
 	box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.15) inset, 0 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
-game others player name {
+game article others player name {
 	line-height: 20px;
 	text-align: center;
 	font-size: 12px;
 }
 
-game others player field {
+game article others player field {
 	flex: 1;
 	display: flex;
 	flex-direction: column;
 	background: rgba(0, 0, 0, 0.5);
 }
 
-game others player field row {
+game article others player field row {
 	flex: 1;
 	display: flex;
 	flex-direction: row;
 }
 
-game others player field row square {
+game article others player field row square {
 	flex: 1;
 	border-radius: 0;
 	box-shadow: 0 0 0px 2px rgba(0, 0, 0, 0.2) inset;

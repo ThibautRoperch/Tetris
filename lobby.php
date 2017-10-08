@@ -36,7 +36,7 @@ $is_ready = $player["is_ready"];
 	</header>
 
 	<section>
-		<lobby>
+		<lobby class="visible">
 			<article>
 				<button id="close" class="ready">game in progress</button>
 				<button id="open" class="<?php echo ($is_ready == 1) ? "ready" : ""; ?>" onclick="<?php echo ($is_ready == 1) ? "setAsNotReady(this)" : "setAsReady(this)"; ?>">ready</button>
@@ -66,12 +66,22 @@ $is_ready = $player["is_ready"];
 			</article>
 		</lobby>
 		
-		<game>
-			<board>
-				<well></well>
-				<next></next>
-			</board>
-			<others></others>
+		<game class="invisible">
+			<article>
+				<timer>00:00</timer>
+			</article>
+			<article>
+				<board>
+					<div>
+						<well></well>
+						<next></next>
+					</div>
+					<div>
+						<items></items>
+					</div>
+				</board>
+				<others></others>
+			</article>
 		</game>
 	</section>
 
