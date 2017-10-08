@@ -2,7 +2,7 @@
 
 session_start();
 
-if (isset($_SESSION["player"]) && isset($_GET["is_ready"])) {
+if (isset($_SESSION["player"]) && !empty($_GET["is_ready"])) {
 	include_once("open_connection.php");
 
 	$player_id = $_SESSION["player"];

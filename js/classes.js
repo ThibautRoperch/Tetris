@@ -3,8 +3,9 @@
  * Classes' properties
  */
 
+var TETRIMINOS_TYPES = ["O", "I", "S", "Z", "L", "J", "T"];
 var SQUARE_ID = 0; // A.I.
-var TYPES = ["O", "I", "S", "Z", "L", "J", "T"];
+var GIFT_TYPES = ["add_row", "rumble", "hight_speed"];
 
 
 /**************************
@@ -23,7 +24,7 @@ class Piece {
 		this.preview;
 
 		switch (this.type) {
-			case TYPES[0]:
+			case TETRIMINOS_TYPES[0]:
 				this.structure =
 				[
 					[
@@ -39,7 +40,7 @@ class Piece {
 					[1, 1]
 				]
 				break;
-			case TYPES[1]:
+			case TETRIMINOS_TYPES[1]:
 				this.structure =
 				[
 					[
@@ -60,7 +61,7 @@ class Piece {
 					[1, 1, 1, 1]
 				]
 				break;
-			case TYPES[2]:
+			case TETRIMINOS_TYPES[2]:
 				this.structure =
 				[
 					[
@@ -82,7 +83,7 @@ class Piece {
 					[1, 1, 0]
 				]
 				break;
-			case TYPES[3]:
+			case TETRIMINOS_TYPES[3]:
 				this.structure =
 				[
 					[
@@ -104,7 +105,7 @@ class Piece {
 					[0, 1, 1]
 				]
 				break;
-			case TYPES[4]:
+			case TETRIMINOS_TYPES[4]:
 				this.structure =
 				[
 					[
@@ -138,7 +139,7 @@ class Piece {
 					[1, 0, 0]
 				]
 				break;
-			case TYPES[5]:
+			case TETRIMINOS_TYPES[5]:
 				this.structure =
 				[
 					[
@@ -172,7 +173,7 @@ class Piece {
 					[0, 0, 1]
 				]
 				break;
-			case TYPES[6]:
+			case TETRIMINOS_TYPES[6]:
 				this.structure =
 				[
 					[
@@ -482,7 +483,7 @@ class Gift {
 
 	launch() {
 		switch (this.name) {
-			case "add_row":
+			case GIFT_TYPES[0]:
 				// If the highest row contains a square, it's a game over
 				for (c = 0; c < MATRIX[0].length; ++c) {
 					if (MATRIX[0][c] != null) {
@@ -507,7 +508,7 @@ class Gift {
 						// Pick a random square's type
 						var type = Math.round(Math.random() * 6);
 						// Create and append a new square to the new row and the well
-						var new_square = new Square(SQUARE_ID++, TYPES[type]);
+						var new_square = new Square(SQUARE_ID++, TETRIMINOS_TYPES[type]);
 						MATRIX[ROWS_NB - 1][c] = new_square;
 						var square = document.createElement("square");
 							square.style.width = SIDE + "px";
@@ -522,9 +523,30 @@ class Gift {
 					}
 				}
 				break;
-			case "rumble":
+			case GIFT_TYPES[1]:
+				var board = document.getElementsByTagName("board")[0];
+				var delay = 50;
+				var time_spent = 0;
+				rumble();
+				function rumble() {
+					board.style.marginLeft = Math.floor((Math.random() * 50) - 25) + "px";
+					board.style.marginTop = Math.floor((Math.random() * 50) - 25) + "px";
+					setTimeout(function() {
+						if (time_spent < 2000) {
+							time_spent += delay;
+							rumble();
+						}
+					}, delay);
+				}
+				board.style.marginLeft = "0px";
+				board.style.marginTop = "0px";
 				break;
-			default:
+			case GIFT_TYPES[2]:
+				var delta = 5;
+				SPEED += delta;
+				setTimeout(function() {
+					SPEED -= delta;
+				}, 2000);
 				break;
 		}
 	}
