@@ -96,7 +96,7 @@ function retrieveStatistics(contents) {
 	// Reset and display medals of the player ([0])
 	list.getElementsByTagName("li")[0].getElementsByTagName("medals")[0].innerHTML = "";
 	list.getElementsByTagName("li")[0].getElementsByTagName("medals")[0].innerHTML += (STATISTICS[0].did_tetris) ? "<medal><img src=\"https://emoji.slack-edge.com/T6VPU2CEB/dab/b9f9a2dc59b07cde.png\" /><bubble>:dab: You did a Tetris!</bubble></medal>" : "";
-	list.getElementsByTagName("li")[0].getElementsByTagName("medals")[0].innerHTML += (hotestPlayer().id == STATISTICS[0].id) ? "<medal>&#128293<bubble>Congrats! " + Math.round(STATISTICS[0].pieces_dropped / (STATISTICS[0].player_time / 60)) + " pieces/min</bubble></medal>" : "";
+	list.getElementsByTagName("li")[0].getElementsByTagName("medals")[0].innerHTML += (hotestPlayer().id == STATISTICS[0].id) ? "<medal>&#128293;<bubble>Congrats! " + Math.round(STATISTICS[0].pieces_dropped / (STATISTICS[0].player_time / 60)) + " pieces/min</bubble></medal>" : "";
 }
 
 /**
@@ -153,7 +153,7 @@ function displayPlayers(contents) {
 			// Reset and display his medals
 			list.getElementsByTagName("li")[p + 1].getElementsByTagName("medals")[0].innerHTML = "";
 			list.getElementsByTagName("li")[p + 1].getElementsByTagName("medals")[0].innerHTML += (player_stats.did_tetris) ? "<medal><img src=\"https://emoji.slack-edge.com/T6VPU2CEB/dab/b9f9a2dc59b07cde.png\" /><bubble>Did a Tetris</bubble></medal>" : "";
-			list.getElementsByTagName("li")[p + 1].getElementsByTagName("medals")[0].innerHTML += (hotestPlayer().id == PLAYERS[p].id) ? "<medal>&#128293<bubble>Highest APM</bubble></medal>" : "";
+			list.getElementsByTagName("li")[p + 1].getElementsByTagName("medals")[0].innerHTML += (hotestPlayer().id == PLAYERS[p].id) ? "<medal>&#128293;<bubble>Highest APM</bubble></medal>" : "";
 		}
 	}
 }
