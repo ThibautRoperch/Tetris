@@ -17,6 +17,7 @@ if (isset($_SESSION["lobby"]) && isset($_SESSION["player"])) {
 			\"player_time\" : ".$row["player_time"].",
 			\"pieces_dropped\" : ".$row["pieces_dropped"].",
 			\"lines_cleared\" : ".$row["lines_cleared"].",
+			\"items_sent\" : ".$row["items_sent"].",
 			\"did_tetris\" : ".$row["did_tetris"].",
 			\"is_winner\" : ".$row["is_winner"]."
 		}";
@@ -29,6 +30,7 @@ if (isset($_SESSION["lobby"]) && isset($_SESSION["player"])) {
 			\"player_time\" : ".$row["player_time"].",
 			\"pieces_dropped\" : ".$row["pieces_dropped"].",
 			\"lines_cleared\" : ".$row["lines_cleared"].",
+			\"items_sent\" : ".$row["items_sent"].",
 			\"did_tetris\" : ".$row["did_tetris"].",
 			\"is_winner\" : ".$row["is_winner"]."
 		}";

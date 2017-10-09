@@ -84,6 +84,19 @@ function hotestPlayer() {
 }
 
 /**
+ * Find and return the player who sent the most items
+ */
+function mostGenerousPlayer() {
+	var most_generous_player = null;
+	for (p in STATISTICS) {
+		if (most_generous_player == null || STATISTICS[p].items_sent > most_generous_player.items_sent) {
+			most_generous_player = STATISTICS[p];
+		}
+	}
+	return most_generous_player;
+}
+
+/**
  * Retrieve end of game's statistics, they will be displayed when players will be
  */
 function retrieveStatistics(contents) {
@@ -103,6 +116,7 @@ function retrieveStatistics(contents) {
 	list.getElementsByTagName("li")[0].getElementsByTagName("medals")[0].innerHTML = "";
 	list.getElementsByTagName("li")[0].getElementsByTagName("medals")[0].innerHTML += (STATISTICS[0].did_tetris) ? "<medal><img src=\"https://emoji.slack-edge.com/T6VPU2CEB/dab/b9f9a2dc59b07cde.png\" /><bubble>:dab: You did a Tetris!</bubble></medal>" : "";
 	list.getElementsByTagName("li")[0].getElementsByTagName("medals")[0].innerHTML += (hotestPlayer().id == STATISTICS[0].id) ? "<medal>&#128293;<bubble>Congrats! " + Math.round(STATISTICS[0].pieces_dropped / (STATISTICS[0].player_time / 60)) + " pieces/min</bubble></medal>" : "";
+	list.getElementsByTagName("li")[0].getElementsByTagName("medals")[0].innerHTML += (mostGenerousPlayer().id == STATISTICS[0].id) ? "<medal>&#128163;<bubble>Congrats! " + STATISTICS[0].items_sent + " items sent</bubble></medal>" : "";
 }
 
 /**
@@ -159,7 +173,8 @@ function displayPlayers(contents) {
 			// Reset and display his medals
 			list.getElementsByTagName("li")[p + 1].getElementsByTagName("medals")[0].innerHTML = "";
 			list.getElementsByTagName("li")[p + 1].getElementsByTagName("medals")[0].innerHTML += (player_stats.did_tetris) ? "<medal><img src=\"https://emoji.slack-edge.com/T6VPU2CEB/dab/b9f9a2dc59b07cde.png\" /><bubble>Did a Tetris</bubble></medal>" : "";
-			list.getElementsByTagName("li")[p + 1].getElementsByTagName("medals")[0].innerHTML += (hotestPlayer().id == PLAYERS[p].id) ? "<medal>&#128293;<bubble>Highest APM</bubble></medal>" : "";
+			list.getElementsByTagName("li")[p + 1].getElementsByTagName("medals")[0].innerHTML += (hotestPlayer().id == PLAYERS[p].id) ? "<medal>&#128293;<bubble>Highest APM: " + Math.round(STATISTICS[p].pieces_dropped / (STATISTICS[0].player_time / 60)) + " pieces/min</bubble></medal>" : "";
+			list.getElementsByTagName("li")[p + 1].getElementsByTagName("medals")[0].innerHTML += (mostGenerousPlayer().id == STATISTICS[p].id) ? "<medal>&#128163;<bubble>Highest number of items sent: " + STATISTICS[p].items_sent + " items</bubble></medal>" : "";
 		}
 	}
 }

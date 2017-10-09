@@ -87,7 +87,10 @@ $is_ready = $player["is_ready"];
 
 	<footer>
 		<div>RIP IN PEACE BLOCKBATTLE.NET</div>
-		<div><a href="changelog.html">Changelog</a></div>
+        <div>
+			<a href="changelog.html">Changelog</a>
+			<a href="rules.html">Rules</a>
+		</div>
 	</footer>
 
 </body>

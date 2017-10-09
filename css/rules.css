@@ -1,0 +1,53 @@
+
+section article {
+	margin-bottom: 50px;
+}
+
+section article:last-child {
+	margin-bottom: none;
+}
+
+section article h2 {
+	margin-bottom: 25px;
+	font-size: 24px;
+	font-weight: normal;
+	letter-spacing: 5px;
+}
+
+section article ul {
+	display: flex;
+	flex-direction: column;
+}
+
+section article ul li {
+	display: flex;
+	flex-direction: row;
+	margin-bottom: 10px;
+	line-height: 30px;
+}
+
+section ul li icons {
+	flex: .1;
+	display: flex;
+	margin-right: 13px;
+}
+
+section article ul li description {
+	flex: .5;
+	font-size: 16px;
+}
+
+section ul li icons * {
+	min-width: 22px; /* line height (30px, given by the rule article ul il) - vertical padding */
+	margin: 0 5px;
+	padding: 0 4px;
+	font-size: 16px;
+	text-align: center;
+	color: silver;
+	background: rgba(0, 0, 0, 0.2);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+section ul li icons img {
+	max-height: 35px;
+}

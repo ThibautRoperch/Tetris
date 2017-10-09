@@ -432,7 +432,7 @@ function keyPressed(event) {
 				}
 				break;
 			case "Escape":
-				sendGift(null, 0);
+				sendGift(-1, 0);
 				break;
 			case "0":
 				sendGift(TARGETS[0], 0);
@@ -613,7 +613,7 @@ function receiveGifts(contents) {
  */
 function sendGift(player_id, item_pos) {
 	if (player_id != undefined && GIFTS[item_pos] != undefined) {
-		if (player_id == null) { // just delete the item
+		if (player_id == -1) { // just delete the item
 			// nothing
 		} else if (player_id == "") { // use the item on himself
 			GIFTS[item_pos].launch();

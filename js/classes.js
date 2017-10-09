@@ -24,7 +24,7 @@ class Piece {
 		this.preview;
 
 		switch (this.type) {
-			case TETRIMINOS_TYPES[0]:
+			case TETRIMINOS_TYPES[0]: // O
 				this.structure =
 				[
 					[
@@ -40,7 +40,7 @@ class Piece {
 					[1, 1]
 				]
 				break;
-			case TETRIMINOS_TYPES[1]:
+			case TETRIMINOS_TYPES[1]: // I
 				this.structure =
 				[
 					[
@@ -61,7 +61,7 @@ class Piece {
 					[1, 1, 1, 1]
 				]
 				break;
-			case TETRIMINOS_TYPES[2]:
+			case TETRIMINOS_TYPES[2]: // S
 				this.structure =
 				[
 					[
@@ -83,7 +83,7 @@ class Piece {
 					[1, 1, 0]
 				]
 				break;
-			case TETRIMINOS_TYPES[3]:
+			case TETRIMINOS_TYPES[3]: // Z
 				this.structure =
 				[
 					[
@@ -105,7 +105,7 @@ class Piece {
 					[0, 1, 1]
 				]
 				break;
-			case TETRIMINOS_TYPES[4]:
+			case TETRIMINOS_TYPES[4]: // L
 				this.structure =
 				[
 					[
@@ -139,7 +139,7 @@ class Piece {
 					[1, 0, 0]
 				]
 				break;
-			case TETRIMINOS_TYPES[5]:
+			case TETRIMINOS_TYPES[5]: // J
 				this.structure =
 				[
 					[
@@ -173,7 +173,7 @@ class Piece {
 					[0, 0, 1]
 				]
 				break;
-			case TETRIMINOS_TYPES[6]:
+			case TETRIMINOS_TYPES[6]: // T
 				this.structure =
 				[
 					[
@@ -482,29 +482,30 @@ class Gift {
 		// &#9790; lune
 		// &#9208; pause
 		// &#128123; or &#128123; ghost
-		// &#9660; V
 		switch (this.name) {
-			case GIFTS_TYPES[0]:
+			case GIFTS_TYPES[0]: // add_row
 				this.symbol = "&#9650;";
 				break;
-			case GIFTS_TYPES[1]:
+			case GIFTS_TYPES[1]: // rumble (wizz)
 				this.symbol = "&#8967;&#8967;";
 				break;
-			case GIFTS_TYPES[2]:
+			case GIFTS_TYPES[2]: // high_speed
 				this.symbol = "&#9193;";
 				break;
-			case GIFTS_TYPES[3]:
+			case GIFTS_TYPES[3]: // nuke
 				this.symbol = "&#9762;";
 				break;
-			case GIFTS_TYPES[4]:
+			case GIFTS_TYPES[4]: // rotate
 				this.symbol = "&#8635;";
 				break;
+			case GIFTS_TYPES[5]: // remove_row
+				this.symbol = "&#9660";
 		}
 	}
 
 	launch() {
 		switch (this.name) {
-			case GIFTS_TYPES[0]:
+			case GIFTS_TYPES[0]: // add_row
 				// If the highest row contains a square, it's a game over
 				for (c = 0; c < MATRIX[0].length; ++c) {
 					if (MATRIX[0][c] != null) {
@@ -544,7 +545,7 @@ class Gift {
 					}
 				}
 				break;
-			case GIFTS_TYPES[1]:
+			case GIFTS_TYPES[1]: // rumble (wizz)
 				var board = document.getElementsByTagName("board")[0];
 				var delay = 50;
 				var time_spent = 0;
@@ -553,7 +554,7 @@ class Gift {
 					board.style.marginLeft = Math.floor((Math.random() * 50) - 25) + "px";
 					board.style.marginTop = Math.floor((Math.random() * 50) - 25) + "px";
 					setTimeout(function() {
-						if (time_spent < 2000) {
+						if (time_spent < 3000) {
 							time_spent += delay;
 							rumble();
 						}
@@ -562,14 +563,14 @@ class Gift {
 				board.style.marginLeft = "0px";
 				board.style.marginTop = "0px";
 				break;
-			case GIFTS_TYPES[2]:
+			case GIFTS_TYPES[2]: // high_speed
 				var delta = 5;
 				SPEED += delta;
 				setTimeout(function() {
 					SPEED -= delta;
 				}, 2000);
 				break;
-			case GIFTS_TYPES[3]:
+			case GIFTS_TYPES[3]: // nuke
 				var matrix = [];
 				// Fill the matrix with null squares
 				for (var r = 0; r < ROWS_NB; ++r) {
@@ -591,12 +592,29 @@ class Gift {
 					WELL.removeChild(childs_to_delete[c]);
 				}
 				break;
-			case GIFTS_TYPES[4]:
+			case GIFTS_TYPES[4]: // rotate
 				var board = document.getElementsByTagName("board")[0];
 				board.style.transform = "rotateZ(180deg)";
 				setTimeout(function() {
 					board.style.transform = "rotateZ(360deg)";
 				}, 3000);
+				break;
+			case GIFTS_TYPES[5]: // remove_row
+				// Remove the HTML squares of the lowest row
+				for (c = 0; c < MATRIX[MATRIX.length - 1].length; ++c) {
+					WELL.removeChild(document.getElementById(MATRIX[MATRIX.length - 1][c].id));
+				}
+				// For each row, move its squares to the row under
+				for (r = MATRIX.length - 1; r > 0; --r) { // start with the lowest row
+					for (c = 0; c < MATRIX[r].length; ++c) {
+						// Down the top square, from the matrix and the well
+						MATRIX[r][c] = MATRIX[r - 1][c];
+						if (MATRIX[r - 1][c] != null) {
+							document.getElementById(MATRIX[r - 1][c].id).style.marginTop = UNITE * r + "px";
+						}
+						MATRIX[r - 1][c] = null;
+					}
+				}
 				break;
 		}
 	}
