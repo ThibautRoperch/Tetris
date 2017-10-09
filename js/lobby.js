@@ -347,13 +347,13 @@ function displayOthersPlayers(contents) {
 		// Create HTML elements
 		var player = document.createElement("player");
 			var name = document.createElement("name");
-				name.innerHTML = parseInt(targets.length) + contents[m].player;
+				name.innerHTML = parseInt(targets.length) + " : " + contents[m].name;
 			var field = document.createElement("field");
 			player.appendChild(name);
 			player.appendChild(field);
 			player.style.width = UNITE * (NEXT_PIECE.getStructure()[0].length + 1) + "px";
 		document.getElementsByTagName("others")[0].appendChild(player);
-		// Append squares to the field if there is squares in the matrix
+		// Append squares from the matrix (if it's not empty) to the field
 		if (contents[m].matrix != "") {
 			var json_matrix = JSON.parse(contents[m].matrix);
 			for (r in json_matrix) {
@@ -363,7 +363,7 @@ function displayOthersPlayers(contents) {
 					var square = document.createElement("square");
 					if (json_matrix[r][s] == null) {
 						square.className = "invisible";
-					} else {				
+					} else {
 						// square.innerHTML = json_matrix[r][s].id;
 						square.className = json_matrix[r][s].type;
 					}

@@ -17,7 +17,8 @@ if (isset($_SESSION["lobby"]) && isset($_SESSION["player"])) {
 		}
 		$datas .=
 		" {
-			\"player\" : \"".$player."\",
+			\"id\" : ".$row["player_id"].",
+			\"name\" : \"".$player."\",
 			\"matrix\" : \"".addslashes($row["player_matrix"])."\"
 		}";
 	}

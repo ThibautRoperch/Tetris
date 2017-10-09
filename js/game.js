@@ -603,15 +603,17 @@ function receiveGifts(contents) {
  * Send to the given id's player the given position's item
  */
 function sendGift(player_id, item_pos) {
-	if (player_id == null) { // just delete the item
-		// nothing
-	} else if (player_id == "") { // use the item on himself
-		GIFTS[item_pos].launch();
-		// Update database's game datas
-		sendGameDatas();
-	} else { // send the item to the player
-		executeScript("gift_sending.php?player=" + player_id + "&item=" + GIFTS[item_pos].name);
+	if (player_id != undefined && GIFTS[item_pos] != undefined) {
+		if (player_id == null) { // just delete the item
+			// nothing
+		} else if (player_id == "") { // use the item on himself
+			GIFTS[item_pos].launch();
+			// Update database's game datas
+			sendGameDatas();
+		} else { // send the item to the player
+			executeScript("gift_sending.php?item=" + GIFTS[item_pos].name + "&recipient=" + player_id, nothing);
+		}
+		GIFTS.splice(item_pos, 1);
+		displayItems();
 	}
-	GIFTS.splice(item_pos, 1);
-	displayItems();
 }
