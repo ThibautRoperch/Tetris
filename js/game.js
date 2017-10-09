@@ -25,6 +25,7 @@ var NEXT;
 var COLUMNS_NB;
 var ROWS_NB;
 var ITEMS;
+var TIMER;
 
 /**
  * Back-end properties
@@ -60,6 +61,7 @@ function setGame() {
 	COLUMNS_NB = 10; // 10
 	ROWS_NB = 22; // 22
 	ITEMS = document.getElementsByTagName("items")[0];
+	TIMER = document.getElementsByTagName("timer")[0];
 	// Back-end ones
 	MATRIX = [];
 	CURRENT_PIECE = null;
@@ -141,6 +143,13 @@ function timerClock() {
 			WELL.getElementsByTagName("column")[c].style.opacity = 1 - TIME / 100;
 			++c;
 		}
+		// Update the HTML timer
+		var minutes = Math.floor(TIME / 60);
+		var secondes = TIME % 60;
+		TIMER.innerHTML = "";
+		TIMER.innerHTML += (minutes < 10) ? "0" + minutes : minutes;
+		TIMER.innerHTML += ":";
+		TIMER.innerHTML += (secondes < 10) ? "0" + secondes : secondes;
 		// Continue the timer
 		timerClock();
 	}, 1000);
