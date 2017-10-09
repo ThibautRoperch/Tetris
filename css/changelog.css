@@ -33,6 +33,15 @@ section article ul li {
 	font-size: 16px;
 }
 
+section li.todo {
+	opacity: 0.5;
+}
+
+section li.todo:before {
+	content: "[TODO]";
+	margin-right: 10px;
+}
+
 section article ul li ul {
 	list-style-type: none;
 }
