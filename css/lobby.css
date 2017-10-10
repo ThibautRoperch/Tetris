@@ -68,11 +68,6 @@ lobby ul#players li.ready {
 lobby ul#players li winner {
 	flex: 0.3;
 	font-weight: bold;
-	color: transparent;
-}
-
-lobby ul#players li winner.true {
-	color: #BFD308;
 }
 
 lobby ul#players li stats {
@@ -94,21 +89,21 @@ lobby ul#players li medals medal img {
 	width: 25px;
 }
 	
-lobby ul#players li medals medal bubble {
+lobby ul#players li medals medal bubble, lobby ul#players li winner bubble {
 	display: none;
 	position: absolute;
-	margin-left: 30px;
-	margin-top: -35px;
+	margin-left: -60px;
+	margin-top: -70px;
 	padding: 5px 10px;
 	line-height: 20px;
-	font-size: 10px;
+	font-size: 12px;
 	color: rgba(255, 255, 255, 0.5);
 	border: 1px solid rgba(255, 255, 255, 0.05);
-	background: rgba(0, 0, 0, 0.7);
+	background: rgba(0, 0, 0, 0.8);
 	border-radius: 5px;
 }
 
-lobby ul#players li medals medal:hover bubble {
+lobby ul#players li medals medal:hover bubble, lobby ul#players li winner:hover bubble {
 	display: block;
 }
 

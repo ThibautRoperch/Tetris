@@ -22,6 +22,10 @@ if (isset($_SESSION["lobby"]) && isset($_SESSION["player"]) && !empty($_GET["ite
 		}
 	}
 
+	// Update the number of items sent of the player
+	$items_sent = $dbh->query("SELECT items_sent FROM game_datas WHERE player_id = $player_id")->fetch()[0];
+	$dbh->exec("UPDATE game_datas SET items_sent = $items_sent + 1 WHERE player_id = $player_id");
+
 	include_once("close_connection.php");
 }
 

@@ -54,7 +54,7 @@ function setGame() {
 	GAME_OVER = true;
 	// Front-end ones
 	BORDER = 3;
-	SIDE = 17;
+	SIDE = 15;
 	UNITE = SIDE + BORDER * 2;
 	WELL = document.getElementsByTagName("well")[0];
 	NEXT = document.getElementsByTagName("next")[0];
@@ -78,6 +78,8 @@ function setGame() {
 	while (ITEMS.hasChildNodes()) {
 		ITEMS.removeChild(ITEMS.lastChild);
 	}
+	// Clean the timer, it might be recycled
+	TIMER.innerHTML = "00:00";
 	// Recover game's datas from the database ; might change the matrix and the other parameters
 	executeScript("datas_player_receiving.php", retrievedGameDatas);
 	// TODO retrievedGameDatas sert juste à la matrice. Ajouter avant ce script la récup d'un script qui cntient la valeur des autres param (columns, rows, ...) qui sont des props du lobby
@@ -90,13 +92,6 @@ function setGame() {
 function startGame() {
 	// The game is not over yet
 	GAME_OVER = false;
-	// Prepare a first piece
-	preparePiece();
-	// Set next's dimensions
-	NEXT.style.width = UNITE * (NEXT_PIECE.getStructure()[0].length + 1) + "px";
-	NEXT.style.height = UNITE * (NEXT_PIECE.getStructure().length) + "px";
-	// Launch a first piece
-	launchPiece();
 	// Start the game clock
 	gameClock();
 	// Start the timer clock
@@ -117,7 +112,7 @@ function gameClock() {
 			CURRENT_PIECE.moveDown();
 		} else {
 			blockCurrentPiece();
-			launchPiece();
+			launchNextPiece();
 		}
 		// Continue the game if it isn't over yet
 		if (!GAME_OVER) {
@@ -158,11 +153,11 @@ function timerClock() {
 /**
  * Put the prepared piece in the well and prepare a new one
  */
-function launchPiece() {
+function launchNextPiece() {
 	// Take the next piece
 	CURRENT_PIECE = NEXT_PIECE;
 	// Display the piece in the well
-	displayPiece(CURRENT_PIECE.getStructure(), WELL, CURRENT_PIECE.getType()); 
+	displayPiece(CURRENT_PIECE.getStructure(), WELL, CURRENT_PIECE.getType());
 	// Move the launched piece on the middle of the well
 	actualizeCurrentPiece();
 	// Prepare a new piece
@@ -171,6 +166,8 @@ function launchPiece() {
 	if (!CURRENT_PIECE.canSpawn()) {
 		gameOver();
 	}
+	// Update database's game datas (for the current and nex pieces)
+	sendGameDatas();
 }
 
 /**
@@ -194,9 +191,8 @@ function generatePiece() {
 	var type = "";
 	
 	var rand_int = Math.round(Math.random() * (TETRIMINOS_TYPES.length - 1)); // tetrimino's type
-	var rotation = 0; // default rotation of the piece
 
-	return new Piece(TETRIMINOS_TYPES[rand_int], rotation);
+	return new Piece(TETRIMINOS_TYPES[rand_int]);
 }
 
 /**
@@ -235,7 +231,7 @@ function displayItems() {
 	}
 	for (g in GIFTS) {
 		var item = document.createElement("item");
-			item.innerHTML = GIFTS[g].symbol;
+			item.innerHTML = GIFTS[g].getSymbol();
 		ITEMS.appendChild(item);
 	}
 }
@@ -286,21 +282,23 @@ function blockCurrentPiece() {
 					// Compute the absolute position of the square
 					// absolute position of the origin of the piece + position of the square in the piece - position of the origin in the piece
 					var absolute_square_position = [CURRENT_PIECE.absolute_position[0] + c - CURRENT_PIECE.relative_position[0], CURRENT_PIECE.absolute_position[1] + r - CURRENT_PIECE.relative_position[1]];
-					MATRIX[absolute_square_position[1]][absolute_square_position[0]] = new Square(SQUARE_ID++, CURRENT_PIECE.type);
-					// Append this square of the piece to the well
-					var square = document.createElement("square");
-						square.style.width = SIDE + "px";
-						square.style.height = SIDE + "px";
-						square.style.borderWidth = BORDER + "px";
-						square.style.marginLeft = UNITE * absolute_square_position[0] + "px";
-						square.style.marginTop = UNITE * absolute_square_position[1] + "px";
-						square.id = MATRIX[absolute_square_position[1]][absolute_square_position[0]].id;
-						// square.innerHTML = square.id;
-						square.className = CURRENT_PIECE.type;
-					WELL.appendChild(square);
-					// Add the position of this updated row
-					if (rows_updated.indexOf(absolute_square_position[1]) === -1) {
-						rows_updated.push(absolute_square_position[1]);
+					if (absolute_square_position[1] >= 0 && absolute_square_position[1] < ROWS_NB && absolute_square_position[0] >= 0 && absolute_square_position[0] < COLUMNS_NB) {
+						MATRIX[absolute_square_position[1]][absolute_square_position[0]] = new Square(SQUARE_ID++, CURRENT_PIECE.type);
+						// Append this square of the piece to the well
+						var square = document.createElement("square");
+							square.style.width = SIDE + "px";
+							square.style.height = SIDE + "px";
+							square.style.borderWidth = BORDER + "px";
+							square.style.marginLeft = UNITE * absolute_square_position[0] + "px";
+							square.style.marginTop = UNITE * absolute_square_position[1] + "px";
+							square.id = MATRIX[absolute_square_position[1]][absolute_square_position[0]].id;
+							// square.innerHTML = square.id;
+							square.className = CURRENT_PIECE.type;
+						WELL.appendChild(square);
+						// Add the position of this updated row
+						if (rows_updated.indexOf(absolute_square_position[1]) === -1) {
+							rows_updated.push(absolute_square_position[1]);
+						}
 					}
 				}
 			}
@@ -351,8 +349,8 @@ function blockCurrentPiece() {
 		}
 
 		for (i = 0; i < lines_counter; ++i) {
-			var rand_int = Math.round(Math.random() * (GIFTS_TYPES.length - 1));
-			GIFTS.push(new Gift(GIFTS_TYPES[rand_int]));
+			var rand_int = Math.round(Math.random() * (GIFTS_NAMES.length - 1));
+			GIFTS.push(new Gift(GIFTS_NAMES[rand_int]));
 		}
 		if (lines_counter > 0) displayItems();
 		
@@ -405,7 +403,7 @@ function keyPressed(event) {
 					CURRENT_PIECE.moveDown();
 				}
 				blockCurrentPiece();
-				launchPiece();
+				launchNextPiece();
 				break;
 			case "ArrowDown": // soft drop
 				event.preventDefault();
@@ -414,7 +412,7 @@ function keyPressed(event) {
 					CURRENT_PIECE.moveDown();
 				} else {
 					blockCurrentPiece();
-					launchPiece();
+					launchNextPiece();
 				}
 				break;
 			case "a": // clockwise rotation
@@ -478,6 +476,7 @@ function gameOver() {
 	// Stop the timer clock
 	clearTimeout(TIMER_CLOCK);
 	// TODO message de game over
+	// idée : faire "tomber" les cubes : commencer par ceux en bas, leur donner une position random en y, en fonction de leur position pour effet de tas, et rotation aléatoire (+ ou - 20 deg)
 	// Set the player as not playing
 	executeScript("player_game_over.php", nothing);
 }
@@ -522,8 +521,7 @@ function retrievedGameDatas(contents) {
 	// If the database's matrix isn't empty, fill the well with it, with null squares otherwise
 	if (contents[0].matrix != "") {
 		// Copy the JSON matrix into the JS game's matrix
-		var json_matrix = JSON.parse(contents[0].matrix);
-		MATRIX = json_matrix;
+		MATRIX = JSON.parse(contents[0].matrix);
 
 		// Display the squares in the well from the game's matrix
 		for (r in MATRIX) {
@@ -554,7 +552,7 @@ function retrievedGameDatas(contents) {
 		}
 	}
 
-	// Prepare the HMTL well from the matrix's dimensions
+	// Prepare the HTML well from the matrix's dimensions
 	// Update the number of rows and colomns with those obtained from the matrix
 	ROWS_NB = MATRIX.length;
 	COLUMNS_NB = (ROWS_NB > 0) ? MATRIX[0].length : 0;
@@ -567,6 +565,32 @@ function retrievedGameDatas(contents) {
 		var column = document.createElement("column");
 		column.style.width = UNITE + "px";
 		WELL.appendChild(column);
+	}
+
+	// If the database's prepared piece isn't empty, retrieve it, prepare one otherwise
+	if (contents[0].next_piece != "") {
+		NEXT_PIECE_JSON = JSON.parse(contents[0].next_piece);
+		NEXT_PIECE = new Piece(NEXT_PIECE_JSON.type);
+		// Display the piece like the next one
+		displayPiece(NEXT_PIECE.getPreview(), NEXT, NEXT_PIECE.getType());
+	} else {
+		// Prepare a piece
+		preparePiece();
+	}
+
+	// Set next's dimensions
+	NEXT.style.width = UNITE * (NEXT_PIECE.getStructure()[0].length + 1) + "px";
+	NEXT.style.height = UNITE * (NEXT_PIECE.getStructure().length) + "px";
+
+	// If the database's current piece isn't empty, retrieve it, launch the prepared one otherwise
+	if (contents[0].current_piece != "") {
+		CURRENT_PIECE_JSON = JSON.parse(contents[0].current_piece);
+		CURRENT_PIECE = new Piece(CURRENT_PIECE_JSON.type);
+		// Display the piece in the well
+		displayPiece(CURRENT_PIECE.getStructure(), WELL, CURRENT_PIECE.getType());
+	} else {
+		// Launch the prepared piece
+		launchNextPiece();
 	}
 
 	if (contents[0].player_time != 0) {
@@ -584,27 +608,40 @@ function retrievedGameDatas(contents) {
 	if (contents[0].lines_cleared != 0) {
 		ROWS = contents[0].lines_cleared;
 	}
+	if (contents[0].items_list != "") {
+		GIFTS_JSON = JSON.parse(contents[0].items_list);
+		// Recreate gifts object, or the class functions won't be available
+		for (g in GIFTS_JSON) {
+			GIFTS.push(new Gift(GIFTS_JSON[g].name));
+		}
+		displayItems();
+	}
 }
 
 /**
  * Update database game datas with JS's ones
  */
 function sendGameDatas() {
-	var MATRIX_JSON = JSON.stringify(MATRIX);
-	executeScript("datas_player_sending.php?matrix=" + MATRIX_JSON + "&time=" + TIME + "&speed=" + SPEED + "&square_id=" + SQUARE_ID + "&pieces=" + PIECES + "&rows=" + ROWS, nothing);
+	var MATRIX_STRING = JSON.stringify(MATRIX);
+	var CURRENT_STRING = JSON.stringify(CURRENT_PIECE);
+	var NEXT_STRING = JSON.stringify(NEXT_PIECE);
+	var GIFTS_STRING = JSON.stringify(GIFTS);
+	executeScript("datas_player_sending.php?matrix=" + MATRIX_STRING + "&current=" + CURRENT_STRING + "&next=" + NEXT_STRING + "&time=" + TIME + "&speed=" + SPEED + "&square_id=" + SQUARE_ID + "&pieces=" + PIECES + "&rows=" + ROWS + "&items=" + GIFTS_STRING, nothing);
 }
 
 /**
- * Active received gifts
+ * Active received gifts, if there is
  */
 function receiveGifts(contents) {
-	contents = JSON.parse(contents);
+	if (contents != "") {
+		contents = JSON.parse(contents);
 
-	// Launch each received gift
-	for (g in contents) {
-		new Gift(contents[g].name).launch();
-		// Update database's game datas
-		sendGameDatas();
+		// Launch each received gift
+		for (g in contents) {
+			new Gift(contents[g].name).launch();
+			// Update database's game datas
+			sendGameDatas();
+		}
 	}
 }
 
@@ -617,12 +654,12 @@ function sendGift(player_id, item_pos) {
 			// nothing
 		} else if (player_id == "") { // use the item on himself
 			GIFTS[item_pos].launch();
-			// Update database's game datas
-			sendGameDatas();
 		} else { // send the item to the player
 			executeScript("gift_sending.php?item=" + GIFTS[item_pos].name + "&recipient=" + player_id, nothing);
 		}
 		GIFTS.splice(item_pos, 1);
 		displayItems();
+		// Update database's game datas (for the items list and the potential item activation)
+		sendGameDatas();
 	}
 }

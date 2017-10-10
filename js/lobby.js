@@ -107,10 +107,10 @@ function retrieveStatistics(contents) {
 	STATISTICS = contents;
 
 	// Display stats of the player ([0])
-	list.getElementsByTagName("li")[0].getElementsByTagName("winner")[0].className = (STATISTICS[0].is_winner) ? "true" : "";
-	list.getElementsByTagName("li")[0].getElementsByTagName("pieces")[0].innerHTML = STATISTICS[0].pieces_dropped + " pieces";
-	list.getElementsByTagName("li")[0].getElementsByTagName("time")[0].innerHTML = STATISTICS[0].player_time + " seconds";
-	list.getElementsByTagName("li")[0].getElementsByTagName("apm")[0].innerHTML = Math.round(STATISTICS[0].pieces_dropped / (STATISTICS[0].player_time / 60)) + " p/m";
+	list.getElementsByTagName("li")[0].getElementsByTagName("winner")[0].innerHTML = (STATISTICS[0].is_winner) ? "&#127775;<bubble>Game duration: " + TIMER.innerHTML + "</bubble>" : "";
+	// list.getElementsByTagName("li")[0].getElementsByTagName("pieces")[0].innerHTML = STATISTICS[0].pieces_dropped + " pieces";
+	// list.getElementsByTagName("li")[0].getElementsByTagName("time")[0].innerHTML = STATISTICS[0].player_time + " seconds";
+	// list.getElementsByTagName("li")[0].getElementsByTagName("apm")[0].innerHTML = Math.round(STATISTICS[0].pieces_dropped / (STATISTICS[0].player_time / 60)) + " p/m";
 
 	// Reset and display medals of the player ([0])
 	list.getElementsByTagName("li")[0].getElementsByTagName("medals")[0].innerHTML = "";
@@ -166,15 +166,15 @@ function displayPlayers(contents) {
 		var player_stats = statsOfPlayer(PLAYERS[p].id);
 		if (player_stats != null) {
 			// Display his stats
-			list.getElementsByTagName("li")[p + 1].getElementsByTagName("winner")[0].className = (player_stats.is_winner) ? "true" : "";
+			list.getElementsByTagName("li")[p + 1].getElementsByTagName("winner")[0].innerHTML = (player_stats.is_winner) ? "&#127775;<bubble>Game duration: " + TIMER.innerHTML + "</bubble>" : "";
 			list.getElementsByTagName("li")[p + 1].getElementsByTagName("pieces")[0].innerHTML = player_stats.pieces_dropped + " pieces";
 			list.getElementsByTagName("li")[p + 1].getElementsByTagName("time")[0].innerHTML = player_stats.player_time + " seconds";
 			list.getElementsByTagName("li")[p + 1].getElementsByTagName("apm")[0].innerHTML = Math.round(player_stats.pieces_dropped / (player_stats.player_time / 60)) + "p/m";
 			// Reset and display his medals
 			list.getElementsByTagName("li")[p + 1].getElementsByTagName("medals")[0].innerHTML = "";
 			list.getElementsByTagName("li")[p + 1].getElementsByTagName("medals")[0].innerHTML += (player_stats.did_tetris) ? "<medal><img src=\"https://emoji.slack-edge.com/T6VPU2CEB/dab/b9f9a2dc59b07cde.png\" /><bubble>Did a Tetris</bubble></medal>" : "";
-			list.getElementsByTagName("li")[p + 1].getElementsByTagName("medals")[0].innerHTML += (hotestPlayer().id == PLAYERS[p].id) ? "<medal>&#128293;<bubble>Highest APM: " + Math.round(STATISTICS[p].pieces_dropped / (STATISTICS[0].player_time / 60)) + " pieces/min</bubble></medal>" : "";
-			list.getElementsByTagName("li")[p + 1].getElementsByTagName("medals")[0].innerHTML += (mostGenerousPlayer().id == STATISTICS[p].id) ? "<medal>&#128163;<bubble>Highest number of items sent: " + STATISTICS[p].items_sent + " items</bubble></medal>" : "";
+			list.getElementsByTagName("li")[p + 1].getElementsByTagName("medals")[0].innerHTML += (hotestPlayer().id == PLAYERS[p].id) ? "<medal>&#128293;<bubble>Highest APM: " + Math.round(player_stats.pieces_dropped / (player_stats.player_time / 60)) + " pieces/min</bubble></medal>" : "";
+			list.getElementsByTagName("li")[p + 1].getElementsByTagName("medals")[0].innerHTML += (mostGenerousPlayer().id == PLAYERS[p].id) ? "<medal>&#128163;<bubble>Highest number of items sent: " + player_stats.items_sent + " items</bubble></medal>" : "";
 		}
 	}
 }
@@ -387,6 +387,8 @@ function displayOthersPlayers(contents) {
 				field.appendChild(row);
 			}
 		}
+		// TODO afficher le dernier item (contents[m].items[0])
+		// Save this player as a target
 		targets.push(contents[m].id);
 	}
 

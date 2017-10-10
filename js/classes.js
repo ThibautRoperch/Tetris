@@ -4,8 +4,151 @@
  */
 
 var TETRIMINOS_TYPES = ["O", "I", "S", "Z", "L", "J", "T"];
+var TETRIMINOS_STRUCTURES = [
+	// O
+	[
+		[
+			[0, 0, 0, 0],
+			[0, 1, 1, 0],
+			[0, 1, 1, 0],
+			[0, 0, 0, 0],
+		]
+	],
+	// I
+	[
+		[
+			[0, 0, 1, 0],
+			[0, 0, 1, 0],
+			[0, 0, 1, 0],
+			[0, 0, 1, 0]
+		],
+		[
+			[0, 0, 0, 0],
+			[1, 1, 1, 1],
+			[0, 0, 0, 0],
+			[0, 0, 0, 0]
+		]
+	],
+	// S
+	[
+		[
+			[0, 0, 0, 0],
+			[0, 0, 1, 1],
+			[0, 1, 1, 0],
+			[0, 0, 0, 0],
+		],
+		[
+			[0, 0, 1, 0],
+			[0, 0, 1, 1],
+			[0, 0, 0, 1],
+			[0, 0, 0, 0]
+		]
+	],
+	// Z
+	[
+		[
+			[0, 0, 0, 0],
+			[0, 1, 1, 0],
+			[0, 0, 1, 1],
+			[0, 0, 0, 0]						
+		],
+		[
+			[0, 0, 0, 1],
+			[0, 0, 1, 1],
+			[0, 0, 1, 0],
+			[0, 0, 0, 0]
+		]
+	],
+	// L
+	[
+		[
+			[0, 0, 0, 0],
+			[0, 1, 1, 1],
+			[0, 1 ,0, 0],
+			[0, 0, 0, 0]
+		],
+		[
+			[0, 1, 1, 0],
+			[0, 0, 1, 0],
+			[0, 0, 1, 0],
+			[0, 0, 0, 0]
+		],
+		[
+			[0, 0, 0, 1],
+			[0, 1 ,1, 1],
+			[0, 0, 0, 0],
+			[0, 0, 0, 0]
+		],
+		[
+			[0 ,0, 1, 0],
+			[0 ,0, 1 ,0],
+			[0 ,0, 1, 1],
+			[0, 0, 0, 0]
+		],
+	],
+	// J
+	[
+		[
+			[0, 0, 0, 0],
+			[0, 1, 1, 1],
+			[0, 0 ,0, 1],
+			[0, 0, 0, 0]
+		],
+		[
+			[0, 0, 1, 0],
+			[0, 0 ,1, 0],
+			[0, 1, 1, 0],
+			[0, 0, 0, 0]
+		],
+		[
+			[0, 1, 0, 0],
+			[0, 1 ,1, 1],
+			[0, 0, 0, 0],
+			[0, 0, 0, 0]
+		],
+		[
+			[0, 0, 1, 1],
+			[0, 0, 1 ,0],
+			[0, 0, 1, 0],
+			[0, 0, 0, 0]
+		],
+	],
+	// T
+	[
+		[
+			[0, 0, 0, 0],
+			[0, 1, 1, 1],
+			[0, 0, 1, 0],
+			[0, 0, 0, 0]
+		],
+		[
+			[0, 0, 1, 0],
+			[0, 1, 1, 0],
+			[0, 0, 1, 0],
+			[0, 0, 0, 0]
+		],
+		[
+			[0, 0, 1, 0],
+			[0, 1, 1, 1],
+			[0, 0, 0, 0],
+			[0, 0, 0, 0]
+		],
+		[
+			[0, 0, 1, 0],
+			[0, 0, 1, 1],
+			[0, 0, 1, 0],
+			[0, 0, 0, 0]
+		],
+	]
+];
+
 var SQUARE_ID = 0; // A.I.
-var GIFTS_TYPES = ["add_row", "rumble", "high_speed", "nuke", "rotate"];
+
+var GIFTS_NAMES		=	["add_row",	"rumble",			"high_speed",	"nuke",		"rotate",	"remove_row"];
+var GIFTS_SYMBOLS	=	["&#9650;",	"&#8967;&#8967;",	"&#9193;",		"&#9762;",	"&#8635;",	"&#9660;"];
+// &#9790; lune
+// &#9208; pause
+// &#128123; or &#128123; ghost
 
 
 /**************************
@@ -13,202 +156,12 @@ var GIFTS_TYPES = ["add_row", "rumble", "high_speed", "nuke", "rotate"];
  */
 
 /**
- * Piece representation, with a type, a structure, a relative origin and the absolute position of her origin
+ * Piece representation, with a type, a rotation, the relative position of its origin and the absolute position of its origin
  */
 class Piece {
-	constructor(type, rotation) {
+	constructor(type) {
 		this.type = type;
-		this.rotation = rotation;
-		
-		this.structure;
-		this.preview;
-
-		switch (this.type) {
-			case TETRIMINOS_TYPES[0]: // O
-				this.structure =
-				[
-					[
-						[0, 0, 0, 0],
-						[0, 1, 1, 0],
-						[0, 1, 1, 0],
-						[0, 0, 0, 0],
-					]
-				];
-				this.preview =
-				[
-					[1, 1],
-					[1, 1]
-				]
-				break;
-			case TETRIMINOS_TYPES[1]: // I
-				this.structure =
-				[
-					[
-						[0, 0, 1, 0],
-						[0, 0, 1, 0],
-						[0, 0, 1, 0],
-						[0, 0, 1, 0]
-					],
-					[
-						[0, 0, 0, 0],
-						[1, 1, 1, 1],
-						[0, 0, 0, 0],
-						[0, 0, 0, 0]
-					]
-				];
-				this.preview =
-				[
-					[1, 1, 1, 1]
-				]
-				break;
-			case TETRIMINOS_TYPES[2]: // S
-				this.structure =
-				[
-					[
-						[0, 0, 0, 0],
-						[0, 0, 1, 1],
-						[0, 1, 1, 0],
-						[0, 0, 0, 0],
-					],
-					[
-						[0, 0, 1, 0],
-						[0, 0, 1, 1],
-						[0, 0, 0, 1],
-						[0, 0, 0, 0]
-					]
-				];
-				this.preview =
-				[
-					[0, 1, 1],
-					[1, 1, 0]
-				]
-				break;
-			case TETRIMINOS_TYPES[3]: // Z
-				this.structure =
-				[
-					[
-						[0, 0, 0, 0],
-						[0, 1, 1, 0],
-						[0, 0, 1, 1],
-						[0, 0, 0, 0]						
-					],
-					[
-						[0, 0, 0, 1],
-						[0, 0, 1, 1],
-						[0, 0, 1, 0],
-						[0, 0, 0, 0]
-					]
-				];
-				this.preview =
-				[
-					[1, 1, 0],
-					[0, 1, 1]
-				]
-				break;
-			case TETRIMINOS_TYPES[4]: // L
-				this.structure =
-				[
-					[
-						[0, 0, 0, 0],
-						[0, 1, 1, 1],
-						[0, 1 ,0, 0],
-						[0, 0, 0, 0]
-					],
-					[
-						[0, 1, 1, 0],
-						[0, 0, 1, 0],
-						[0, 0, 1, 0],
-						[0, 0, 0, 0]
-					],
-					[
-						[0, 0, 0, 1],
-						[0, 1 ,1, 1],
-						[0, 0, 0, 0],
-						[0, 0, 0, 0]
-					],
-					[
-						[0 ,0, 1, 0],
-						[0 ,0, 1 ,0],
-						[0 ,0, 1, 1],
-						[0, 0, 0, 0]
-					],
-				];
-				this.preview =
-				[
-					[1, 1, 1],
-					[1, 0, 0]
-				]
-				break;
-			case TETRIMINOS_TYPES[5]: // J
-				this.structure =
-				[
-					[
-						[0, 0, 0, 0],
-						[0, 1, 1, 1],
-						[0, 0 ,0, 1],
-						[0, 0, 0, 0]
-					],
-					[
-						[0, 0, 1, 0],
-						[0, 0 ,1, 0],
-						[0, 1, 1, 0],
-						[0, 0, 0, 0]
-					],
-					[
-						[0, 1, 0, 0],
-						[0, 1 ,1, 1],
-						[0, 0, 0, 0],
-						[0, 0, 0, 0]
-					],
-					[
-						[0, 0, 1, 1],
-						[0, 0, 1 ,0],
-						[0, 0, 1, 0],
-						[0, 0, 0, 0]
-					],
-				];
-				this.preview =
-				[
-					[1, 1, 1],
-					[0, 0, 1]
-				]
-				break;
-			case TETRIMINOS_TYPES[6]: // T
-				this.structure =
-				[
-					[
-						[0, 0, 0, 0],
-						[0, 1, 1, 1],
-						[0, 0, 1, 0],
-						[0, 0, 0, 0]
-					],
-					[
-						[0, 0, 1, 0],
-						[0, 1, 1, 0],
-						[0, 0, 1, 0],
-						[0, 0, 0, 0]
-					],
-					[
-						[0, 0, 1, 0],
-						[0, 1, 1, 1],
-						[0, 0, 0, 0],
-						[0, 0, 0, 0]
-					],
-					[
-						[0, 0, 1, 0],
-						[0, 0, 1, 1],
-						[0, 0, 1, 0],
-						[0, 0, 0, 0]
-					],
-				];
-				this.preview =
-				[
-					[1, 1, 1],
-					[0, 1, 0]
-				]
-				break;
-		}
-
+		this.rotation = 0; // default rotation of the piece
 		this.absolute_position = [Math.round(COLUMNS_NB / 2), 0]; // absolute origin position
 		this.relative_position = [2, 1]; // relative origin position
 	}
@@ -224,14 +177,68 @@ class Piece {
 	 * Return the current structure of the piece
 	 */
 	getStructure() {
-		return this.structure[this.rotation];
+		var index_of_type = TETRIMINOS_TYPES.indexOf(this.type);
+		return TETRIMINOS_STRUCTURES[index_of_type][this.rotation];
 	}
 	
 	/**
 	 * Return the preview's structure of the piece
 	 */
 	getPreview() {
-		return this.preview;
+		var preview = [];
+
+		switch (this.type) {
+			case TETRIMINOS_TYPES[0]: // O
+				preview =
+				[
+					[1, 1],
+					[1, 1]
+				];
+				break;
+			case TETRIMINOS_TYPES[1]: // I
+				preview =
+				[
+					[1, 1, 1, 1]
+				];
+				break;
+			case TETRIMINOS_TYPES[2]: // S
+				preview =
+				[
+					[0, 1, 1],
+					[1, 1, 0]
+				];
+				break;
+			case TETRIMINOS_TYPES[3]: // Z
+				preview =
+				[
+					[1, 1, 0],
+					[0, 1, 1]
+				];
+				break;
+			case TETRIMINOS_TYPES[4]: // L
+				preview =
+				[
+					[1, 1, 1],
+					[1, 0, 0]
+				];
+				break;
+			case TETRIMINOS_TYPES[5]: // J
+				preview =
+				[
+					[1, 1, 1],
+					[0, 0, 1]
+				];
+				break;
+			case TETRIMINOS_TYPES[6]: // T
+				preview =
+				[
+					[1, 1, 1],
+					[0, 1, 0]
+				];
+				break;
+		}
+
+		return preview;
 	}
 
 	/**
@@ -239,8 +246,8 @@ class Piece {
 	 */
 	canSpawn() {
 		// Check if each square in the piece's structure can move down, relative to the piece's position in the well
-		for (r = 0; r < this.getStructure().length; ++r) {
-			for (c = 0; c < this.getStructure()[r].length; ++c) {
+		for (var r = 0; r < this.getStructure().length; ++r) {
+			for (var c = 0; c < this.getStructure()[r].length; ++c) {
 				if (this.getStructure()[r][c] == 1) {
 					// Compute the absolute position of the square
 					// absolute position of the origin of the piece + position of the square in the piece - position of the origin in the piece
@@ -264,8 +271,8 @@ class Piece {
 	 */
 	canMoveDown() {
 		// Check if each square in the piece's structure can move down, relative to the piece's position in the well
-		for (r = 0; r < this.getStructure().length; ++r) {
-			for (c = 0; c < this.getStructure()[r].length; ++c) {
+		for (var r = 0; r < this.getStructure().length; ++r) {
+			for (var c = 0; c < this.getStructure()[r].length; ++c) {
 				if (this.getStructure()[r][c] == 1) {
 					// Compute the absolute position of the square
 					// absolute position of the origin of the piece + position of the square in the piece - position of the origin in the piece
@@ -292,8 +299,8 @@ class Piece {
 	 */
 	canMoveLeft() {
 		// Check if each square in the piece's structure can move left, relative to the piece's position in the well
-		for (r = 0; r < this.getStructure().length; ++r) {
-			for (c = 0; c < this.getStructure()[r].length; ++c) {
+		for (var r = 0; r < this.getStructure().length; ++r) {
+			for (var c = 0; c < this.getStructure()[r].length; ++c) {
 				if (this.getStructure()[r][c] == 1) {
 					// Compute the absolute position of the square
 					// absolute position of the origin of the piece + position of the square in the piece - position of the origin in the piece
@@ -319,8 +326,8 @@ class Piece {
 	 */
 	canMoveRight() {
 		// Check if each square in the piece's structure can move right, relative to the piece's position in the well
-		for (r = 0; r < this.getStructure().length; ++r) {
-			for (c = 0; c < this.getStructure()[r].length; ++c) {
+		for (var r = 0; r < this.getStructure().length; ++r) {
+			for (var c = 0; c < this.getStructure()[r].length; ++c) {
 				if (this.getStructure()[r][c] == 1) {
 					// Compute the absolute position of the square
 					// absolute position of the origin of the piece + position of the square in the piece - position of the origin in the piece
@@ -372,8 +379,8 @@ class Piece {
 		this.clockWiseRotate();
 
 		// Check if each square in the piece's structure can clockwise rotate
-		for (r = 0; r < this.getStructure().length; ++r) {
-			for (c = 0; c < this.getStructure()[r].length; ++c) {
+		for (var r = 0; r < this.getStructure().length; ++r) {
+			for (var c = 0; c < this.getStructure()[r].length; ++c) {
 				if (this.getStructure()[r][c] == 1) {
 					// Compute the absolute position of the square
 					// absolute position of the origin of the piece + position of the square in the piece - position of the origin in the piece
@@ -399,8 +406,8 @@ class Piece {
 		this.counterClockWiseRotate();
 
 		// Check if each square in the piece's structure can counterclockwise rotate
-		for (r = 0; r < this.getStructure().length; ++r) {
-			for (c = 0; c < this.getStructure()[r].length; ++c) {
+		for (var r = 0; r < this.getStructure().length; ++r) {
+			for (var c = 0; c < this.getStructure()[r].length; ++c) {
 				if (this.getStructure()[r][c] == 1) {
 					// Compute the absolute position of the square
 					// absolute position of the origin of the piece + position of the square in the piece - position of the origin in the piece
@@ -423,7 +430,8 @@ class Piece {
 	 * Clockwise rotation
 	 */
 	clockWiseRotate() {
-		this.rotation = ++this.rotation % this.structure.length; // x possible different rotations, between 0 and x
+		var index_of_type = TETRIMINOS_TYPES.indexOf(this.type);
+		this.rotation = ++this.rotation % TETRIMINOS_STRUCTURES[index_of_type].length; // x possible different rotations, between 0 and x
 		this.checkIfOutOfBounds();
 		actualizeCurrentPiece();
 	}
@@ -432,9 +440,10 @@ class Piece {
 	 * Counterclockwise rotation
 	 */
 	counterClockWiseRotate() {
+		var index_of_type = TETRIMINOS_TYPES.indexOf(this.type);
 		this.rotation = --this.rotation;
 		if (this.rotation < 0) {
-			this.rotation += this.structure.length;
+			this.rotation += TETRIMINOS_STRUCTURES[index_of_type].length;
 		}
 		this.checkIfOutOfBounds();
 		actualizeCurrentPiece();
@@ -444,8 +453,8 @@ class Piece {
 		// Check if each square in the piece's structure is out of bounds, retain the furthest and move the piece consequently
 		var highest_gap = 0; // can be < 0 or > 0
 
-		for (r = 0; r < this.getStructure().length; ++r) {
-			for (c = 0; c < this.getStructure()[r].length; ++c) {
+		for (var r = 0; r < this.getStructure().length; ++r) {
+			for (var c = 0; c < this.getStructure()[r].length; ++c) {
 				if (this.getStructure()[r][c] == 1) {
 					// Compute the x absolute position of the square
 					// x absolute position of the origin of the piece + x position of the square in the piece - x position of the origin in the piece
@@ -479,42 +488,25 @@ class Square {
 class Gift {
 	constructor(name) {
 		this.name = name;
-		// &#9790; lune
-		// &#9208; pause
-		// &#128123; or &#128123; ghost
-		switch (this.name) {
-			case GIFTS_TYPES[0]: // add_row
-				this.symbol = "&#9650;";
-				break;
-			case GIFTS_TYPES[1]: // rumble (wizz)
-				this.symbol = "&#8967;&#8967;";
-				break;
-			case GIFTS_TYPES[2]: // high_speed
-				this.symbol = "&#9193;";
-				break;
-			case GIFTS_TYPES[3]: // nuke
-				this.symbol = "&#9762;";
-				break;
-			case GIFTS_TYPES[4]: // rotate
-				this.symbol = "&#8635;";
-				break;
-			case GIFTS_TYPES[5]: // remove_row
-				this.symbol = "&#9660";
-		}
+	}
+
+	getSymbol() {
+		var index_of_name = GIFTS_NAMES.indexOf(this.name);
+		return GIFTS_SYMBOLS[index_of_name];
 	}
 
 	launch() {
 		switch (this.name) {
-			case GIFTS_TYPES[0]: // add_row
+			case GIFTS_NAMES[0]: // add_row
 				// If the highest row contains a square, it's a game over
-				for (c = 0; c < MATRIX[0].length; ++c) {
+				for (var c = 0; c < MATRIX[0].length; ++c) {
 					if (MATRIX[0][c] != null) {
 						gameOver();
 					}
 				}
 				// For each row, move its squares to the row above
-				for (r = 0; r < MATRIX.length - 1; ++r) { // start with the highest row
-					for (c = 0; c < MATRIX[r].length; ++c) {
+				for (var r = 0; r < MATRIX.length - 1; ++r) { // start with the highest row
+					for (var c = 0; c < MATRIX[r].length; ++c) {
 						// Up the bottom square, from the matrix and the well
 						MATRIX[r][c] = MATRIX[r + 1][c];
 						if (MATRIX[r + 1][c] != null) {
@@ -525,7 +517,7 @@ class Gift {
 				}
 				// Generate a new random row and append its squares
 				var hole_position = Math.round(Math.random() * (COLUMNS_NB - 1));
-				for (c = 0; c < COLUMNS_NB; ++c) {
+				for (var c = 0; c < COLUMNS_NB; ++c) {
 					if (c != hole_position) {
 						// Pick a random square's type
 						var type = Math.round(Math.random() * 6);
@@ -545,7 +537,7 @@ class Gift {
 					}
 				}
 				break;
-			case GIFTS_TYPES[1]: // rumble (wizz)
+			case GIFTS_NAMES[1]: // rumble (wizz)
 				var board = document.getElementsByTagName("board")[0];
 				var delay = 50;
 				var time_spent = 0;
@@ -563,14 +555,14 @@ class Gift {
 				board.style.marginLeft = "0px";
 				board.style.marginTop = "0px";
 				break;
-			case GIFTS_TYPES[2]: // high_speed
+			case GIFTS_NAMES[2]: // high_speed
 				var delta = 5;
 				SPEED += delta;
 				setTimeout(function() {
 					SPEED -= delta;
 				}, 2000);
 				break;
-			case GIFTS_TYPES[3]: // nuke
+			case GIFTS_NAMES[3]: // nuke
 				var matrix = [];
 				// Fill the matrix with null squares
 				for (var r = 0; r < ROWS_NB; ++r) {
@@ -582,31 +574,33 @@ class Gift {
 				}
 				MATRIX = matrix;
 				var childs_to_delete = [];
-				for (c in WELL.getElementsByTagName("square")) {
+				for (var c in WELL.getElementsByTagName("square")) {
 					var child = WELL.getElementsByTagName("square")[c];
 					if (child.id && child.id != "") {
 						childs_to_delete.push(child);
 					}
 				}
-				for (c in childs_to_delete) {
+				for (var c in childs_to_delete) {
 					WELL.removeChild(childs_to_delete[c]);
 				}
 				break;
-			case GIFTS_TYPES[4]: // rotate
+			case GIFTS_NAMES[4]: // rotate
 				var board = document.getElementsByTagName("board")[0];
 				board.style.transform = "rotateZ(180deg)";
 				setTimeout(function() {
 					board.style.transform = "rotateZ(360deg)";
 				}, 3000);
 				break;
-			case GIFTS_TYPES[5]: // remove_row
+			case GIFTS_NAMES[5]: // remove_row
 				// Remove the HTML squares of the lowest row
-				for (c = 0; c < MATRIX[MATRIX.length - 1].length; ++c) {
-					WELL.removeChild(document.getElementById(MATRIX[MATRIX.length - 1][c].id));
+				for (var c = 0; c < MATRIX[MATRIX.length - 1].length; ++c) {
+					if (MATRIX[MATRIX.length - 1][c] != null) {
+						WELL.removeChild(document.getElementById(MATRIX[MATRIX.length - 1][c].id));
+					}
 				}
 				// For each row, move its squares to the row under
-				for (r = MATRIX.length - 1; r > 0; --r) { // start with the lowest row
-					for (c = 0; c < MATRIX[r].length; ++c) {
+				for (var r = MATRIX.length - 1; r > 0; --r) { // start with the lowest row
+					for (var c = 0; c < MATRIX[r].length; ++c) {
 						// Down the top square, from the matrix and the well
 						MATRIX[r][c] = MATRIX[r - 1][c];
 						if (MATRIX[r - 1][c] != null) {

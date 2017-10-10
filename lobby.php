@@ -45,13 +45,13 @@ $is_ready = $player["is_ready"];
 			<article>
 				<ul id="players">
 					<li class="<?php echo ($is_ready == 1) ? "ready" : ""; ?>">
-						<winner>&#127775;</winner>
+						<winner></winner>
 						<input type="text" onkeyup="renamePlayer(this)" value="<?php echo $pseudo; ?>" required />
-						<stats>
+						<!-- <stats>
 							<pieces></pieces>
 							<time></time>
 							<apm></apm>
-						</stats>
+						</stats> -->
 						<medals>
 						</medals>
 					</li>
@@ -65,6 +65,9 @@ $is_ready = $player["is_ready"];
 				</chat>
 			</article>
 		</lobby>
+
+		<countdown>
+		</countdown>
 		
 		<game class="invisible">
 			<article>
