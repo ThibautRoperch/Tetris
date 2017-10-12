@@ -20,7 +20,8 @@ if (isset($_SESSION["lobby"]) && isset($_SESSION["player"])) {
 			\"id\" : ".$row["player_id"].",
 			\"name\" : \"".$player."\",
 			\"matrix\" : \"".addslashes($row["player_matrix"])."\",
-			\"items\" : \"".addslashes($row["items_list"])."\"
+			\"items\" : \"".addslashes($row["items_list"])."\",
+			\"is_loser\" : ".addslashes($row["is_loser"])."
 		}";
 	}
 	$datas .= "]";

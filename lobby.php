@@ -23,7 +23,7 @@ $is_ready = $player["is_ready"];
 
 <head>
 	<meta charset="UTF-8">
-	<title>Tetris Lobby <?php echo $_GET["id"]; ?></title>
+	<title>Lobby <?php echo $_GET["id"]; ?></title>
 	<link rel="stylesheet" href="css/main.css">
 	<link rel="stylesheet" href="css/lobby.css">
 	<link rel="stylesheet" href="css/game.css">
@@ -32,7 +32,7 @@ $is_ready = $player["is_ready"];
 <body onkeydown="keyPressed(event)">
 	
 	<header>
-		<h1><a href="index.php">TETRIS</a></h1>
+		<h1><a href="index.php">TERTIS 2000</a></h1>
 	</header>
 
 	<section>

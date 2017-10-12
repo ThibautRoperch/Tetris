@@ -475,8 +475,18 @@ function gameOver() {
 	GAME_OVER = true;
 	// Stop the timer clock
 	clearTimeout(TIMER_CLOCK);
-	// TODO message de game over
-	// idée : faire "tomber" les cubes : commencer par ceux en bas, leur donner une position random en y, en fonction de leur position pour effet de tas, et rotation aléatoire (+ ou - 20 deg)
+	// For each row, move its squares like if they were falling in the well
+	for (var r = 0; r < MATRIX.length - 1; ++r) { // start with the highest row
+		for (var c = 0; c < MATRIX[r].length; ++c) {
+			// Down the square, only from the well
+			if (MATRIX[r][c] != null) {
+				var y = ROWS_NB - r/2;
+				document.getElementById(MATRIX[r][c].id).style.marginTop = UNITE * y + "px";
+				var rotation = Math.floor(Math.random() * 40) - 20;
+				document.getElementById(MATRIX[r][c].id).style.transform = "rotateZ(" + rotation + "deg)";
+			}
+		}
+	}
 	// Set the player as not playing
 	executeScript("player_game_over.php", nothing);
 }

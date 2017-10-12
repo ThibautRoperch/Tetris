@@ -15,7 +15,7 @@ if (isset($_SESSION["lobby"]) && isset($_SESSION["player"])) {
 	$players_playing = $dbh->query("SELECT * FROM players WHERE lobby_id = $lobby_id AND last_timestamp > 0 AND is_ready = 1 AND is_playing = 1");
 	// Set the user as not winner if there is still at least one player playing in the lobby
 	if ($players_playing->rowCount() > 0) {
-		$dbh->exec("UPDATE game_datas SET is_winner = 0 WHERE player_id = $player_id");
+		$dbh->exec("UPDATE game_datas SET is_loser = 1 WHERE player_id = $player_id");
 	}
 	
 	include_once("close_connection.php");

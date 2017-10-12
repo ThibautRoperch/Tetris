@@ -144,8 +144,8 @@ var TETRIMINOS_STRUCTURES = [
 
 var SQUARE_ID = 0; // A.I.
 
-var GIFTS_NAMES		=	["add_row",	"rumble",			"high_speed",	"nuke",		"rotate",	"remove_row"];
-var GIFTS_SYMBOLS	=	["&#9650;",	"&#8967;&#8967;",	"&#9193;",		"&#9762;",	"&#8635;",	"&#9660;"];
+var GIFTS_NAMES		=	["add_row",	"rumble",			"high_speed",	"nuke",		"rotate",	"remove_row",	"pause"];
+var GIFTS_SYMBOLS	=	["&#9650;",	"&#8967;&#8967;",	"&#9193;",		"&#9762;",	"&#8635;",	"&#9660;",		"&#9208;"];
 // &#9790; lune
 // &#9208; pause
 // &#128123; or &#128123; ghost
@@ -516,11 +516,11 @@ class Gift {
 					}
 				}
 				// Generate a new random row and append its squares
-				var hole_position = Math.round(Math.random() * (COLUMNS_NB - 1));
+				var hole_position = Math.floor(Math.random() * COLUMNS_NB);
 				for (var c = 0; c < COLUMNS_NB; ++c) {
 					if (c != hole_position) {
 						// Pick a random square's type
-						var type = Math.round(Math.random() * 6);
+						var type = Math.floor(Math.random() * TETRIMINOS_TYPES.length);
 						// Create and append a new square to the new row and the well
 						var new_square = new Square(SQUARE_ID++, TETRIMINOS_TYPES[type]);
 						MATRIX[ROWS_NB - 1][c] = new_square;
@@ -609,6 +609,12 @@ class Gift {
 						MATRIX[r - 1][c] = null;
 					}
 				}
+				break;
+			case GIFTS_NAMES[5]: // pause
+				GAME_OVER = true;
+				setTimeout(function() {
+					GAME_OVER = false;
+				}, 2000);					
 				break;
 		}
 	}

@@ -107,7 +107,7 @@ function retrieveStatistics(contents) {
 	STATISTICS = contents;
 
 	// Display stats of the player ([0])
-	list.getElementsByTagName("li")[0].getElementsByTagName("winner")[0].innerHTML = (STATISTICS[0].is_winner) ? "&#127775;<bubble>Game duration: " + TIMER.innerHTML + "</bubble>" : "";
+	list.getElementsByTagName("li")[0].getElementsByTagName("winner")[0].innerHTML = (!STATISTICS[0].is_loser) ? "&#127775;<bubble>Game duration: " + TIMER.innerHTML + "</bubble>" : "";
 	// list.getElementsByTagName("li")[0].getElementsByTagName("pieces")[0].innerHTML = STATISTICS[0].pieces_dropped + " pieces";
 	// list.getElementsByTagName("li")[0].getElementsByTagName("time")[0].innerHTML = STATISTICS[0].player_time + " seconds";
 	// list.getElementsByTagName("li")[0].getElementsByTagName("apm")[0].innerHTML = Math.round(STATISTICS[0].pieces_dropped / (STATISTICS[0].player_time / 60)) + " p/m";
@@ -166,7 +166,7 @@ function displayPlayers(contents) {
 		var player_stats = statsOfPlayer(PLAYERS[p].id);
 		if (player_stats != null) {
 			// Display his stats
-			list.getElementsByTagName("li")[p + 1].getElementsByTagName("winner")[0].innerHTML = (player_stats.is_winner) ? "&#127775;<bubble>Game duration: " + TIMER.innerHTML + "</bubble>" : "";
+			list.getElementsByTagName("li")[p + 1].getElementsByTagName("winner")[0].innerHTML = (!player_stats.is_loser) ? "&#127775;<bubble>Game duration: " + TIMER.innerHTML + "</bubble>" : "";
 			list.getElementsByTagName("li")[p + 1].getElementsByTagName("pieces")[0].innerHTML = player_stats.pieces_dropped + " pieces";
 			list.getElementsByTagName("li")[p + 1].getElementsByTagName("time")[0].innerHTML = player_stats.player_time + " seconds";
 			list.getElementsByTagName("li")[p + 1].getElementsByTagName("apm")[0].innerHTML = Math.round(player_stats.pieces_dropped / (player_stats.player_time / 60)) + "p/m";
@@ -356,7 +356,10 @@ function displayOthersPlayers(contents) {
 	while (document.getElementsByTagName("others")[0].hasChildNodes()) {
 		document.getElementsByTagName("others")[0].removeChild(document.getElementsByTagName("others")[0].lastChild);
 	}
+
+	// The first target is the player
 	targets = [""];
+
 	// Display each other player name and player matrix in a new HTML element
 	for (m in contents) {
 		// Create HTML elements
@@ -364,10 +367,13 @@ function displayOthersPlayers(contents) {
 			var name = document.createElement("name");
 				name.innerHTML = parseInt(targets.length) + " : " + contents[m].name;
 			var field = document.createElement("field");
+			var item = document.createElement("item");
 			player.appendChild(name);
 			player.appendChild(field);
+			player.appendChild(item);
 			player.style.width = UNITE * (NEXT_PIECE.getStructure()[0].length + 1) + "px";
 		document.getElementsByTagName("others")[0].appendChild(player);
+
 		// Append squares from the matrix (if it's not empty) to the field
 		if (contents[m].matrix != "") {
 			var json_matrix = JSON.parse(contents[m].matrix);
@@ -387,7 +393,15 @@ function displayOthersPlayers(contents) {
 				field.appendChild(row);
 			}
 		}
-		// TODO afficher le dernier item (contents[m].items[0])
+
+		// Display the first item of the player, or a dead mark if it's a game over for him
+		if (contents[m].winner == 0) {
+			var first_item = new Gift(contents[m].items[0].name);
+			item.innerHTML = first_item.getSymbol();
+		}
+
+		// TODO Afficher l'effet si y'en a un (player_stats.effect = "shield", ...), 
+
 		// Save this player as a target
 		targets.push(contents[m].id);
 	}

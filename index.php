@@ -11,7 +11,7 @@ $player_id = $_SESSION["player"];
 
 <head>
 	<meta charset="UTF-8">
-	<title>Tetris</title>
+	<title>TERTIS 2000</title>
 	<link rel="stylesheet" href="css/main.css">
 	<link rel="stylesheet" href="css/index.css">
 </head>
@@ -19,7 +19,7 @@ $player_id = $_SESSION["player"];
 <body onload="executeScript('player_deconnection.php', nothing)">
 	
 	<header>
-		<h1><a href="index.php">TETRIS</a></h1>
+		<h1><a href="index.php">TERTIS 2000</a></h1>
 	</header>
 
 	<section>

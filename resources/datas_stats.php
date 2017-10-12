@@ -19,7 +19,7 @@ if (isset($_SESSION["lobby"]) && isset($_SESSION["player"])) {
 			\"lines_cleared\" : ".$row["lines_cleared"].",
 			\"items_sent\" : ".$row["items_sent"].",
 			\"did_tetris\" : ".$row["did_tetris"].",
-			\"is_winner\" : ".$row["is_winner"]."
+			\"is_loser\" : ".$row["is_loser"]."
 		}";
 	}
 	foreach($dbh->query("SELECT * FROM game_datas WHERE player_id IN (SELECT id FROM players WHERE lobby_id = $lobby_id) AND player_id != $player_id") as $row) {
@@ -32,7 +32,7 @@ if (isset($_SESSION["lobby"]) && isset($_SESSION["player"])) {
 			\"lines_cleared\" : ".$row["lines_cleared"].",
 			\"items_sent\" : ".$row["items_sent"].",
 			\"did_tetris\" : ".$row["did_tetris"].",
-			\"is_winner\" : ".$row["is_winner"]."
+			\"is_loser\" : ".$row["is_loser"]."
 		}";
 	}
 	$stats .= "]";
