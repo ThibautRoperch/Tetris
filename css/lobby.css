@@ -189,6 +189,7 @@ game article timer {
 	text-align: center;
 	background: rgba(255, 255, 255, 0.1);
 	box-shadow: 0 0px 2px 1px rgba(0, 0, 0, 0.4) inset;
+	-webkit-box-shadow: 0 0px 2px 1px rgba(0, 0, 0, 0.4) inset;
 	border-radius: 5px;
 }
 
@@ -207,6 +208,7 @@ game article others player {
 	margin: 10px;
 	border: 7px outset rgba(0, 0, 0, 0.05);
 	box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.15) inset, 0 0 1px 3px rgba(0, 0, 0, 0.15);
+	-webkit-box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.15) inset, 0 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
 game article others player name {
@@ -232,4 +234,5 @@ game article others player field row square {
 	flex: 1;
 	border-radius: 0;
 	box-shadow: 0 0 0px 2px rgba(0, 0, 0, 0.2) inset;
+	-webkit-box-shadow: 0 0 0px 2px rgba(0, 0, 0, 0.2) inset;
 }

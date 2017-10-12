@@ -13,6 +13,7 @@ board {
 	border-bottom-color: rgba(0, 0, 0, 0.2);
 	background: #1D2A37;
 	transition: all 0.05s ease;
+	-webkit-transition: all 0.05s ease;
 }
 
 board div {
@@ -31,6 +32,7 @@ well, hitboxes, next, items {
 	border-bottom-color: #263747;
 	border-radius: 3px;
 	box-shadow: 0 0 1px rgba(0, 0, 0, 0.2), 0 0 2px 5px rgba(0, 0, 0, 0.3) inset;
+	-webkit-box-shadow: 0 0 1px rgba(0, 0, 0, 0.2), 0 0 2px 5px rgba(0, 0, 0, 0.3) inset;
 }
 
 well {
@@ -55,18 +57,17 @@ tetrimino {
 	position: absolute;
 	display: flex;
 	flex-wrap: wrap;
-	
 }
 
 tetrimino, square, well column {
 	transition: all 0.13s ease;	
+	-webkit-transition: all 0.13s ease;	
 }
 
 square {
 	font-size: 12px;
 	line-height: 200%;
 	text-align: center;
-	/* box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.3) inset; */
 	border-width: 0;
 	border-style: solid;
 	border-top-color: rgba(255, 255, 255, 0.3);
@@ -111,8 +112,9 @@ square.T {
 
 square.invisible {
 	background-color: transparent;
-	box-shadow: none;
 	border-color: transparent;
+	box-shadow: none;
+	-webkit-box-shadow: none;
 }
 
 items {
@@ -128,4 +130,23 @@ items item {
 	text-align: center;
 	background: rgba(255, 255, 255, 0.1);
 	border: 3px outset rgba(255, 255, 255, 0.5);
+}
+
+pause {
+	display: none;
+	position: absolute;
+	padding: 10px;
+	color: white;
+	font-size: 26px;
+	text-align: center;
+	background: rgba(0, 0, 0, 0.3);
+}
+
+pause.visible {
+	display: block;
+}
+
+pause::before {
+	position: absolute;
+	content: "PAUSE";
 }

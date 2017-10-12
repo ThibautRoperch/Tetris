@@ -563,25 +563,14 @@ class Gift {
 				}, 2000);
 				break;
 			case GIFTS_NAMES[3]: // nuke
-				var matrix = [];
-				// Fill the matrix with null squares
-				for (var r = 0; r < ROWS_NB; ++r) {
-					var row = [];
-					for (var c = 0; c < COLUMNS_NB; ++c) {
-						row.push(null);
+				// For each row, remove its squares
+				for (var r = 0; r < MATRIX.length; --r) {
+					for (var c = 0; c < MATRIX[r].length; ++c) {
+						if (MATRIX[r][c] != null) {
+							WELL.removeChild(document.getElementById(MATRIX[r][c].id));
+							MATRIX[r][c] = null;
+						}
 					}
-					matrix.push(row);
-				}
-				MATRIX = matrix;
-				var childs_to_delete = [];
-				for (var c in WELL.getElementsByTagName("square")) {
-					var child = WELL.getElementsByTagName("square")[c];
-					if (child.id && child.id != "") {
-						childs_to_delete.push(child);
-					}
-				}
-				for (var c in childs_to_delete) {
-					WELL.removeChild(childs_to_delete[c]);
 				}
 				break;
 			case GIFTS_NAMES[4]: // rotate
@@ -614,7 +603,7 @@ class Gift {
 				GAME_OVER = true;
 				setTimeout(function() {
 					GAME_OVER = false;
-				}, 2000);					
+				}, 2000);
 				break;
 		}
 	}

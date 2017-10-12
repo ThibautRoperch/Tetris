@@ -370,6 +370,30 @@ function blockCurrentPiece() {
 }
 
 /**
+ * Pause the game while the given delay in seconds
+ */
+function setPause(delay) {
+	var pause = document.getElementsByClassName("pause")[0];
+	var delay_before = parseFloat(pause.innerHTML);
+	pause.innerHTML = delay_before + delay;
+	// If the counter was at 0 seconds, display the filter and start the countdown
+	if (delay_before == 0) {
+		pause.className = "visible";
+		function countdown() {
+			// If the delay is at 0 seconds, undisplay the filter and don't continue the countdown
+			if (parseFloat(pause.innerHTML) == 0) {
+				pause.className = "";
+			} else {
+				setTimeout(function() {
+					pause.innerHTML = parseFloat(pause.innerHTML) - 100;
+					countdown();
+				}, 100);
+			}
+		}
+	}
+}
+
+/**
  * Manage the HTML onkeydown event
  */
 function keyPressed(event) {
@@ -570,12 +594,17 @@ function retrievedGameDatas(contents) {
 	WELL.style.width = UNITE * COLUMNS_NB + "px";
 	WELL.style.height = UNITE * ROWS_NB + "px";
 
-	// Displays wells's columns
+	// Display wells's columns
 	for (var c = 0; c < COLUMNS_NB; ++c) {
 		var column = document.createElement("column");
 		column.style.width = UNITE + "px";
 		WELL.appendChild(column);
 	}
+
+	// Display filters (counters, other messages, ...)
+	var pause = document.createElement("pause");
+		pause.style.width = UNITE * COLUMNS_NB + "px";
+		WELL.appendChild(pause);
 
 	// If the database's prepared piece isn't empty, retrieve it, prepare one otherwise
 	if (contents[0].next_piece != "") {
